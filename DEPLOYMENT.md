@@ -60,12 +60,14 @@
 ### 1.5 Configurer l'authentification
 
 1. Allez dans **Authentication** (icône personne dans la barre latérale)
-2. Cliquez **"Providers"** dans le menu
-3. Vérifiez que **Email** est activé
-4. Dans **"Email Templates"**, personnalisez si vous le souhaitez (pas obligatoire)
-5. Dans **URL Configuration** :
+2. Cliquez **"Configuration"** dans le menu à gauche
+3. Dans la section **"Email"**, vérifiez que l'authentification par email est **activée** (Enable Email provider = ON)
+4. Désactivez **"Confirm email"** si vous voulez que les utilisateurs puissent se connecter immédiatement sans confirmer leur email (recommandé pour les tests)
+5. Dans **"URL Configuration"** (toujours dans Configuration) :
    - **Site URL** : `https://jurya.vercel.app` (vous le changerez après le déploiement)
-   - **Redirect URLs** : ajoutez `https://jurya.vercel.app/**` et `http://localhost:3000/**`
+   - **Redirect URLs** : cliquez **"Add URL"** et ajoutez :
+     - `https://jurya.vercel.app/**`
+     - `http://localhost:3000/**`
 
 ---
 
