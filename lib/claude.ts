@@ -79,13 +79,7 @@ ${rubriqueText}`
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
-    system: [
-      {
-        type: 'text',
-        text: systemPrompt,
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
+    system: systemPrompt,
     messages: [
       ...(contextMessage ? [{ role: 'user' as const, content: contextMessage }] : []),
       ...conversationHistory,
@@ -120,13 +114,7 @@ Produisez le rapport d'évaluation en JSON.`
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 2048,
-    system: [
-      {
-        type: 'text',
-        text: FEEDBACK_SYSTEM_PROMPT,
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
+    system: FEEDBACK_SYSTEM_PROMPT,
     messages: [
       { role: 'user', content: prompt },
     ],
