@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
 import { countFillerWords, calculateSpeakingPace } from '@/lib/types/simulation'
 
-interface SpeechRecognitionResult {
+interface VoiceRecognitionResult {
   transcript: string
   isFinal: boolean
 }
