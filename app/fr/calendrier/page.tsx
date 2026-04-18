@@ -80,7 +80,7 @@ export default function CalendrierPage() {
       .order('inscription_close_date', { ascending: true })
 
     if (!error && data) {
-      setSessions(data as ConcoursSessionRow[])
+      setSessions(data as unknown as ConcoursSessionRow[])
     }
     setLoading(false)
   }

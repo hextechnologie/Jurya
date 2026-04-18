@@ -78,7 +78,7 @@ export default function ConcoursDetailPage() {
       .single()
 
     if (concoursData) {
-      setConcours(concoursData as ConcoursDetail)
+      setConcours(concoursData as unknown as ConcoursDetail)
 
       const { data: sessionData } = await supabase
         .from('concours_sessions')
@@ -87,7 +87,7 @@ export default function ConcoursDetailPage() {
         .order('year', { ascending: false })
 
       if (sessionData) {
-        setSessions(sessionData as SessionDetail[])
+        setSessions(sessionData as unknown as SessionDetail[])
       }
 
       // Check if reminder is enabled
