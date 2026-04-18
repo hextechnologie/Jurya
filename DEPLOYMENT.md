@@ -43,32 +43,21 @@
    - **anon public key** → c'est votre `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - **service_role secret key** → c'est votre `SUPABASE_SERVICE_ROLE_KEY` ⚠️ Ne la partagez jamais
 
-### 1.4 Créer les tables (schéma de base)
+### 1.4 Créer les tables et insérer les données
 
 1. Dans Supabase, cliquez **"SQL Editor"** (icône terminal dans la barre latérale)
 2. Cliquez **"New query"**
-3. Ouvrez le fichier `supabase/schema.sql` de votre projet
+3. Ouvrez le fichier `supabase/migrations/002_jurya_v2_complete.sql` de votre projet
 4. Copiez **tout** le contenu et collez-le dans l'éditeur SQL
 5. Cliquez **"Run"** (ou Ctrl+Enter)
 6. Vous devriez voir "Success. No rows returned" — c'est normal !
+7. Vérifiez dans **Table Editor** (icône tableau) que vous avez les tables :
+   - `profiles`, `concours`, `simulations`, `candidate_profiles`, `simulation_turns`, `simulation_reports`, `subscription_plans`, `resources`, etc.
+8. Vérifiez que la table `concours` contient 5 entrées (Rédacteur territorial, Attaché territorial, IRA, CRFPA, HEC)
 
-### 1.5 Appliquer la migration V2
+> 💡 **Un seul fichier suffit** : `002_jurya_v2_complete.sql` crée toutes les tables, les politiques de sécurité (RLS) et les données de base. Vous n'avez **pas besoin** de lancer `schema.sql` ou `seed.sql` séparément.
 
-1. Toujours dans **SQL Editor**, cliquez **"New query"**
-2. Ouvrez `supabase/migrations/002_jurya_v2_complete.sql`
-3. Copiez-collez tout le contenu
-4. Cliquez **"Run"**
-5. Vérifiez dans **Table Editor** (icône tableau) que vous avez les nouvelles tables :
-   - `candidate_profiles`, `simulation_turns`, `simulation_reports`, `subscription_plans`, `resources`, etc.
-
-### 1.6 Insérer les données de base (seed)
-
-1. Toujours dans **SQL Editor**, cliquez **"New query"**
-2. Ouvrez `supabase/seed.sql`
-3. Copiez-collez et cliquez **"Run"**
-4. Vérifiez dans **Table Editor** que la table `concours` contient des données
-
-### 1.7 Configurer l'authentification
+### 1.5 Configurer l'authentification
 
 1. Allez dans **Authentication** (icône personne dans la barre latérale)
 2. Cliquez **"Providers"** dans le menu
