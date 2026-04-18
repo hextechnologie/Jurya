@@ -559,7 +559,7 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 {user ? (
-                  <Link href="/interview/setup">
+                  <Link href="/simulation/setup">
                     <Button variant="primary" className="text-lg px-10 py-4">Commencer la simulation</Button>
                   </Link>
                 ) : (

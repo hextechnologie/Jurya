@@ -252,7 +252,7 @@ export default function SummaryPage() {
 
         {/* Action Buttons */}
         <div className="flex items-center justify-center gap-4">
-          <Link href="/interview/setup">
+          <Link href="/simulation/setup">
             <Button variant="primary" className="text-lg">
               Lancer une nouvelle simulation
             </Button>

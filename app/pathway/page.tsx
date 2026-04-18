@@ -347,7 +347,7 @@ export default function PathwayPage() {
                       {/* quick actions for current week */}
                       {isCurrent && (
                         <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10 mt-2">
-                          <Link href="/interview" className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs hover:bg-primary/20 transition">
+                          <Link href="/simulation/setup" className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs hover:bg-primary/20 transition">
                             <Mic className="w-3 h-3" /> Lancer une simulation
                           </Link>
                           <Link href="/content" className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/10 text-secondary rounded-lg text-xs hover:bg-secondary/20 transition">

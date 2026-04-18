@@ -345,7 +345,7 @@ export default function DashboardPage() {
             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
               <p className="text-xs text-gray-400 mb-1">Prochaine simulation</p>
               <p className="font-medium">{plan && currentWeek ? `Semaine ${currentWeek} du plan` : 'Planifiez votre prochaine session'}</p>
-              <Link href="/interview" className="text-primary text-sm mt-2 inline-flex items-center gap-1 hover:underline">
+              <Link href="/simulation/setup" className="text-primary text-sm mt-2 inline-flex items-center gap-1 hover:underline">
                 Lancer <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -435,7 +435,7 @@ export default function DashboardPage() {
         {/* ── Quick Actions ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { href: '/interview', icon: Mic, title: 'Nouvelle simulation', desc: 'Entraînez-vous dans les conditions du concours', gradient: 'from-purple-600/20 to-blue-600/20' },
+            { href: '/simulation/setup', icon: Mic, title: 'Nouvelle simulation', desc: 'Entraînez-vous dans les conditions du concours', gradient: 'from-purple-600/20 to-blue-600/20' },
             { href: '/calendar', icon: Calendar, title: 'Voir le calendrier', desc: 'Dates et échéances des concours', gradient: 'from-blue-600/20 to-cyan-600/20' },
             { href: '/coaches', icon: BookOpen, title: 'Contacter un coach', desc: "Bénéficiez de l'expertise d'un ancien jury", gradient: 'from-emerald-600/20 to-teal-600/20' },
           ].map((action, i) => (
