@@ -1,8 +1,175 @@
 -- ============================================================
--- Jurya V2 — Complete Database Schema
--- Run AFTER the existing schema.sql + jurya_domain_model.sql
--- This migration adds all tables from the full data model
+-- Jurya V2 — Complete Database Schema (SELF-CONTAINED)
+-- This file creates ALL required tables from scratch.
+-- Safe to run on a fresh Supabase project — uses IF NOT EXISTS.
 -- ============================================================
+
+-- ============================================================
+-- PREREQUISITE: Base tables (from schema.sql)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  email TEXT NOT NULL,
+  full_name TEXT,
+  user_type TEXT DEFAULT 'candidate' CHECK (user_type IN ('candidate', 'coach', 'both')),
+  avatar_url TEXT,
+  target_job_field TEXT,
+  experience_level TEXT CHECK (experience_level IN ('junior', 'mid', 'senior')),
+  subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'basic', 'pro', 'team')),
+  stripe_customer_id TEXT,
+  stripe_subscription_id TEXT,
+  interviews_used_this_month INTEGER DEFAULT 0,
+  interviews_limit INTEGER DEFAULT 3,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+CREATE TABLE IF NOT EXISTS public.coach_profiles (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  title TEXT,
+  bio TEXT,
+  specializations TEXT[] DEFAULT '{}',
+  experience_years INTEGER DEFAULT 0,
+  hourly_rate DECIMAL(10, 2),
+  currency TEXT DEFAULT 'EUR',
+  is_active BOOLEAN DEFAULT true,
+  stripe_account_id TEXT,
+  total_reviews INTEGER DEFAULT 0,
+  rating DECIMAL(3, 2) DEFAULT 0.00,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- ============================================================
+-- PREREQUISITE: Jurya domain model (from jurya_domain_model.sql)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.concours (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  type TEXT NOT NULL CHECK (type IN ('territorial', 'état', 'hospitalière', 'grande_école', 'CRFPA', 'autre')),
+  grade TEXT NOT NULL,
+  intitulé TEXT NOT NULL,
+  coefficient_oral NUMERIC(3,1) DEFAULT 1.0,
+  durée_épreuve_minutes INTEGER NOT NULL DEFAULT 30,
+  rubrique_jury JSONB DEFAULT '{}'::jsonb,
+  country TEXT NOT NULL DEFAULT 'FR',
+  organisme_organisateur TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+CREATE INDEX IF NOT EXISTS idx_concours_country ON public.concours(country);
+CREATE INDEX IF NOT EXISTS idx_concours_type ON public.concours(type);
+
+CREATE TABLE IF NOT EXISTS public.simulations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  concours_id UUID REFERENCES public.concours(id) ON DELETE SET NULL,
+  type TEXT NOT NULL CHECK (type IN ('grand_oral', 'mise_en_situation', 'exposé_motivation', 'épreuve_technique')),
+  status TEXT DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed', 'abandoned')),
+  overall_score DECIMAL(3, 1),
+  started_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  completed_at TIMESTAMP WITH TIME ZONE,
+  total_questions INTEGER DEFAULT 0,
+  questions_answered INTEGER DEFAULT 0,
+  simulation_config JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+CREATE INDEX IF NOT EXISTS idx_simulations_user ON public.simulations(user_id);
+CREATE INDEX IF NOT EXISTS idx_simulations_concours ON public.simulations(concours_id);
+
+CREATE TABLE IF NOT EXISTS public.concours_sessions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  concours_id UUID REFERENCES public.concours(id) ON DELETE CASCADE NOT NULL,
+  year INTEGER NOT NULL,
+  country TEXT NOT NULL DEFAULT 'FR',
+  inscription_open_date DATE,
+  inscription_close_date DATE,
+  épreuves_écrites_date DATE,
+  épreuves_orales_start_date DATE,
+  épreuves_orales_end_date DATE,
+  résultats_date DATE,
+  source_url TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  UNIQUE(concours_id, year, country)
+);
+
+-- Add coach jury columns if not present
+ALTER TABLE public.coach_profiles
+  ADD COLUMN IF NOT EXISTS ancien_membre_jury BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS spécialités_concours TEXT[] DEFAULT '{}';
+
+-- ============================================================
+-- PREREQUISITE SEED: Concours + Sessions (needed by later SEEDs)
+-- ============================================================
+
+INSERT INTO public.concours (type, grade, "intitulé", coefficient_oral, "durée_épreuve_minutes", rubrique_jury, country, organisme_organisateur)
+VALUES
+(
+  'territorial', 'B', 'Rédacteur territorial', 3.0, 20,
+  '{"exposé_motivation":{"durée_minutes":5,"description":"Exposé du candidat sur son parcours et sa motivation pour exercer les fonctions de rédacteur territorial."},"entretien_jury":{"durée_minutes":15,"description":"Questions du jury portant sur les connaissances administratives, la culture territoriale, les missions du cadre d''emplois et la mise en situation professionnelle."}}'::jsonb,
+  'FR', 'CNFPT / CDG'
+),
+(
+  'territorial', 'A', 'Attaché territorial', 4.0, 25,
+  '{"exposé_parcours":{"durée_minutes":5,"description":"Présentation par le candidat de son parcours, ses compétences et sa motivation."},"entretien_jury":{"durée_minutes":20,"description":"Échange avec le jury sur les aptitudes du candidat à exercer les missions d''attaché, ses connaissances de l''environnement territorial, le management et la conduite de projets."}}'::jsonb,
+  'FR', 'CNFPT / CDG'
+),
+(
+  'état', 'A', 'IRA – Instituts Régionaux d''Administration (concours externe)', 4.0, 25,
+  '{"mise_en_situation_collective":{"durée_minutes":null,"description":"Épreuve collective de mise en situation : les candidats interagissent en groupe sur un cas pratique."},"entretien_individuel":{"durée_minutes":25,"description":"Entretien de motivation et de mise en situation avec le jury portant sur le parcours, les compétences, la connaissance de l''administration et les qualités relationnelles."}}'::jsonb,
+  'FR', 'DGAFP'
+),
+(
+  'CRFPA', 'N/A', 'CRFPA – Grand oral', 3.0, 45,
+  '{"exposé":{"durée_minutes":15,"description":"Exposé sur un sujet portant sur les libertés et droits fondamentaux, tiré au sort parmi deux sujets."},"entretien_jury":{"durée_minutes":30,"description":"Discussion avec le jury sur l''exposé, puis échange sur le parcours, la motivation pour la profession d''avocat et la déontologie."}}'::jsonb,
+  'FR', 'CNB / Universités'
+),
+(
+  'grande_école', 'N/A', 'HEC Paris – Oral d''admission', 8.0, 30,
+  '{"entretien_personnalité":{"durée_minutes":30,"description":"Entretien de personnalité avec un jury de trois personnes. Le candidat présente son parcours, ses expériences, sa personnalité et sa motivation. Le jury évalue la maturité, l''ouverture d''esprit, la capacité d''analyse et les qualités humaines."}}'::jsonb,
+  'FR', 'HEC Paris'
+)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.concours_sessions (concours_id, year, country, inscription_open_date, inscription_close_date, "épreuves_écrites_date", "épreuves_orales_start_date", "épreuves_orales_end_date", "résultats_date", source_url, notes)
+VALUES
+(
+  (SELECT id FROM public.concours WHERE "intitulé" = 'Rédacteur territorial' LIMIT 1),
+  2026, 'FR', NULL, NULL, NULL, NULL, NULL, NULL,
+  'https://www.cig929394.fr/liste-des-concours/',
+  'Dates 2026 non encore publiées par les CDG.'
+),
+(
+  (SELECT id FROM public.concours WHERE "intitulé" = 'Attaché territorial' LIMIT 1),
+  2026, 'FR', NULL, NULL, NULL, NULL, NULL, NULL,
+  'https://www.cig929394.fr/calendrier',
+  'Dates 2026 non encore publiées par les CDG.'
+),
+(
+  (SELECT id FROM public.concours WHERE "intitulé" LIKE 'IRA%' LIMIT 1),
+  2026, 'FR', NULL, NULL, NULL, NULL, NULL, NULL,
+  'https://www.fonction-publique.gouv.fr/score',
+  'Dates 2026 non encore publiées par la DGAFP.'
+),
+(
+  (SELECT id FROM public.concours WHERE "intitulé" LIKE 'CRFPA%' LIMIT 1),
+  2026, 'FR', NULL, NULL, NULL, NULL, NULL, NULL,
+  'https://cnb.avocat.fr',
+  'Écrit début septembre, oral novembre-décembre. Dates 2026 à confirmer.'
+),
+(
+  (SELECT id FROM public.concours WHERE "intitulé" LIKE 'HEC%' LIMIT 1),
+  2026, 'FR', NULL, NULL, '2026-04-22'::date, '2026-06-15'::date, '2026-07-06'::date, '2026-07-08'::date,
+  'https://www.concours-bce.com/',
+  'Écrits : 22-29 avril. Oraux : 15 juin – 6 juillet. Résultats : 8-9 juillet 2026.'
+)
+ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- DOMAIN 1 — Users & Identity (extends existing profiles)
