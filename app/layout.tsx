@@ -11,7 +11,16 @@ import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
-export const metadata: Metadata = createMetadata({})
+export const metadata: Metadata = {
+  ...createMetadata({}),
+  manifest: '/manifest.json',
+  themeColor: '#8b5cf6',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Jurya',
+  },
+}
 
 export default function RootLayout({
   children,
@@ -20,6 +29,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+      </head>
       <body className={inter.className}>
         <OrganizationSchema />
         <WebsiteSchema />

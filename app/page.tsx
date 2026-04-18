@@ -115,8 +115,9 @@ export default function HomePage() {
               <Link href="/pricing"  className="text-sm text-gray-300 hover:text-primary transition-colors">Tarifs</Link>
               <Link href="/coaches"  className="text-sm text-gray-300 hover:text-primary transition-colors">Membres de jury</Link>
               <Link href="/fr/calendrier" className="text-sm text-gray-300 hover:text-primary transition-colors">Calendrier</Link>
+              <Link href="/content"  className="text-sm text-gray-300 hover:text-primary transition-colors">Ressources</Link>
+              <Link href="/testimonials" className="text-sm text-gray-300 hover:text-primary transition-colors">Témoignages</Link>
               <Link href="/faq"      className="text-sm text-gray-300 hover:text-primary transition-colors">FAQ</Link>
-              <Link href="/contact"  className="text-sm text-gray-300 hover:text-primary transition-colors">Contact</Link>
               <LanguageSwitcher />
               {user ? (
                 <Link href="/dashboard">
@@ -174,8 +175,9 @@ export default function HomePage() {
               <Link href="/pricing"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Tarifs</Link>
               <Link href="/coaches"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Membres de jury</Link>
               <Link href="/fr/calendrier" className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Calendrier</Link>
+              <Link href="/content"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Ressources</Link>
+              <Link href="/testimonials" className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Témoignages</Link>
               <Link href="/faq"      className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>FAQ</Link>
-              <Link href="/contact"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
               <div className="pt-2 flex flex-col gap-2">
                 <Link href="/signup/candidate" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="primary" fullWidth>🎓 Simuler un oral</Button>
