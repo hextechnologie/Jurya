@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { MessageSquare, CheckCircle2, Sparkles } from 'lucide-react'
@@ -12,13 +12,13 @@ interface Message {
 }
 
 const demoMessages: Message[] = [
-  { type: 'ai', text: 'Hello! I\'m your AI interview coach. Let\'s practice a common interview question. Tell me about yourself.' },
-  { type: 'user', text: 'I\'m a software engineer with 5 years of experience in full-stack development. I\'ve led teams of 3-5 developers and shipped products used by over 100,000 users. I\'m passionate about building scalable systems and mentoring junior developers.' },
-  { type: 'feedback', text: '✅ Excellent answer! You covered experience, achievements, and passion.', subtext: 'Score: 9/10 • Clear structure • Quantifiable results' },
-  { type: 'ai', text: 'Great! Now, why do you want this role?' },
-  { type: 'user', text: 'I\'m excited about this position because it aligns with my expertise in distributed systems. Your company\'s mission to democratize education resonates with my values, and I see opportunities to make a significant impact on your platform architecture.' },
-  { type: 'feedback', text: '✅ Strong answer with clear motivation and company research.', subtext: 'Score: 8/10 • Shows research • Connects skills to role' },
-  { type: 'ai', text: 'Excellent! Describe a challenging technical problem you solved recently.' },
+  { type: 'ai', text: 'Bonjour ! Je suis votre jury IA. Entraînons-nous sur une question classique d\'oral de concours. Présentez-vous.' },
+  { type: 'user', text: 'Je suis attaché territorial avec 5 ans d\'expérience dans la gestion des politiques publiques. J\'ai piloté des équipes de 3 à 5 agents et mis en œuvre des projets impactant plus de 100 000 usagers. Je suis passionné par la modernisation du service public et l\'accompagnement des agents.' },
+  { type: 'feedback', text: '✅ Excellente réponse ! Vous avez couvert expérience, réalisations et motivation.', subtext: 'Score : 9/10 • Structure claire • Résultats quantifiables' },
+  { type: 'ai', text: 'Très bien ! Pourquoi souhaitez-vous réussir ce concours ?' },
+  { type: 'user', text: 'Ce concours correspond à mon expertise en gestion territoriale. La mission de service public me motive profondément, et je vois des opportunités de contribuer significativement à la transformation des collectivités.' },
+  { type: 'feedback', text: '✅ Réponse solide avec une motivation claire et une connaissance du contexte.', subtext: 'Score : 8/10 • Montre la préparation • Lie compétences et poste' },
+  { type: 'ai', text: 'Excellent ! Décrivez un problème complexe que vous avez résolu récemment.' },
 ]
 
 export function TryDemo() {
@@ -55,10 +55,10 @@ export function TryDemo() {
     <section className="container mx-auto px-6 py-20">
       <div className="text-center mb-12">
         <h2 className="text-4xl font-bold mb-4">
-          See How It Works — <span className="gradient-text">No Signup Required</span>
+          Voyez comment ça marche — <span className="gradient-text">Sans inscription</span>
         </h2>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-          Watch a realistic interview simulation with AI-powered feedback in real-time
+          Regardez une simulation réaliste d'oral de concours avec un retour par IA en temps réel
         </p>
       </div>
 
@@ -71,12 +71,12 @@ export function TryDemo() {
               <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                 <Sparkles className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">Try a Sample Interview</h3>
+              <h3 className="text-2xl font-bold mb-4">Essayez une simulation d'oral</h3>
               <p className="text-gray-400 mb-8 max-w-md">
-                Experience how our AI coach asks questions, evaluates your answers, and provides instant feedback.
+                Découvrez comment notre IA pose des questions, évalue vos réponses et fournit un retour instantané.
               </p>
               <Button variant="primary" onClick={startDemo} className="text-lg px-8 py-4">
-                Start Demo
+                Lancer la démo
               </Button>
             </div>
           ) : (
@@ -113,7 +113,7 @@ export function TryDemo() {
 
                   {msg.type === 'user' && (
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold">You</span>
+                      <span className="text-sm font-bold">Vous</span>
                     </div>
                   )}
 
@@ -147,8 +147,8 @@ export function TryDemo() {
           {isAnimating && (
             <div className="mt-6 pt-4 border-t border-white/10">
               <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                <span>Sample Interview Progress</span>
-                <span>{Math.round((visibleMessages / demoMessages.length) * 100)}% Complete</span>
+                <span>Progression de la simulation</span>
+                <span>{Math.round((visibleMessages / demoMessages.length) * 100)}% terminé</span>
               </div>
               <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div 
@@ -163,7 +163,7 @@ export function TryDemo() {
           {isAnimating && (
             <div className="mt-6 flex justify-center gap-4">
               <Button variant="outline" onClick={resetDemo}>
-                Reset Demo
+                Réinitialiser la démo
               </Button>
             </div>
           )}
@@ -172,19 +172,19 @@ export function TryDemo() {
         {/* CTA */}
         <div className="text-center mt-12">
           <div className="glass rounded-xl p-8 inline-block">
-            <h3 className="text-2xl font-bold mb-3">Ready to Practice for Real?</h3>
+            <h3 className="text-2xl font-bold mb-3">Prêt à vous entraîner pour de vrai ?</h3>
             <p className="text-gray-400 mb-6 max-w-md">
-              Sign up now and get <strong className="text-primary">3 free interviews</strong> with personalized feedback, progress tracking, and more.
+              Inscrivez-vous maintenant et obtenez <strong className="text-primary">3 simulations gratuites</strong> avec retour personnalisé, suivi de progression et plus encore.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/signup">
                 <Button variant="primary" className="text-lg px-8 py-4">
-                  Start Your Free Interviews
+                  Commencer vos simulations gratuites
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button variant="outline" className="text-lg px-8 py-4">
-                  View Pricing
+                  Voir les tarifs
                 </Button>
               </Link>
             </div>

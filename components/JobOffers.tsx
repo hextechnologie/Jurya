@@ -47,8 +47,8 @@ export default function JobOffers({ targetRole = '', limit = 6, fullPage = false
   const [jobs, setJobs] = useState<RemotiveJob[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [search, setSearch] = useState(targetRole || 'software engineer')
-  const [input, setInput] = useState(targetRole || 'software engineer')
+  const [search, setSearch] = useState(targetRole || 'concours fonction publique')
+  const [input, setInput] = useState(targetRole || 'concours fonction publique')
   const [typeFilter, setTypeFilter] = useState<string>('all')
 
   const fetchJobs = async (query: string) => {
@@ -85,7 +85,7 @@ export default function JobOffers({ targetRole = '', limit = 6, fullPage = false
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') setSearch(input) }}
-            placeholder="Search remote jobs..."
+            placeholder="Rechercher des concours..."
             className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
           />
           <button
@@ -98,12 +98,12 @@ export default function JobOffers({ targetRole = '', limit = 6, fullPage = false
 
         {loading ? (
           <div className="flex items-center justify-center py-8 text-gray-400">
-            <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading jobs...
+            <Loader2 className="w-5 h-5 animate-spin mr-2" /> Chargement...
           </div>
         ) : error ? (
           <p className="text-sm text-red-400 py-4 text-center">{error}</p>
         ) : filtered.length === 0 ? (
-          <p className="text-sm text-gray-400 py-4 text-center">No remote jobs found for "{search}". Try a different search.</p>
+          <p className="text-sm text-gray-400 py-4 text-center">Aucun résultat trouvé pour « {search} ». Essayez une autre recherche.</p>
         ) : (
           <div className="space-y-3">
             {filtered.slice(0, limit).map((job) => (
@@ -115,7 +115,7 @@ export default function JobOffers({ targetRole = '', limit = 6, fullPage = false
         <div className="mt-4 text-center">
           <Link href="/jobs">
             <Button variant="outline" className="text-sm gap-2">
-              <Briefcase className="w-4 h-4" /> Browse All Remote Jobs
+              <Briefcase className="w-4 h-4" /> Voir toutes les offres
             </Button>
           </Link>
         </div>
@@ -132,11 +132,11 @@ export default function JobOffers({ targetRole = '', limit = 6, fullPage = false
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') setSearch(input) }}
-          placeholder="Job title, technology, or keyword..."
+          placeholder="Nom du concours, domaine..."
           className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         <Button variant="primary" onClick={() => setSearch(input)} className="gap-2 shrink-0">
-          <RefreshCw className="w-4 h-4" /> Search
+          <RefreshCw className="w-4 h-4" /> Rechercher
         </Button>
       </div>
 
@@ -151,22 +151,22 @@ export default function JobOffers({ targetRole = '', limit = 6, fullPage = false
             {t === 'all' ? 'All Types' : t === 'full' ? 'Full-time' : t === 'part' ? 'Part-time' : 'Contract'}
           </button>
         ))}
-        <span className="ml-auto text-sm text-gray-500 self-center">{filtered.length} jobs</span>
+        <span className="ml-auto text-sm text-gray-500 self-center">{filtered.length} offres</span>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-20 text-gray-400">
-          <Loader2 className="w-6 h-6 animate-spin mr-2" /> Searching remote jobs...
+            <Loader2 className="w-6 h-6 animate-spin mr-2" /> Recherche en cours...
         </div>
       ) : error ? (
         <div className="text-center py-16">
           <p className="text-red-400 mb-4">{error}</p>
-          <Button variant="outline" onClick={() => fetchJobs(search)}>Try Again</Button>
+          <Button variant="outline" onClick={() => fetchJobs(search)}>Réessayer</Button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <Briefcase className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400">No results for "{search}". Try a broader search.</p>
+          <p className="text-gray-400">Aucun résultat pour « {search} ». Essayez une recherche plus large.</p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
@@ -220,7 +220,7 @@ function JobCard({ job, compact = false }: { job: RemotiveJob; compact?: boolean
       <div className="mt-3 flex gap-2">
         <a href={job.url} target="_blank" rel="noopener noreferrer" className="flex-1">
           <Button variant="primary" fullWidth className={`gap-1 ${compact ? 'text-xs py-1.5' : 'text-sm'}`}>
-            <ExternalLink className="w-3 h-3" /> View Job
+            <ExternalLink className="w-3 h-3" /> Voir l'offre
           </Button>
         </a>
         {!compact && (

@@ -88,7 +88,7 @@ export default function SkillsSelector({ coachId }: SkillsSelectorProps) {
 
   const addSkill = async (skillName: string, category: SkillCategory) => {
     if (skills.length >= MAX_SKILLS) {
-      alert(`Maximum ${MAX_SKILLS} skills allowed`)
+      alert(`Maximum ${MAX_SKILLS} compétences autorisées`)
       return
     }
 
@@ -113,7 +113,7 @@ export default function SkillsSelector({ coachId }: SkillsSelectorProps) {
       inputRef.current?.blur() // Blur input to close suggestions
     } else {
       console.error('Error adding skill:', error)
-      alert('Failed to add skill. Please try again.')
+      alert('Échec de l\'ajout. Veuillez réessayer.')
     }
   }
 
@@ -129,7 +129,7 @@ export default function SkillsSelector({ coachId }: SkillsSelectorProps) {
       await loadSkills()
     } else {
       console.error('Error removing skill:', error)
-      alert('Failed to remove skill. Please try again.')
+      alert('Échec de la suppression. Veuillez réessayer.')
     }
   }
 
@@ -159,9 +159,9 @@ export default function SkillsSelector({ coachId }: SkillsSelectorProps) {
     <div className="overflow-x-hidden">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-white">Skills</h3>
+          <h3 className="text-lg font-semibold text-white">Compétences</h3>
           <p className="text-sm text-gray-400">
-            {skills.length}/{MAX_SKILLS} skills added
+            {skills.length}/{MAX_SKILLS} compétences ajoutées
           </p>
         </div>
       </div>
@@ -177,7 +177,7 @@ export default function SkillsSelector({ coachId }: SkillsSelectorProps) {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => searchQuery && setShowSuggestions(true)}
-            placeholder="Type to search skills or press Enter to add..."
+            placeholder="Recherchez une compétence ou appuyez sur Entrée..."
             className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
             disabled={skills.length >= MAX_SKILLS}
           />
@@ -214,7 +214,7 @@ export default function SkillsSelector({ coachId }: SkillsSelectorProps) {
                 }}
                 className="w-full px-4 py-2 text-left text-blue-400 hover:bg-gray-700 transition border-t border-gray-700"
               >
-                Press Enter to add "{searchQuery}"
+                Appuyez sur Entrée pour ajouter « {searchQuery} »
               </button>
             )}
           </div>
@@ -234,13 +234,13 @@ export default function SkillsSelector({ coachId }: SkillsSelectorProps) {
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500 border border-gray-700 rounded-lg min-h-[3rem]">
-          No skills added yet. Start typing to search and add skills.
+          Aucune compétence ajoutée. Commencez à taper pour rechercher et ajouter.
         </div>
       )}
 
       {/* Category Legend */}
       <div className="mt-6 pt-6 border-t border-gray-700">
-        <p className="text-sm text-gray-400 mb-3">Skill Categories:</p>
+        <p className="text-sm text-gray-400 mb-3">Catégories de compétences :</p>
         <div className="flex flex-wrap gap-4 text-sm">
           {Object.entries(CATEGORY_COLORS).map(([category, colors]) => (
             <div key={category} className="flex items-center gap-2">
@@ -267,7 +267,7 @@ function SkillTag({ skill, onRemove }: { skill: CoachSkill; onRemove: () => void
         type="button"
         onClick={onRemove}
         className="ml-1 p-0.5 hover:bg-gray-700 rounded transition flex-shrink-0"
-        title="Remove skill"
+        title="Supprimer"
       >
         <X className="w-3 h-3 text-gray-400" />
       </button>

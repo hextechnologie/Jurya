@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { X, Play, MessageSquare, CheckCircle2 } from 'lucide-react'
@@ -44,12 +44,12 @@ export function VideoModal({ isOpen, onClose }: VideoModalProps) {
   if (!isOpen) return null
 
   const demoMessages = [
-    { type: 'ai', text: 'Tell me about yourself and your experience.' },
-    { type: 'user', text: 'I have 5 years of experience in software engineering, specializing in full-stack development...' },
-    { type: 'ai', text: 'What motivated you to apply for this position?' },
-    { type: 'user', text: 'I\'m passionate about building scalable systems and your company\'s mission aligns with my values...' },
-    { type: 'feedback', text: '✓ Great answer! Clear structure and specific examples.', subtext: 'Score: 9/10' },
-    { type: 'ai', text: 'Describe a challenging technical problem you solved.' },
+    { type: 'ai', text: 'Présentez-vous et décrivez votre parcours.' },
+    { type: 'user', text: 'J\'ai 5 ans d\'expérience dans la fonction publique territoriale, spécialisé dans la gestion des politiques publiques...' },
+    { type: 'ai', text: 'Qu\'est-ce qui vous motive à passer ce concours ?' },
+    { type: 'user', text: 'Je suis passionné par le service public et les enjeux de transformation des collectivités correspondent à mes valeurs...' },
+    { type: 'feedback', text: '✓ Excellente réponse ! Structure claire et exemples concrets.', subtext: 'Score : 9/10' },
+    { type: 'ai', text: 'Décrivez un problème complexe que vous avez résolu dans votre poste.' },
   ]
 
   return (
@@ -64,7 +64,7 @@ export function VideoModal({ isOpen, onClose }: VideoModalProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-card/50 backdrop-blur">
-          <h3 className="text-xl font-semibold">Interview Coach Demo</h3>
+          <h3 className="text-xl font-semibold">Démo Jurya</h3>
           <button
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -86,7 +86,7 @@ export function VideoModal({ isOpen, onClose }: VideoModalProps) {
                 className="w-full h-full"
                 poster="/demo-poster.jpg"
               >
-                Your browser does not support video playback.
+                Votre navigateur ne supporte pas la lecture vidéo.
               </video>
             </div>
           ) : (
@@ -126,7 +126,7 @@ export function VideoModal({ isOpen, onClose }: VideoModalProps) {
 
                       {msg.type === 'user' && (
                         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-bold">You</span>
+                          <span className="text-sm font-bold">Vous</span>
                         </div>
                       )}
 
@@ -158,8 +158,8 @@ export function VideoModal({ isOpen, onClose }: VideoModalProps) {
                 {/* Progress bar */}
                 <div className="mt-4 pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                    <span>Interactive Demo</span>
-                    <span>{Math.round((animationStep / demoMessages.length) * 100)}% Complete</span>
+                    <span>Démo interactive</span>
+                    <span>{Math.round((animationStep / demoMessages.length) * 100)}% terminé</span>
                   </div>
                   <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                     <div 
@@ -184,10 +184,10 @@ export function VideoModal({ isOpen, onClose }: VideoModalProps) {
         <div className="p-4 border-t border-border bg-card/50 backdrop-blur text-center">
           <p className="text-sm text-gray-400 mb-3">
             {videoExists 
-              ? 'See how Interview Coach helps you prepare for real interviews' 
-              : 'This is a preview of the interview experience. Sign up to try it yourself!'}
+              ? 'Découvrez comment Jurya vous aide à préparer vos oraux de concours' 
+              : 'Ceci est un aperçu de l\'expérience de simulation. Inscrivez-vous pour essayer !'}
           </p>
-          <Button onClick={onClose}>Start Your Interview</Button>
+          <Button onClick={onClose}>Lancer votre simulation</Button>
         </div>
       </div>
 

@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (pkgError || !pkg) {
-        return NextResponse.json({ error: 'Invalid package' }, { status: 400 })
+        return NextResponse.json({ error: 'Formule invalide' }, { status: 400 })
       }
 
       credits = pkg.total_credits
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       amount_usd = custom_amount
       description = 'Custom Credit Purchase'
     } else {
-      return NextResponse.json({ error: 'Invalid purchase request' }, { status: 400 })
+      return NextResponse.json({ error: 'Demande d\'achat invalide' }, { status: 400 })
     }
 
     // Get user profile
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Credit purchase error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to process purchase' },
+      { error: error.message || 'Échec du traitement de l\'achat' },
       { status: 500 }
     )
   }

@@ -48,7 +48,7 @@ export default function ExperienceCardsSection({ coachId }: ExperienceCardsSecti
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this experience?')) return
+    if (!confirm('Supprimer cette expérience ?')) return
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const { error } = await supabase
@@ -70,15 +70,15 @@ export default function ExperienceCardsSection({ coachId }: ExperienceCardsSecti
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-white">Work Experience</h3>
-          <p className="text-sm text-gray-400">{experiences.length} experience{experiences.length !== 1 ? 's' : ''} added</p>
+          <h3 className="text-lg font-semibold text-white">Expérience professionnelle</h3>
+          <p className="text-sm text-gray-400">{experiences.length} expérience{experiences.length !== 1 ? 's' : ''} ajoutée{experiences.length !== 1 ? 's' : ''}</p>
         </div>
         <button
           onClick={handleAddClick}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-primary text-white rounded-lg hover:opacity-90 transition"
         >
           <Plus className="w-4 h-4" />
-          Add Experience
+          Ajouter une expérience
         </button>
       </div>
 
@@ -93,7 +93,7 @@ export default function ExperienceCardsSection({ coachId }: ExperienceCardsSecti
         ))}
         {experiences.length === 0 && (
           <div className="text-center py-8 text-gray-500 border border-gray-700 rounded-lg">
-            No experience added yet. Click "Add Experience" to get started.
+            Aucune expérience ajoutée. Cliquez sur « Ajouter » pour commencer.
           </div>
         )}
       </div>
@@ -125,10 +125,10 @@ function ExperienceCard({
     const startMonth = experience.start_month ? MONTHS.find(m => m.value === experience.start_month)?.label.slice(0, 3) : ''
     const start = `${startMonth} ${experience.start_year}`
     const end = experience.is_current
-      ? 'Present'
+      ? 'En poste'
       : experience.end_month && experience.end_year
         ? `${MONTHS.find(m => m.value === experience.end_month)?.label.slice(0, 3)} ${experience.end_year}`
-        : experience.end_year || 'Present'
+        : experience.end_year || 'En poste'
 
     return `${start} → ${end}`
   }
@@ -174,14 +174,14 @@ function ExperienceCard({
           <button
             onClick={onEdit}
             className="p-2 hover:bg-gray-700 rounded-lg transition"
-            title="Edit"
+            title="Modifier"
           >
             <Edit2 className="w-4 h-4 text-gray-400" />
           </button>
           <button
             onClick={onDelete}
             className="p-2 hover:bg-red-500/20 rounded-lg transition"
-            title="Delete"
+            title="Supprimer"
           >
             <Trash2 className="w-4 h-4 text-red-400" />
           </button>
@@ -223,9 +223,9 @@ function ExperienceModal({
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof ExperienceFormData, string>> = {}
 
-    if (!formData.job_title.trim()) newErrors.job_title = 'Job title is required'
-    if (!formData.company_name.trim()) newErrors.company_name = 'Company name is required'
-    if (!formData.start_year) newErrors.start_year = 'Start year is required'
+    if (!formData.job_title.trim()) newErrors.job_title = 'L\'intitulé du poste est requis'
+    if (!formData.company_name.trim()) newErrors.company_name = 'Le nom de l\'organisme est requis'
+    if (!formData.start_year) newErrors.start_year = 'L\'année de début est requise'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -259,7 +259,7 @@ function ExperienceModal({
       onSave()
     } catch (error) {
       console.error('Error saving experience:', error)
-      alert('Failed to save experience')
+      alert('Échec de la sauvegarde')
     } finally {
       setLoading(false)
     }
@@ -306,7 +306,7 @@ function ExperienceModal({
       >
         <div className="sticky top-0 bg-gray-900 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-white">
-            {experience ? 'Edit Experience' : 'Add Experience'}
+            {experience ? 'Modifier l\'expérience' : 'Ajouter une expérience'}
           </h2>
           <button
             onClick={onClose}
@@ -320,14 +320,14 @@ function ExperienceModal({
           {/* Job Title */}
           <div className="relative">
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Job Title <span className="text-red-400">*</span>
+              Intitulé du poste <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               value={formData.job_title}
               onChange={(e) => handleJobTitleChange(e.target.value)}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              placeholder="e.g. Senior Software Engineer"
+              placeholder="ex. Président de jury territorial"
             />
             {errors.job_title && <p className="text-red-400 text-sm mt-1">{errors.job_title}</p>}
             {jobTitleSuggestions.length > 0 && (
@@ -352,14 +352,14 @@ function ExperienceModal({
           {/* Company Name */}
           <div className="relative">
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Company Name <span className="text-red-400">*</span>
+              Organisme / Employeur <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               value={formData.company_name}
               onChange={(e) => handleCompanyChange(e.target.value)}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              placeholder="e.g. Google"
+              placeholder="ex. CDG 35"
             />
             {errors.company_name && <p className="text-red-400 text-sm mt-1">{errors.company_name}</p>}
             {companySuggestions.length > 0 && (
@@ -384,14 +384,14 @@ function ExperienceModal({
           {/* Employment Type */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Employment Type
+              Type de contrat
             </label>
             <select
               value={formData.employment_type || ''}
               onChange={(e) => setFormData({ ...formData, employment_type: e.target.value as EmploymentType || undefined })}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
             >
-              <option value="">Select type</option>
+              <option value="">Sélectionnez</option>
               {EMPLOYMENT_TYPES.map((type) => (
                 <option key={type} value={type}>{type}</option>
               ))}
@@ -401,21 +401,21 @@ function ExperienceModal({
           {/* Location */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Location
+              Lieu
             </label>
             <input
               type="text"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              placeholder="e.g. San Francisco, CA or Remote"
+              placeholder="ex. Paris, France"
             />
           </div>
 
           {/* Start Date */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Start Date <span className="text-red-400">*</span>
+              Date de début <span className="text-red-400">*</span>
             </label>
             <div className="grid grid-cols-2 gap-3">
               <select
@@ -423,7 +423,7 @@ function ExperienceModal({
                 onChange={(e) => setFormData({ ...formData, start_month: e.target.value ? parseInt(e.target.value) : undefined })}
                 className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
               >
-                <option value="">Month</option>
+                <option value="">Mois</option>
                 {MONTHS.map((month) => (
                   <option key={month.value} value={month.value}>{month.label}</option>
                 ))}
@@ -450,7 +450,7 @@ function ExperienceModal({
                 onChange={(e) => setFormData({ ...formData, is_current: e.target.checked })}
                 className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-blue-500 focus:ring-2 focus:ring-blue-500"
               />
-              I currently work here
+              J'occupe actuellement ce poste
             </label>
           </div>
 
@@ -458,7 +458,7 @@ function ExperienceModal({
           {!formData.is_current && (
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                End Date
+                Date de fin
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <select
@@ -466,7 +466,7 @@ function ExperienceModal({
                   onChange={(e) => setFormData({ ...formData, end_month: e.target.value ? parseInt(e.target.value) : undefined })}
                   className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Month</option>
+                  <option value="">Mois</option>
                   {MONTHS.map((month) => (
                     <option key={month.value} value={month.value}>{month.label}</option>
                   ))}
@@ -476,7 +476,7 @@ function ExperienceModal({
                   onChange={(e) => setFormData({ ...formData, end_year: e.target.value ? parseInt(e.target.value) : undefined })}
                   className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Year</option>
+                  <option value="">Année</option>
                   {YEARS.reverse().map((year) => (
                     <option key={year} value={year}>{year}</option>
                   ))}
@@ -496,9 +496,9 @@ function ExperienceModal({
               rows={3}
               maxLength={300}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none resize-none"
-              placeholder="Describe your role, achievements, responsibilities..."
+              placeholder="Décrivez votre rôle, vos réalisations..."
             />
-            <p className="text-xs text-gray-500 mt-1">{formData.description?.length || 0}/300 characters</p>
+            <p className="text-xs text-gray-500 mt-1">{formData.description?.length || 0}/300 caractères</p>
           </div>
 
           {/* Buttons */}
@@ -509,14 +509,14 @@ function ExperienceModal({
               className="flex-1 px-6 py-3 border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition"
               disabled={loading}
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               className="flex-1 px-6 py-3 bg-gradient-primary text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
               disabled={loading}
             >
-              {loading ? 'Saving...' : experience ? 'Update Experience' : 'Add Experience'}
+              {loading ? 'Enregistrement...' : experience ? 'Mettre à jour' : 'Ajouter'}
             </button>
           </div>
         </form>

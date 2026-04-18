@@ -107,11 +107,11 @@ export default function CoachProfilePage() {
 
     // Validation
     if (!headline.trim()) {
-      setError('Professional headline is required')
+      setError('Le titre professionnel est requis')
       return
     }
     if (!aboutMe.trim()) {
-      setError('About section is required')
+      setError('La section À propos est requise')
       return
     }
 
@@ -172,7 +172,7 @@ export default function CoachProfilePage() {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err: any) {
-      setError(err.message || 'Failed to save profile. Please try again.')
+      setError(err.message || 'Échec de la sauvegarde. Veuillez réessayer.')
     } finally {
       setSaving(false)
     }
@@ -195,10 +195,10 @@ export default function CoachProfilePage() {
       <div className="container mx-auto max-w-2xl px-4 py-10">
         <div className="mb-2">
           <Link href="/coach/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-4 h-4" /> Retour au tableau de bord
           </Link>
-          <h1 className="text-3xl font-bold mb-1">Coach Profile</h1>
-          <p className="text-gray-400 text-sm">Update your public profile visible to candidates.</p>
+          <h1 className="text-3xl font-bold mb-1">Profil jury</h1>
+          <p className="text-gray-400 text-sm">Mettez à jour votre profil visible par les candidats.</p>
         </div>
 
         {/* Avatar */}
@@ -218,7 +218,7 @@ export default function CoachProfilePage() {
             </label>
           </div>
           <div>
-            <p className="font-semibold">{[firstName, lastName].filter(Boolean).join(' ') || 'Your Name'}</p>
+            <p className="font-semibold">{[firstName, lastName].filter(Boolean).join(' ') || 'Votre nom'}</p>
             <p className="text-sm text-gray-400">{user.email}</p>
             {title && <p className="text-xs text-purple-400 mt-1">{title}</p>}
           </div>
@@ -227,25 +227,25 @@ export default function CoachProfilePage() {
         <form onSubmit={handleSave} className="space-y-5">
           {/* Personal Info */}
           <div className="rounded-2xl border border-white/10 p-5 space-y-5" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Personal Info</h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Informations personnelles</h2>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Input label="First Name" value={firstName} onChange={setFirstName} placeholder="Jane" />
-              <Input label="Last Name"  value={lastName}  onChange={setLastName}  placeholder="Doe" />
+              <Input label="Prénom" value={firstName} onChange={setFirstName} placeholder="Prénom" />
+              <Input label="Nom"  value={lastName}  onChange={setLastName}  placeholder="Nom" />
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Input label="Country" value={country} onChange={setCountry} placeholder="e.g. United States" />
-              <Input label="City"    value={city}    onChange={setCity}    placeholder="e.g. San Francisco" />
+              <Input label="Pays" value={country} onChange={setCountry} placeholder="ex. France" />
+              <Input label="Ville"    value={city}    onChange={setCity}    placeholder="ex. Paris" />
             </div>
-            <Input label="LinkedIn URL" value={linkedinUrl} onChange={setLinkedinUrl} placeholder="https://linkedin.com/in/yourprofile" />
+            <Input label="URL LinkedIn" value={linkedinUrl} onChange={setLinkedinUrl} placeholder="https://linkedin.com/in/votre-profil" />
           </div>
 
           {/* Coach Info */}
           <div className="rounded-2xl border border-white/10 p-5 space-y-5" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Coaching Info</h2>
-            <Input label="Professional Title" value={title} onChange={setTitle} placeholder="Senior Engineer at Google · 8 yrs exp" />
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Informations jury</h2>
+            <Input label="Titre professionnel" value={title} onChange={setTitle} placeholder="Membre de jury · Attaché principal · 10 ans exp" />
             <div className="grid gap-5 sm:grid-cols-2">
-              <Input label="Price per Hour ($)" type="number" value={price} onChange={setPrice} placeholder="75" />
-              <Input label="Years of Experience" type="number" value={yearsExperience} onChange={setYearsExperience} placeholder="3" />
+              <Input label="Tarif horaire (€)" type="number" value={price} onChange={setPrice} placeholder="75" />
+              <Input label="Années d'expérience" type="number" value={yearsExperience} onChange={setYearsExperience} placeholder="3" />
             </div>
 
             {/* Bio */}
@@ -255,7 +255,7 @@ export default function CoachProfilePage() {
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 rows={5}
-                placeholder="Tell candidates about your background, coaching style, and what you can help with..."
+                placeholder="Présentez votre parcours, votre style d'accompagnement et ce que vous pouvez apporter aux candidats..."
                 className="w-full rounded-lg border border-white/10 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 style={{ background: '#0a0f1e' }}
               />
@@ -263,7 +263,7 @@ export default function CoachProfilePage() {
 
             {/* Companies */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">Companies You&apos;ve Worked At</label>
+              <label className="mb-2 block text-sm font-medium text-gray-200">Organismes / Institutions</label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {companies.map(c => (
                   <span key={c} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-600/20 text-purple-300 border border-purple-500/30">
@@ -279,16 +279,16 @@ export default function CoachProfilePage() {
                 value={companyInput}
                 onChange={e => setCompanyInput(e.target.value)}
                 onKeyDown={onCompanyKeyDown}
-                placeholder="Type a company and press Enter (e.g. Google, Meta)"
+                placeholder="Saisissez un organisme et appuyez sur Entrée (ex. Préfecture, Région)"
                 className="w-full rounded-lg border border-white/10 px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 style={{ background: '#0a0f1e' }}
               />
-              <p className="text-xs text-gray-500 mt-1">Press Enter or comma to add each company.</p>
+              <p className="text-xs text-gray-500 mt-1">Appuyez sur Entrée ou virgule pour ajouter.</p>
             </div>
 
             {/* Specializations */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">Specializations</label>
+              <label className="mb-2 block text-sm font-medium text-gray-200">Spécialisations</label>
               <div className="flex flex-wrap gap-2">
                 {marketplaceSpecializations.map(spec => (
                   <button
@@ -310,15 +310,15 @@ export default function CoachProfilePage() {
 
           {/* LinkedIn-style profile */}
           <div className="rounded-2xl border border-white/10 p-5 space-y-5" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Professional Highlights <span className="text-red-400">*</span></h2>
-            <Input label="Headline" value={headline} onChange={setHeadline} placeholder="e.g. Senior Engineering Coach helping candidates land offers" required />
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Points forts professionnels <span className="text-red-400">*</span></h2>
+            <Input label="Titre" value={headline} onChange={setHeadline} placeholder="ex. Membre de jury — concours de la fonction publique" required />
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">About <span className="text-red-400">*</span></label>
+              <label className="mb-2 block text-sm font-medium text-gray-200">À propos <span className="text-red-400">*</span></label>
               <textarea
                 value={aboutMe}
                 onChange={e => setAboutMe(e.target.value)}
                 rows={4}
-                placeholder="Write a short professional summary, your coaching philosophy, and the impact you create..."
+                placeholder="Rédigez un court résumé professionnel, votre philosophie d'accompagnement et votre impact..."
                 className="w-full rounded-lg border border-white/10 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 style={{ background: '#0a0f1e' }}
                 required
@@ -328,22 +328,22 @@ export default function CoachProfilePage() {
 
           {/* Structured Profile Sections */}
           <div className="rounded-2xl border border-white/10 p-5 space-y-8" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Professional Experience</h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Expérience professionnelle</h2>
             <ExperienceCardsSection coachId={user.id} />
           </div>
 
           <div className="rounded-2xl border border-white/10 p-5 space-y-8" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Education & Certifications</h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Formation & Certifications</h2>
             <EducationCardsSection coachId={user.id} userCountry={country || undefined} />
           </div>
 
           <div className="rounded-2xl border border-white/10 p-5 space-y-8" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Skills & Expertise</h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Compétences & Expertise</h2>
             <SkillsSelector coachId={user.id} />
           </div>
 
           <div className="rounded-2xl border border-white/10 p-5 space-y-8" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Achievements & Highlights</h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Réalisations & Points forts</h2>
             <AchievementsCardsSection coachId={user.id} />
           </div>
 
@@ -355,12 +355,12 @@ export default function CoachProfilePage() {
           )}
           {saved && (
             <div className="flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-300">
-              <CheckCircle className="w-4 h-4" /> Profile saved successfully!
+              <CheckCircle className="w-4 h-4" /> Profil enregistré avec succès !
             </div>
           )}
 
           <Button type="submit" variant="primary" fullWidth loading={saving}>
-            Save Changes
+            Enregistrer
           </Button>
         </form>
       </div>

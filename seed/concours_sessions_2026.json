@@ -8,7 +8,8 @@
     "épreuves_écrites_date": null,
     "épreuves_orales_date": null,
     "résultats_date": null,
-    "_note": "Dates 2026 non encore publiées par les CDG. Consulter https://www.fncdg.com pour les mises à jour. À confirmer."
+    "_note": "Dates 2026 non encore publiées par les CDG. Le rédacteur principal de 2e classe PI (CIG929394) a ses épreuves le 24/09/2026, inscriptions 03/03 au 08/04/2026. Pour le concours externe de rédacteur territorial, consulter https://www.cig929394.fr/liste-des-concours/ et https://www.fncdg.com. À confirmer.",
+    "_source": "https://www.cig929394.fr/liste-des-concours/"
   },
   {
     "concours_id": "attache-territorial",
@@ -19,7 +20,8 @@
     "épreuves_écrites_date": null,
     "épreuves_orales_date": null,
     "résultats_date": null,
-    "_note": "Dates 2026 non encore publiées par les CDG. Consulter https://www.fncdg.com pour les mises à jour. À confirmer."
+    "_note": "Dates 2026 non encore publiées par les CDG. Consulter https://www.cig929394.fr/liste-des-concours/ et https://www.fncdg.com. À confirmer.",
+    "_source": "https://www.cig929394.fr/calendrier"
   },
   {
     "concours_id": "ira-externe",
@@ -30,7 +32,8 @@
     "épreuves_écrites_date": null,
     "épreuves_orales_date": null,
     "résultats_date": null,
-    "_note": "Dates 2026 non encore publiées par la DGAFP. Consulter https://www.fonction-publique.gouv.fr pour les mises à jour. À confirmer."
+    "_note": "Dates 2026 non encore publiées par la DGAFP. Les concours IRA ont habituellement lieu au printemps (inscriptions janv-fév, écrits mars-avril, oraux juin). Consulter https://www.ira-nantes.gouv.fr et https://www.fonction-publique.gouv.fr/score. À confirmer.",
+    "_source": "https://www.fonction-publique.gouv.fr/score"
   },
   {
     "concours_id": "crfpa-grand-oral",
@@ -41,7 +44,8 @@
     "épreuves_écrites_date": null,
     "épreuves_orales_date": null,
     "résultats_date": null,
-    "_note": "Le CRFPA a lieu chaque année en septembre (écrit) et novembre-décembre (oral). Dates 2026 à confirmer via https://www.cnb.avocat.fr."
+    "_note": "Le CRFPA a lieu chaque année : écrit début septembre, oral novembre-décembre. Inscription via les universités habilitées, généralement mai-juin. Dates 2026 à confirmer via https://cnb.avocat.fr.",
+    "_source": "https://cnb.avocat.fr"
   },
   {
     "concours_id": "hec-oral-admission",
@@ -49,9 +53,10 @@
     "country": "FR",
     "inscription_open_date": null,
     "inscription_close_date": null,
-    "épreuves_écrites_date": null,
-    "épreuves_orales_date": null,
-    "résultats_date": null,
-    "_note": "Les oraux HEC ont lieu traditionnellement en juin-juillet. Dates 2026 à confirmer via https://www.hec.fr. À confirmer."
+    "épreuves_écrites_date": "2026-04-22",
+    "épreuves_orales_date": "2026-06-15",
+    "résultats_date": "2026-07-08",
+    "_note": "Dates confirmées via concours-bce.com (MAJ avril 2026). Écrits : 22-29 avril 2026. Admissibilité : 9-11 juin. Oraux : 15 juin – 6 juillet. Résultats admission : 8-9 juillet 2026. Procédure SIGEM : 30 juin – 17 juillet.",
+    "_source": "https://www.concours-bce.com/"
   }
 ]

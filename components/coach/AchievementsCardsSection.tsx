@@ -11,12 +11,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 const ACHIEVEMENT_TYPES: Array<{ value: AchievementType; label: string; icon: any; emoji: string }> = [
-  { value: 'Professional Achievement', label: 'Professional', icon: Trophy, emoji: '🏆' },
-  { value: 'Project', label: 'Project', icon: Code, emoji: '💻' },
-  { value: 'Public Speaking', label: 'Public Speaking', icon: Mic, emoji: '📣' },
+  { value: 'Professional Achievement', label: 'Professionnel', icon: Trophy, emoji: '🏆' },
+  { value: 'Project', label: 'Projet', icon: Code, emoji: '💻' },
+  { value: 'Public Speaking', label: 'Prise de parole', icon: Mic, emoji: '📣' },
   { value: 'Publication', label: 'Publication', icon: FileText, emoji: '📝' },
-  { value: 'Award', label: 'Award', icon: Award, emoji: '🥇' },
-  { value: 'Other', label: 'Other', icon: Star, emoji: '⭐' },
+  { value: 'Award', label: 'Distinction', icon: Award, emoji: '🥇' },
+  { value: 'Other', label: 'Autre', icon: Star, emoji: '⭐' },
 ]
 
 interface AchievementsCardsSectionProps {
@@ -67,7 +67,7 @@ export default function AchievementsCardsSection({ coachId }: AchievementsCardsS
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this achievement?')) return
+    if (!confirm('Êtes-vous sûr(e) de vouloir supprimer cette réalisation ?')) return
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const { error } = await supabase
@@ -84,15 +84,15 @@ export default function AchievementsCardsSection({ coachId }: AchievementsCardsS
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-white">Achievements & Highlights</h3>
-          <p className="text-sm text-gray-400">Showcase your accomplishments</p>
+          <h3 className="text-lg font-semibold text-white">Réalisations et faits marquants</h3>
+          <p className="text-sm text-gray-400">Mettez en avant vos réalisations</p>
         </div>
         <button
           onClick={openAddModal}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
         >
           <Plus className="w-4 h-4" />
-          Add Achievement
+          Ajouter une réalisation
         </button>
       </div>
 
@@ -110,12 +110,12 @@ export default function AchievementsCardsSection({ coachId }: AchievementsCardsS
       ) : (
         <div className="text-center py-12 border border-gray-700 rounded-lg">
           <Trophy className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-          <p className="text-gray-400 mb-2">No achievements added yet</p>
+          <p className="text-gray-400 mb-2">Aucune réalisation ajoutée</p>
           <button
             onClick={openAddModal}
             className="text-blue-500 hover:text-blue-400 transition"
           >
-            Add your first achievement
+            Ajoutez votre première réalisation
           </button>
         </div>
       )}
@@ -187,14 +187,14 @@ function AchievementCard({
               <button
                 onClick={onEdit}
                 className="p-1.5 hover:bg-gray-700 rounded transition"
-                title="Edit"
+                title="Modifier"
               >
                 <Edit2 className="w-4 h-4 text-gray-400" />
               </button>
               <button
                 onClick={onDelete}
                 className="p-1.5 hover:bg-gray-700 rounded transition"
-                title="Delete"
+                title="Supprimer"
               >
                 <Trash2 className="w-4 h-4 text-red-400" />
               </button>
@@ -212,7 +212,7 @@ function AchievementCard({
               rel="noopener noreferrer"
               className="text-sm text-blue-400 hover:text-blue-300 transition inline-flex items-center gap-1"
             >
-              View Details →
+              Voir les détails →
             </a>
           )}
         </div>
@@ -244,11 +244,11 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
     const newErrors: Record<string, string> = {}
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Title is required'
+      newErrors.title = 'Le titre est requis'
     }
 
     if (formData.description && formData.description.length > 200) {
-      newErrors.description = 'Description must be 200 characters or less'
+      newErrors.description = 'La description ne doit pas dépasser 200 caractères'
     }
 
     setErrors(newErrors)
@@ -315,7 +315,7 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white">
-            {achievement ? 'Edit Achievement' : 'Add Achievement'}
+            {achievement ? 'Modifier la réalisation' : 'Ajouter une réalisation'}
           </h2>
           <button
             onClick={onClose}
@@ -353,13 +353,13 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Title <span className="text-red-500">*</span>
+              Titre <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="e.g., Best Speaker Award, Published Research Paper..."
+              placeholder="ex. Médaille du mérite, Publication..."
               className={`w-full px-4 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:border-blue-500 ${
                 errors.title ? 'border-red-500' : 'border-gray-600'
               }`}
@@ -370,12 +370,12 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Description (optional) - {formData.description.length}/200
+              Description (optionnel) - {formData.description.length}/200
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Brief description of your achievement..."
+              placeholder="Brève description de votre réalisation..."
               rows={3}
               maxLength={200}
               className={`w-full px-4 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none focus:border-blue-500 resize-none ${
@@ -388,7 +388,7 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
           {/* Date */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Date (optional)
+              Date (optionnel)
             </label>
             <div className="grid grid-cols-2 gap-3">
               <select
@@ -396,7 +396,7 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
                 onChange={(e) => setFormData({ ...formData, achievement_month: e.target.value ? Number(e.target.value) : null })}
                 className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
               >
-                <option value="">Month</option>
+                <option value="">Mois</option>
                 {MONTHS.map((month) => (
                   <option key={month.value} value={month.value}>{month.label}</option>
                 ))}
@@ -406,7 +406,7 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
                 onChange={(e) => setFormData({ ...formData, achievement_year: e.target.value ? Number(e.target.value) : null })}
                 className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
               >
-                <option value="">Year</option>
+                <option value="">Année</option>
                 {YEARS.map((year) => (
                   <option key={year} value={year}>{year}</option>
                 ))}
@@ -417,7 +417,7 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
           {/* URL */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              URL (optional)
+              URL (optionnel)
             </label>
             <input
               type="url"
@@ -435,14 +435,14 @@ function AchievementModal({ coachId, achievement, onClose, onSave }: Achievement
               onClick={onClose}
               className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               disabled={isSaving}
               className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50"
             >
-              {isSaving ? 'Saving...' : achievement ? 'Update' : 'Add'}
+              {isSaving ? 'Enregistrement...' : achievement ? 'Mettre à jour' : 'Ajouter'}
             </button>
           </div>
         </form>

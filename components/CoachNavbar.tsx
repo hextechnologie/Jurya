@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
@@ -73,10 +73,10 @@ export default function CoachNavbar() {
   }
 
   const navLinks = [
-    { href: '/coach/dashboard', label: 'My Sessions', icon: CalendarDays },
-    { href: '/coach/availability', label: 'Availability', icon: CalendarDays },
+    { href: '/coach/dashboard', label: 'Mes sessions', icon: CalendarDays },
+    { href: '/coach/availability', label: 'Disponibilité', icon: CalendarDays },
     { href: '/coach/messages', label: 'Messages', icon: MessageSquare, badge: counts.messages },
-    { href: '/coach/earnings', label: 'Earnings', icon: BarChart2 },
+    { href: '/coach/earnings', label: 'Revenus', icon: BarChart2 },
   ]
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
@@ -89,7 +89,7 @@ export default function CoachNavbar() {
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <Sparkles className="w-7 h-7 text-purple-400" />
             <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Interview Coach
+              Jurya
             </span>
           </Link>
 
@@ -132,7 +132,7 @@ export default function CoachNavbar() {
                 <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-white/10 shadow-2xl overflow-hidden z-50" style={{ background: '#111827' }}>
                   <div className="px-4 py-3 border-b border-white/10 font-semibold text-sm">Notifications</div>
                   {notifications.length === 0 ? (
-                    <div className="px-4 py-6 text-center text-gray-400 text-sm">No notifications yet 🎉</div>
+                    <div className="px-4 py-6 text-center text-gray-400 text-sm">Aucune notification 🎉</div>
                   ) : (
                     <div className="max-h-72 overflow-y-auto divide-y divide-white/5">
                       {notifications.map((n: any) => (
@@ -168,14 +168,14 @@ export default function CoachNavbar() {
                   <div className="py-1">
                     <Link href="/coach/profile" onClick={() => setProfileOpen(false)}>
                       <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2 transition-colors">
-                        <User className="w-4 h-4" /> My Profile
+                        <User className="w-4 h-4" /> Mon profil
                       </button>
                     </Link>
                     <button
                       onClick={() => { setProfileOpen(false); signOut() }}
                       className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
                     >
-                      <LogOut className="w-4 h-4" /> Logout
+                      <LogOut className="w-4 h-4" /> Déconnexion
                     </button>
                   </div>
                 </div>
@@ -207,11 +207,11 @@ export default function CoachNavbar() {
             ))}
             <Link href="/coach/profile" onClick={() => setMenuOpen(false)}>
               <span className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-white/5">
-                <User className="w-4 h-4" /> My Profile
+                <User className="w-4 h-4" /> Mon profil
               </span>
             </Link>
             <button onClick={signOut} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10">
-              <LogOut className="w-4 h-4" /> Logout
+              <LogOut className="w-4 h-4" /> Déconnexion
             </button>
           </div>
         )}

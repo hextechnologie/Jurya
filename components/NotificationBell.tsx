@@ -44,7 +44,7 @@ export function NotificationBell() {
         .limit(5)
 
       const notifs: NotifItem[] = ((data || []) as any[]).map((b) => {
-        const coachName = b.coach?.full_name || b.coach?.email || 'Your coach'
+        const coachName = b.coach?.full_name || b.coach?.email || 'Votre jury'
         const when = b.scheduled_at ? format(new Date(b.scheduled_at), "MMM d 'at' HH:mm") : 'soon'
         return {
           id: b.id,
@@ -89,14 +89,14 @@ export function NotificationBell() {
                 onClick={() => setItems((prev) => prev.map((i) => ({ ...i, read: true })))}
                 className="text-xs text-purple-400 hover:text-purple-300"
               >
-                Mark all read
+                Tout marquer comme lu
               </button>
             )}
           </div>
 
           {items.length === 0 ? (
             <div className="px-4 py-8 text-center text-gray-400 text-sm">
-              No new notifications 🎉
+              Aucune nouvelle notification 🎉
             </div>
           ) : (
             <div className="divide-y divide-white/5 max-h-[360px] overflow-y-auto">

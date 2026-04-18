@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/components/AuthProvider'
@@ -9,31 +9,31 @@ import Link from 'next/link'
 
 const PLANS = [
   {
-    name: 'Free',
+    name: 'Gratuit',
     monthlyPrice: 0,
     annualPrice: 0,
     interviews: 3,
     priceId: { monthly: null, annual: null },
     tier: 'free',
     features: [
-      '3 interviews per month',
-      'Basic AI feedback',
-      'Limited job roles',
-      'Score tracking',
+      '3 simulations par mois',
+      'Feedback IA basique',
+      'Concours limités',
+      'Suivi des scores',
     ],
     comparison: {
-      interviews: '3/month',
-      feedback: 'Basic',
-      roles: 'Limited',
+      interviews: '3/mois',
+      feedback: 'Basique',
+      roles: 'Limité',
       analytics: false,
-      history: '7 days',
+      history: '7 jours',
       export: false,
-      support: 'Community',
+      support: 'Communauté',
       custom: false,
     },
   },
   {
-    name: 'Basic',
+    name: 'Essentiel',
     monthlyPrice: 9,
     annualPrice: 7,
     interviews: 20,
@@ -43,19 +43,19 @@ const PLANS = [
     },
     tier: 'basic',
     features: [
-      '20 interviews per month',
-      'Detailed AI feedback',
-      'All job roles',
-      'Progress tracking',
-      'Session history',
-      'Email support',
+      '20 simulations par mois',
+      'Feedback IA détaillé',
+      'Tous les concours',
+      'Suivi de progression',
+      'Historique des sessions',
+      'Support par email',
     ],
     comparison: {
-      interviews: '20/month',
-      feedback: 'Detailed',
-      roles: 'All',
-      analytics: 'Basic',
-      history: '30 days',
+      interviews: '20/mois',
+      feedback: 'Détaillé',
+      roles: 'Tous',
+      analytics: 'Basique',
+      history: '30 jours',
       export: false,
       support: 'Email',
       custom: false,
@@ -73,27 +73,27 @@ const PLANS = [
     tier: 'pro',
     popular: true,
     features: [
-      'Unlimited interviews',
-      'Advanced AI feedback',
-      'All job roles',
-      'Detailed analytics',
-      'Export reports (PDF)',
-      'Priority support',
-      'Custom interview scenarios',
+      'Simulations illimitées',
+      'Feedback IA avancé',
+      'Tous les concours',
+      'Analytiques détaillées',
+      'Export de rapports (PDF)',
+      'Support prioritaire',
+      "Scénarios d'oral personnalisés",
     ],
     comparison: {
-      interviews: 'Unlimited',
-      feedback: 'Advanced',
-      roles: 'All',
-      analytics: 'Detailed',
-      history: 'Unlimited',
+      interviews: 'Illimité',
+      feedback: 'Avancé',
+      roles: 'Tous',
+      analytics: 'Détaillé',
+      history: 'Illimité',
       export: 'PDF',
-      support: 'Priority',
+      support: 'Prioritaire',
       custom: true,
     },
   },
   {
-    name: 'Team',
+    name: 'Équipe',
     monthlyPrice: 49,
     annualPrice: 39,
     interviews: '∞',
@@ -103,22 +103,22 @@ const PLANS = [
     },
     tier: 'team',
     features: [
-      'Everything in Pro',
-      '5 team members',
-      'Team analytics dashboard',
-      'Bulk interview scheduling',
-      'API access',
-      'Dedicated account manager',
-      'Custom branding',
+      'Tout le plan Pro inclus',
+      "5 membres d'équipe",
+      "Tableau de bord d'équipe",
+      'Planification de simulations en lot',
+      'Accès API',
+      'Gestionnaire de compte dédié',
+      'Image de marque personnalisée',
     ],
     comparison: {
-      interviews: 'Unlimited',
-      feedback: 'Advanced',
-      roles: 'All + Custom',
-      analytics: 'Team Dashboard',
-      history: 'Unlimited',
+      interviews: 'Illimité',
+      feedback: 'Avancé',
+      roles: 'Tous + Personnalisés',
+      analytics: 'Tableau de bord',
+      history: 'Illimité',
       export: 'PDF + CSV',
-      support: 'Dedicated',
+      support: 'Dédié',
       custom: true,
     },
   },
@@ -201,11 +201,11 @@ export default function PricingPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </Link>
             {user && (
               <Link href="/dashboard">
-                <Button variant="outline">Back to Dashboard</Button>
+                <Button variant="outline">Retour au tableau de bord</Button>
               </Link>
             )}
           </div>
@@ -216,54 +216,54 @@ export default function PricingPage() {
 
         {/* ── CHOOSE YOUR PATH ── */}
         <div className="text-center mb-16">
-          <p className="text-primary text-sm font-semibold mb-2">CHOOSE YOUR PATH</p>
-          <h1 className="text-5xl font-bold mb-4">Two Ways to Prepare</h1>
-          <p className="text-xl text-gray-400 mb-10">Use AI, work with a real coach, or combine both.</p>
+          <p className="text-primary text-sm font-semibold mb-2">CHOISISSEZ VOTRE FORMULE</p>
+          <h1 className="text-5xl font-bold mb-4">Deux façons de se préparer</h1>
+          <p className="text-xl text-gray-400 mb-10">Utilisez l'IA, travaillez avec un vrai membre de jury, ou combinez les deux.</p>
 
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* AI Plans */}
             <div className="glass rounded-2xl p-8 border border-primary/30 text-left">
               <div className="text-4xl mb-4">🤖</div>
-              <h2 className="text-2xl font-bold mb-2">AI Practice Plans</h2>
-              <p className="text-gray-400 mb-4 text-sm">Unlimited mock interviews, instant feedback, and score tracking. Pick the subscription that fits your pace.</p>
+              <h2 className="text-2xl font-bold mb-2">Formules Simulation IA</h2>
+              <p className="text-gray-400 mb-4 text-sm">Simulations d'oral illimitées, feedback instantané et suivi des scores. Choisissez la formule adaptée à votre rythme.</p>
               <ul className="space-y-2 text-sm text-gray-400 mb-6">
-                <li>✓ 3 free interviews per month — forever</li>
-                <li>✓ Upgrade for unlimited practice</li>
-                <li>✓ Works 24/7, any device</li>
+                <li>✓ 3 simulations gratuites par mois — pour toujours</li>
+                <li>✓ Passez à l'illimité pour plus de pratique</li>
+                <li>✓ Disponible 24h/24, sur tous les appareils</li>
               </ul>
-              <p className="text-xs text-gray-500">See plans below ↓</p>
+              <p className="text-xs text-gray-500">Voir les formules ci-dessous ↓</p>
             </div>
 
             {/* Coach Sessions */}
             <div className="glass rounded-2xl p-8 border border-green-500/30 text-left">
               <div className="text-4xl mb-4">👨‍💼</div>
-              <h2 className="text-2xl font-bold mb-2">Coach Sessions</h2>
-              <p className="text-gray-400 mb-4 text-sm">Book a 1-on-1 session with a real expert from Google, Amazon, McKinsey and more. Pay per session — no subscription needed.</p>
+              <h2 className="text-2xl font-bold mb-2">Sessions avec un membre de jury</h2>
+              <p className="text-gray-400 mb-4 text-sm">Réservez un entretien individuel avec un véritable membre de jury expérimenté. Paiement à la séance — sans abonnement.</p>
               <ul className="space-y-2 text-sm text-gray-400 mb-6">
-                <li>✓ 30 min session — from <span className="text-green-400 font-semibold">$15</span></li>
-                <li>✓ 60 min session — from <span className="text-green-400 font-semibold">$30</span></li>
-                <li>✓ 90 min session — from <span className="text-green-400 font-semibold">$50</span></li>
+                <li>✓ 30 min — à partir de <span className="text-green-400 font-semibold">15 €</span></li>
+                <li>✓ 60 min — à partir de <span className="text-green-400 font-semibold">30 €</span></li>
+                <li>✓ 90 min — à partir de <span className="text-green-400 font-semibold">50 €</span></li>
               </ul>
               <Link href="/coaches">
-                <Button variant="outline" fullWidth className="border-green-500/40 text-green-400 hover:border-green-500 gap-2">Find a Coach →</Button>
+                <Button variant="outline" fullWidth className="border-green-500/40 text-green-400 hover:border-green-500 gap-2">Trouver un membre de jury →</Button>
               </Link>
             </div>
           </div>
 
           <p className="text-sm text-purple-400 mt-6">
-            💡 Pro plan members get <strong>10% off</strong> all coach sessions.
+            💡 Les membres Pro bénéficient de <strong>10 % de réduction</strong> sur toutes les sessions avec un membre de jury.
           </p>
         </div>
 
         {/* ── AI PLANS (existing billing toggle + cards) ── */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-2">🤖 AI Practice Plans</h2>
-          <p className="text-gray-400 mb-8">Choose the subscription that fits your interview schedule.</p>
+          <h2 className="text-3xl font-bold mb-2">🤖 Formules Simulation IA</h2>
+          <p className="text-gray-400 mb-8">Choisissez la formule qui correspond à votre rythme de préparation.</p>
 
           {/* Billing Cycle Toggle */}
           <div className="flex items-center justify-center gap-4 mb-8">
             <span className={`text-sm ${billingCycle === 'monthly' ? 'text-white' : 'text-gray-400'}`}>
-              Monthly
+              Mensuel
             </span>
             <button
               onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
@@ -278,10 +278,10 @@ export default function PricingPage() {
               />
             </button>
             <span className={`text-sm ${billingCycle === 'annual' ? 'text-white' : 'text-gray-400'}`}>
-              Annual
+              Annuel
             </span>
             {billingCycle === 'annual' && (
-              <Badge variant="success" className="ml-2">Save with annual billing</Badge>
+              <Badge variant="success" className="ml-2">Économisez avec le paiement annuel</Badge>
             )}
           </div>
         </div>
@@ -290,7 +290,7 @@ export default function PricingPage() {
           <div className="max-w-2xl mx-auto mb-12">
             <Card className="bg-primary/5 border-primary/30 text-center p-6">
               <p className="text-lg mb-4">
-                You're currently on the <strong className="text-primary">{profile.subscription_tier.charAt(0).toUpperCase() + profile.subscription_tier.slice(1)}</strong> plan
+                Vous êtes actuellement sur la formule <strong className="text-primary">{profile.subscription_tier.charAt(0).toUpperCase() + profile.subscription_tier.slice(1)}</strong>
               </p>
               <div className="flex justify-center">
                 <Button
@@ -298,7 +298,7 @@ export default function PricingPage() {
                   onClick={handleManageSubscription}
                   loading={loading === 'manage'}
                 >
-                  Manage Subscription
+                  Gérer l'abonnement
                 </Button>
               </div>
             </Card>
@@ -318,22 +318,22 @@ export default function PricingPage() {
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 animate-pulse">
-                  <Badge variant="success">Most Popular</Badge>
+                  <Badge variant="success">Le plus populaire</Badge>
                 </div>
               )}
 
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold mb-4">{plan.name}</h3>
                 <div className="mb-2">
-                  <span className="text-4xl font-bold gradient-text">${getPrice(plan)}</span>
-                  <span className="text-gray-400 text-sm">/mo</span>
+                  <span className="text-4xl font-bold gradient-text">{getPrice(plan)} €</span>
+                  <span className="text-gray-400 text-sm">/mois</span>
                 </div>
                 {billingCycle === 'annual' && plan.monthlyPrice > 0 && (
                   <p className="text-xs text-green-400">
-                    billed annually at the discounted rate
+                    facturé annuellement au tarif réduit
                   </p>
                 )}
-                <p className="text-gray-400 mt-2 text-sm">{plan.interviews} interviews</p>
+                <p className="text-gray-400 mt-2 text-sm">{plan.interviews} simulations</p>
               </div>
 
               <ul className="space-y-2 mb-6">
@@ -354,16 +354,16 @@ export default function PricingPage() {
                   disabled={profile?.subscription_tier === plan.tier}
                 >
                   {profile?.subscription_tier === plan.tier
-                    ? 'Current Plan'
+                    ? 'Formule actuelle'
                     : plan.monthlyPrice === 0
-                    ? 'Get Started'
-                    : 'Subscribe'}
+                    ? 'Commencer gratuitement'
+                    : "S'abonner"}
                 </Button>
               </div>
 
               {plan.monthlyPrice > 0 && (
                 <p className="mt-3 text-center text-xs text-green-400">
-                  30-day money back guarantee
+                  Garantie satisfait ou remboursé 30 jours
                 </p>
               )}
             </Card>
@@ -372,42 +372,42 @@ export default function PricingPage() {
 
         {/* Feature Comparison Table */}
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">Compare Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">Comparer les fonctionnalités</h2>
           <div className="glass rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left p-4 font-semibold">Feature</th>
+                    <th className="text-left p-4 font-semibold">Fonctionnalité</th>
                     {PLANS.map(plan => (
                       <th key={plan.tier} className="p-4 font-semibold text-center">
                         {plan.name}
-                        {plan.popular && <div className="text-xs text-primary font-normal mt-1">Popular</div>}
+                        {plan.popular && <div className="text-xs text-primary font-normal mt-1">Populaire</div>}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="border-b border-border/50 hover:bg-white/5">
-                    <td className="p-4 text-gray-300">Monthly Interviews</td>
+                    <td className="p-4 text-gray-300">Simulations mensuelles</td>
                     {PLANS.map(plan => (
                       <td key={plan.tier} className="p-4 text-center">{plan.comparison.interviews}</td>
                     ))}
                   </tr>
                   <tr className="border-b border-border/50 hover:bg-white/5">
-                    <td className="p-4 text-gray-300">AI Feedback Quality</td>
+                    <td className="p-4 text-gray-300">Qualité du feedback IA</td>
                     {PLANS.map(plan => (
                       <td key={plan.tier} className="p-4 text-center">{plan.comparison.feedback}</td>
                     ))}
                   </tr>
                   <tr className="border-b border-border/50 hover:bg-white/5">
-                    <td className="p-4 text-gray-300">Job Roles</td>
+                    <td className="p-4 text-gray-300">Concours disponibles</td>
                     {PLANS.map(plan => (
                       <td key={plan.tier} className="p-4 text-center">{plan.comparison.roles}</td>
                     ))}
                   </tr>
                   <tr className="border-b border-border/50 hover:bg-white/5">
-                    <td className="p-4 text-gray-300">Analytics</td>
+                    <td className="p-4 text-gray-300">Analytiques</td>
                     {PLANS.map(plan => (
                       <td key={plan.tier} className="p-4 text-center">
                         {plan.comparison.analytics ? (
@@ -419,13 +419,13 @@ export default function PricingPage() {
                     ))}
                   </tr>
                   <tr className="border-b border-border/50 hover:bg-white/5">
-                    <td className="p-4 text-gray-300">Session History</td>
+                    <td className="p-4 text-gray-300">Historique des sessions</td>
                     {PLANS.map(plan => (
                       <td key={plan.tier} className="p-4 text-center">{plan.comparison.history}</td>
                     ))}
                   </tr>
                   <tr className="border-b border-border/50 hover:bg-white/5">
-                    <td className="p-4 text-gray-300">Export Reports</td>
+                    <td className="p-4 text-gray-300">Export de rapports</td>
                     {PLANS.map(plan => (
                       <td key={plan.tier} className="p-4 text-center">
                         {plan.comparison.export ? plan.comparison.export : <X className="w-5 h-5 text-gray-600 inline" />}
@@ -439,7 +439,7 @@ export default function PricingPage() {
                     ))}
                   </tr>
                   <tr className="hover:bg-white/5">
-                    <td className="p-4 text-gray-300">Custom Scenarios</td>
+                    <td className="p-4 text-gray-300">Scénarios personnalisés</td>
                     {PLANS.map(plan => (
                       <td key={plan.tier} className="p-4 text-center">
                         {plan.comparison.custom ? (
@@ -456,23 +456,23 @@ export default function PricingPage() {
           </div>
 
           <div className="mt-16 max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8">Pricing FAQ</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">FAQ Tarifs</h2>
             <div className="grid md:grid-cols-2 gap-4">
               <Card>
-                <h3 className="font-semibold mb-2">Can I cancel anytime?</h3>
-                <p className="text-sm text-gray-400">Yes. You can cancel or change plans whenever you want from your billing portal.</p>
+                <h3 className="font-semibold mb-2">Puis-je annuler à tout moment ?</h3>
+                <p className="text-sm text-gray-400">Oui. Vous pouvez annuler ou changer de formule quand vous le souhaitez depuis votre espace de facturation.</p>
               </Card>
               <Card>
-                <h3 className="font-semibold mb-2">Do you offer refunds?</h3>
-                <p className="text-sm text-gray-400">Yes. Every paid plan includes a 30-day money back guarantee.</p>
+                <h3 className="font-semibold mb-2">Proposez-vous des remboursements ?</h3>
+                <p className="text-sm text-gray-400">Oui. Chaque formule payante inclut une garantie satisfait ou remboursé de 30 jours.</p>
               </Card>
               <Card>
-                <h3 className="font-semibold mb-2">What happens when I upgrade?</h3>
-                <p className="text-sm text-gray-400">Your interview limits and premium features update automatically after checkout.</p>
+                <h3 className="font-semibold mb-2">Que se passe-t-il quand je passe à une formule supérieure ?</h3>
+                <p className="text-sm text-gray-400">Vos limites de simulations et fonctionnalités premium sont mises à jour automatiquement après le paiement.</p>
               </Card>
               <Card>
-                <h3 className="font-semibold mb-2">Can I switch between monthly and annual?</h3>
-                <p className="text-sm text-gray-400">Absolutely. You can change your billing cadence whenever it makes sense for you.</p>
+                <h3 className="font-semibold mb-2">Puis-je passer du mensuel à l'annuel ?</h3>
+                <p className="text-sm text-gray-400">Absolument. Vous pouvez changer de rythme de facturation quand cela vous convient.</p>
               </Card>
             </div>
           </div>

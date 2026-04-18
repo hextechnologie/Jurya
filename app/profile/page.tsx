@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -9,28 +9,25 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 
 const statusOptions = [
-  { value: 'student',        label: '🎓 Student' },
-  { value: 'employed',       label: '👨‍💼 Employed' },
-  { value: 'unemployed',     label: '🔍 Actively Job Seeking' },
-  { value: 'career-change',  label: '🔄 Career Change' },
-  { value: 'fresh-graduate', label: '💼 Fresh Graduate' },
-  { value: 'other',          label: '🌍 Other' },
+  { value: 'student',        label: '🎓 Étudiant(e)' },
+  { value: 'employed',       label: '👨‍💼 En poste' },
+  { value: 'unemployed',     label: '🔍 En recherche active' },
+  { value: 'career-change',  label: '🔄 Reconversion' },
+  { value: 'fresh-graduate', label: '💼 Jeune diplômé(e)' },
+  { value: 'other',          label: '🌍 Autre' },
 ]
 
 const jobRoleOptions = [
-  { value: 'Software Engineer',  label: 'Software Engineer' },
-  { value: 'Product Manager',    label: 'Product Manager' },
-  { value: 'Data Analyst',       label: 'Data Analyst' },
-  { value: 'Product Designer',   label: 'Product Designer' },
-  { value: 'Marketing Manager',  label: 'Marketing Manager' },
-  { value: 'Sales Executive',    label: 'Sales Executive' },
-  { value: 'Business Analyst',   label: 'Business Analyst' },
-  { value: 'DevOps Engineer',    label: 'DevOps Engineer' },
-  { value: 'Data Scientist',     label: 'Data Scientist' },
-  { value: 'UX Researcher',      label: 'UX Researcher' },
-  { value: 'Finance Analyst',    label: 'Finance Analyst' },
-  { value: 'HR Specialist',      label: 'HR Specialist' },
-  { value: 'Other',              label: 'Other' },
+  { value: 'Administrateur territorial',  label: 'Administrateur territorial' },
+  { value: 'Attaché territorial',    label: 'Attaché territorial' },
+  { value: 'Rédacteur territorial',       label: 'Rédacteur territorial' },
+  { value: 'Ingénieur territorial',   label: 'Ingénieur territorial' },
+  { value: 'Technicien territorial',  label: 'Technicien territorial' },
+  { value: 'Inspecteur des finances', label: 'Inspecteur des finances' },
+  { value: 'Inspecteur des douanes',  label: 'Inspecteur des douanes' },
+  { value: 'Commissaire de police',   label: 'Commissaire de police' },
+  { value: 'Magistrat',              label: 'Magistrat' },
+  { value: 'Autre',                  label: 'Autre' },
 ]
 
 export default function ProfilePage() {
@@ -80,7 +77,7 @@ export default function ProfilePage() {
     if (isKnownRole || savedRole === '') {
       setTargetJobRole(savedRole)
     } else {
-      setTargetJobRole('Other')
+      setTargetJobRole('Autre')
       setCustomJobRole(savedRole)
     }
     setExperienceLevel(profile.experience_level ?? '')
@@ -135,23 +132,23 @@ export default function ProfilePage() {
 
     // Validation
     if (!headline.trim()) {
-      setError('Professional headline is required')
+      setError('Le titre professionnel est requis')
       return
     }
     if (!aboutMe.trim()) {
-      setError('About section is required')
+      setError('La section À propos est requise')
       return
     }
     if (!hasNoExperience && experienceList.length === 0) {
-      setError('Please add at least one experience entry or check "I have no experience"')
+      setError('Veuillez ajouter au moins une expérience ou cocher "Je n\'ai pas d\'expérience"')
       return
     }
     if (educationList.length === 0) {
-      setError('Please add at least one education entry')
+      setError('Veuillez ajouter au moins une formation')
       return
     }
     if (!skillsText.trim()) {
-      setError('Skills are required')
+      setError('Les compétences sont requises')
       return
     }
 
@@ -183,8 +180,8 @@ export default function ProfilePage() {
           full_name:       fullName         || null,
           current_status:  currentStatus    || null,
           status_detail:   statusDetail     || null,
-          target_job_role: targetJobRole === 'Other' ? (customJobRole.trim() || null) : (targetJobRole || null),
-          target_job_field: targetJobRole === 'Other' ? (customJobRole.trim().toLowerCase().replace(/\s+/g, '-') || null) : (targetJobRole?.toLowerCase().replace(/\s+/g, '-') || null),
+          target_job_role: targetJobRole === 'Autre' ? (customJobRole.trim() || null) : (targetJobRole || null),
+          target_job_field: targetJobRole === 'Autre' ? (customJobRole.trim().toLowerCase().replace(/\s+/g, '-') || null) : (targetJobRole?.toLowerCase().replace(/\s+/g, '-') || null),
           experience_level: (experienceLevel as 'junior' | 'mid' | 'senior') || null,
           country:         country    || null,
           city:            city       || null,
@@ -205,7 +202,7 @@ export default function ProfilePage() {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err: any) {
-      setError(err.message || 'Failed to save profile. Please try again.')
+      setError(err.message || 'Échec de la sauvegarde du profil. Veuillez réessayer.')
     } finally {
       setSaving(false)
     }
@@ -229,7 +226,7 @@ export default function ProfilePage() {
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <Sparkles className="w-7 h-7 text-purple-400" />
             <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Interview Coach
+              Jurya
             </span>
           </Link>
           <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
@@ -240,8 +237,8 @@ export default function ProfilePage() {
 
       <div className="container mx-auto max-w-2xl px-4 py-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-1">My Profile</h1>
-          <p className="text-gray-400 text-sm">Update your personal info and job preferences.</p>
+          <h1 className="text-3xl font-bold mb-1">Mon profil</h1>
+          <p className="text-gray-400 text-sm">Mettez à jour vos informations personnelles et vos préférences.</p>
         </div>
 
         {/* Avatar */}
@@ -270,14 +267,14 @@ export default function ProfilePage() {
         <form onSubmit={handleSave} className="space-y-5">
           {/* Name */}
           <div className="rounded-2xl border border-white/10 p-5 space-y-5" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Personal Info</h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Informations personnelles</h2>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Input label="First Name" value={firstName} onChange={setFirstName} placeholder="Jane" />
-              <Input label="Last Name"  value={lastName}  onChange={setLastName}  placeholder="Doe"  />
+              <Input label="Prénom" value={firstName} onChange={setFirstName} placeholder="Jean" />
+              <Input label="Nom"  value={lastName}  onChange={setLastName}  placeholder="Dupont"  />
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Input label="Country" value={country} onChange={setCountry} placeholder="e.g. United States" />
-              <Input label="City"    value={city}    onChange={setCity}    placeholder="e.g. San Francisco"  />
+              <Input label="Pays" value={country} onChange={setCountry} placeholder="ex. France" />
+              <Input label="Ville"    value={city}    onChange={setCity}    placeholder="ex. Paris"  />
             </div>
             <Input
               label="LinkedIn URL"
@@ -289,76 +286,76 @@ export default function ProfilePage() {
 
           {/* Career */}
           <div className="rounded-2xl border border-white/10 p-5 space-y-5" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Career Info</h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Parcours</h2>
             <Select
-              label="Current Status"
+              label="Situation actuelle"
               value={currentStatus}
               onChange={setCurrentStatus}
               options={statusOptions}
-              placeholder="What describes you best?"
+              placeholder="Qu'est-ce qui vous décrit le mieux ?"
             />
             {currentStatus && (
               <Input
-                label="Status Details"
-                value={statusDetail}
-                onChange={setStatusDetail}
-                placeholder={
-                  currentStatus === 'student'        ? 'e.g. MIT — Computer Science' :
-                  currentStatus === 'employed'       ? 'e.g. Software Engineer at Google' :
-                  currentStatus === 'unemployed'     ? 'e.g. Software Engineer — 3 months searching' :
-                  currentStatus === 'career-change'  ? 'e.g. Finance → Software Engineering' :
-                  currentStatus === 'fresh-graduate' ? 'e.g. BSc Computer Science' :
-                  'Brief description of your situation'
+              label="Détails"
+              value={statusDetail}
+              onChange={setStatusDetail}
+              placeholder={
+                  currentStatus === 'student'        ? 'ex. Université Paris-Saclay — Droit public' :
+                  currentStatus === 'employed'       ? 'ex. Rédacteur territorial à la Mairie de Lyon' :
+                  currentStatus === 'unemployed'     ? 'ex. Attaché territorial — 3 mois de recherche' :
+                  currentStatus === 'career-change'  ? 'ex. Finance → Fonction publique' :
+                  currentStatus === 'fresh-graduate' ? 'ex. Master Droit public' :
+                  'Brève description de votre situation'
                 }
               />
             )}
             <Select
-              label="Target Job Role"
+              label="Concours visé"
               value={targetJobRole}
-              onChange={(val) => { setTargetJobRole(val); if (val !== 'Other') setCustomJobRole('') }}
+              onChange={(val) => { setTargetJobRole(val); if (val !== 'Autre') setCustomJobRole('') }}
               options={jobRoleOptions}
-              placeholder="What role are you aiming for?"
+              placeholder="Quel concours préparez-vous ?"
             />
-            {targetJobRole === 'Other' && (
+            {targetJobRole === 'Autre' && (
               <Input
-                label="What's your exact role?"
+                label="Précisez votre concours"
                 value={customJobRole}
                 onChange={setCustomJobRole}
-                placeholder="e.g. Growth Hacker, AI Researcher, Prompt Engineer…"
+                placeholder="ex. Administrateur territorial, Inspecteur général…"
               />
             )}
             {targetJobRole && (
               <Select
-                label="Experience Level"
+                label="Niveau d'expérience"
                 value={experienceLevel}
                 onChange={setExperienceLevel}
                 options={[
-                  { value: 'junior', label: 'Junior (0–2 yrs)' },
-                  { value: 'mid',    label: 'Mid-level (3–5 yrs)' },
-                  { value: 'senior', label: 'Senior (6+ yrs)' },
+                  { value: 'junior', label: 'Junior (0–2 ans)' },
+                  { value: 'mid',    label: 'Confirmé (3–5 ans)' },
+                  { value: 'senior', label: 'Senior (6+ ans)' },
                 ]}
-                placeholder="Select level"
+                placeholder="Sélectionnez un niveau"
               />
             )}
           </div>
 
           {/* LinkedIn-style profile */}
           <div className="rounded-2xl border border-white/10 p-5 space-y-5" style={{ background: '#111827' }}>
-            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Professional Profile <span className="text-red-400">*</span></h2>
+            <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider">Profil professionnel <span className="text-red-400">*</span></h2>
             <Input
-              label="Professional Headline"
+              label="Titre professionnel"
               value={headline}
               onChange={setHeadline}
-              placeholder="e.g. Software Engineer focused on backend systems and distributed apps"
+              placeholder="ex. Préparation concours attaché territorial, spécialité droit public"
               required
             />
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">About <span className="text-red-400">*</span></label>
+              <label className="mb-2 block text-sm font-medium text-gray-200">À propos <span className="text-red-400">*</span></label>
               <textarea
                 value={aboutMe}
                 onChange={(e) => setAboutMe(e.target.value)}
                 rows={4}
-                placeholder="Write a short summary about yourself, your goals, and what makes you stand out..."
+                placeholder="Écrivez un court résumé de votre parcours, vos objectifs et ce qui vous distingue..."
                 className="w-full rounded-lg border border-white/10 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 style={{ background: '#0a0f1e' }}
                 required
@@ -366,7 +363,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-200">
-                Experience {!hasNoExperience && <span className="text-red-400">*</span>}
+                Expérience {!hasNoExperience && <span className="text-red-400">*</span>}
               </label>
               <label className="flex items-center gap-2 mb-3 text-sm text-gray-400 cursor-pointer">
                 <input
@@ -378,7 +375,7 @@ export default function ProfilePage() {
                   }}
                   className="w-4 h-4 rounded border-white/20 bg-white/5 text-purple-600 focus:ring-2 focus:ring-purple-500"
                 />
-                I have no professional experience yet
+                Je n'ai pas encore d'expérience professionnelle
               </label>
               {!hasNoExperience && (
                 <>
@@ -398,18 +395,18 @@ export default function ProfilePage() {
                       value={experienceInput}
                       onChange={(e) => setExperienceInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addExperience())}
-                      placeholder="e.g. Software Engineer at Google (2020-2023)"
+                      placeholder="ex. Rédacteur territorial à la Mairie de Lyon (2020-2023)"
                       className="flex-1 rounded-lg border border-white/10 px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       style={{ background: '#0a0f1e' }}
                     />
-                    <Button type="button" onClick={addExperience} variant="outline">Add</Button>
+                    <Button type="button" onClick={addExperience} variant="outline">Ajouter</Button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Add each work experience, internship, or role separately.</p>
+                  <p className="text-xs text-gray-500 mt-1">Ajoutez chaque expérience, stage ou poste séparément.</p>
                 </>
               )}
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">Education / Formation <span className="text-red-400">*</span></label>
+              <label className="mb-2 block text-sm font-medium text-gray-200">Formation <span className="text-red-400">*</span></label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {educationList.map(edu => (
                   <span key={edu} className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs bg-blue-600/20 text-blue-200 border border-blue-500/30">
@@ -426,30 +423,30 @@ export default function ProfilePage() {
                   value={educationInput}
                   onChange={(e) => setEducationInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEducation())}
-                  placeholder="e.g. BSc Computer Science - MIT (2016-2020)"
-                  className="flex-1 rounded-lg border border-white/10 px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  style={{ background: '#0a0f1e' }}
-                />
-                <Button type="button" onClick={addEducation} variant="outline">Add</Button>
+                    placeholder="ex. Master Droit public - Université Paris-Saclay (2016-2020)"
+                    className="flex-1 rounded-lg border border-white/10 px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{ background: '#0a0f1e' }}
+                  />
+                <Button type="button" onClick={addEducation} variant="outline">Ajouter</Button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Add each degree, certification, bootcamp, or training separately.</p>
+              <p className="text-xs text-gray-500 mt-1">Ajoutez chaque diplôme, certification ou formation séparément.</p>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-200">Projects</label>
+              <label className="mb-2 block text-sm font-medium text-gray-200">Projets</label>
               <textarea
                 value={projectsDetails}
                 onChange={(e) => setProjectsDetails(e.target.value)}
                 rows={3}
-                placeholder="Mention the most important projects you built or contributed to..."
+                placeholder="Mentionnez les projets les plus importants que vous avez réalisés ou auxquels vous avez contribué..."
                 className="w-full rounded-lg border border-white/10 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 style={{ background: '#0a0f1e' }}
               />
             </div>
             <Input
-              label="Skills"
+              label="Compétences"
               value={skillsText}
               onChange={setSkillsText}
-              placeholder="e.g. React, TypeScript, SQL, Leadership, Public Speaking"
+              placeholder="ex. Droit public, Management, Finances publiques, Communication orale"
               required
             />
           </div>
@@ -462,39 +459,39 @@ export default function ProfilePage() {
           )}
           {saved && (
             <div className="flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-300">
-              <CheckCircle className="w-4 h-4" /> Profile saved successfully!
+              <CheckCircle className="w-4 h-4" /> Profil sauvegardé avec succès !
             </div>
           )}
 
           <Button type="submit" variant="primary" fullWidth loading={saving}>
-            Save Changes
+            Sauvegarder
           </Button>
         </form>
 
         {/* Account info (read-only) */}
         <div className="mt-8 rounded-2xl border border-white/10 p-5" style={{ background: '#111827' }}>
-          <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider mb-4">Account</h2>
+          <h2 className="font-semibold text-sm text-gray-300 uppercase tracking-wider mb-4">Compte</h2>
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Email</span>
+              <span className="text-gray-400">E-mail</span>
               <span className="text-white">{user.email}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Plan</span>
+              <span className="text-gray-400">Forfait</span>
               <span className="text-white capitalize">{profile.subscription_tier}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Interviews this month</span>
+              <span className="text-gray-400">Simulations ce mois</span>
               <span className="text-white">{profile.interviews_used_this_month} / {profile.interviews_limit === 999999 ? '∞' : profile.interviews_limit}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Member since</span>
-              <span className="text-white">{new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+              <span className="text-gray-400">Membre depuis</span>
+              <span className="text-white">{new Date(profile.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
             </div>
           </div>
           <div className="mt-4 flex gap-3">
             <Link href="/pricing" className="flex-1">
-              <Button variant="outline" fullWidth className="text-sm">Upgrade Plan</Button>
+              <Button variant="outline" fullWidth className="text-sm">Changer de forfait</Button>
             </Link>
           </div>
         </div>

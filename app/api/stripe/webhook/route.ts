@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
               type: 'purchase',
               amount: credits,
               balance_after: newBalance,
-              description: `Purchased ${credits} credits${bonusCredits > 0 ? ` (includes ${bonusCredits} bonus)` : ''}`,
+              description: `Achat de ${credits} crédits${bonusCredits > 0 ? ` (dont ${bonusCredits} bonus)` : ''}`,
               stripe_payment_id: session.payment_intent as string,
               metadata: {
                 session_id: session.id,
@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
             // Send notification
             await supabase.from('notifications').insert({
               user_id: userId,
-              title: 'Credits Added Successfully',
-              message: `💳 ${credits} credits have been added to your account${bonusCredits > 0 ? ` (${credits - bonusCredits} + ${bonusCredits} bonus)` : ''}!`,
+              title: 'Crédits ajoutés avec succès',
+              message: `💳 ${credits} crédits ont été ajoutés à votre compte${bonusCredits > 0 ? ` (${credits - bonusCredits} + ${bonusCredits} bonus)` : ''} !`,
               type: 'credit_purchase',
               read: false,
             })

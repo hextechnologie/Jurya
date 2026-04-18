@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { Sparkles } from 'lucide-react'
@@ -16,10 +16,10 @@ export default function TermsPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </Link>
             <Link href="/dashboard">
-              <Button variant="outline">Dashboard</Button>
+              <Button variant="outline">Tableau de bord</Button>
             </Link>
           </div>
         </div>
@@ -29,213 +29,213 @@ export default function TermsPage() {
       <div className="relative z-10">
         <div className="container mx-auto px-6 py-20">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl font-bold mb-4">Terms of Service</h1>
-            <p className="text-gray-400 mb-8">Last updated: April 17, 2026</p>
+            <h1 className="text-5xl font-bold mb-4">Conditions générales d&apos;utilisation</h1>
+            <p className="text-gray-400 mb-8">Dernière mise à jour : 17 avril 2026</p>
 
             <div className="prose prose-invert max-w-none space-y-8">
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
+                <h2 className="text-2xl font-bold mb-4">1. Acceptation des conditions</h2>
                 <p className="text-gray-300 leading-relaxed">
-                  By accessing or using Interview Coach ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Service. We reserve the right to modify these Terms at any time, and your continued use constitutes acceptance of such changes.
+                  En accédant ou en utilisant Jurya (« le Service »), vous acceptez d&apos;être lié par les présentes Conditions générales d&apos;utilisation (« Conditions »). Si vous n&apos;acceptez pas ces Conditions, veuillez ne pas utiliser le Service. Nous nous réservons le droit de modifier ces Conditions à tout moment, et votre utilisation continue du Service vaut acceptation de ces modifications.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">2. Description of Service</h2>
+                <h2 className="text-2xl font-bold mb-4">2. Description du Service</h2>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  Interview Coach provides an AI-powered interview preparation platform that:
+                  Jurya est une plateforme de préparation aux oraux de concours assistée par IA qui :
                 </p>
                 <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Simulates realistic job interview scenarios</li>
-                  <li>Generates personalized interview questions</li>
-                  <li>Provides AI-driven feedback and performance analysis</li>
-                  <li>Tracks your progress over multiple sessions</li>
-                  <li>Supports multiple languages and industries</li>
+                  <li>Simule des scénarios réalistes d&apos;oral de concours</li>
+                  <li>Génère des questions personnalisées pour vos simulations d&apos;oral</li>
+                  <li>Fournit un retour et une analyse de performance pilotés par IA</li>
+                  <li>Suit votre progression sur plusieurs sessions</li>
+                  <li>Prend en charge plusieurs langues et domaines de concours</li>
                 </ul>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">3. User Accounts</h2>
-                <h3 className="text-xl font-semibold mb-3 text-primary">3.1 Account Creation</h3>
+                <h2 className="text-2xl font-bold mb-4">3. Comptes utilisateurs</h2>
+                <h3 className="text-xl font-semibold mb-3 text-primary">3.1 Création de compte</h3>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  To use our Service, you must:
+                  Pour utiliser notre Service, vous devez :
                 </p>
                 <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Be at least 16 years old</li>
-                  <li>Provide accurate and complete information</li>
-                  <li>Maintain the security of your password</li>
-                  <li>Notify us immediately of any unauthorized access</li>
+                  <li>Être âgé d&apos;au moins 16 ans</li>
+                  <li>Fournir des informations exactes et complètes</li>
+                  <li>Assurer la sécurité de votre mot de passe</li>
+                  <li>Nous informer immédiatement de tout accès non autorisé</li>
                 </ul>
 
-                <h3 className="text-xl font-semibold mb-3 mt-6 text-primary">3.2 Account Responsibility</h3>
+                <h3 className="text-xl font-semibold mb-3 mt-6 text-primary">3.2 Responsabilité du compte</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  You are responsible for all activities under your account. We are not liable for any loss or damage from your failure to maintain account security.
+                  Vous êtes responsable de toutes les activités effectuées sous votre compte. Nous ne saurions être tenus responsables de toute perte ou dommage résultant d&apos;un défaut de sécurisation de votre compte.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">4. Subscription Plans and Billing</h2>
-                <h3 className="text-xl font-semibold mb-3 text-primary">4.1 Plan Types</h3>
+                <h2 className="text-2xl font-bold mb-4">4. Formules d&apos;abonnement et facturation</h2>
+                <h3 className="text-xl font-semibold mb-3 text-primary">4.1 Types de formules</h3>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  We offer Free, Basic, and Pro subscription plans with different interview limits and features.
+                  Nous proposons des formules d&apos;abonnement Gratuit, Essentiel et Pro avec des limites de simulations d&apos;oral et des fonctionnalités différentes.
                 </p>
 
-                <h3 className="text-xl font-semibold mb-3 text-primary">4.2 Billing</h3>
+                <h3 className="text-xl font-semibold mb-3 text-primary">4.2 Facturation</h3>
                 <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Subscriptions are billed monthly or annually in advance</li>
-                  <li>All fees are non-refundable except as required by law</li>
-                  <li>We offer a 7-day money-back guarantee for first-time subscribers</li>
-                  <li>Prices may change with 30 days notice</li>
-                  <li>Failed payments may result in service suspension</li>
+                  <li>Les abonnements sont facturés mensuellement ou annuellement à l&apos;avance</li>
+                  <li>Tous les frais sont non remboursables, sauf disposition légale contraire</li>
+                  <li>Nous offrons une garantie de remboursement de 7 jours pour les nouveaux abonnés</li>
+                  <li>Les tarifs peuvent être modifiés avec un préavis de 30 jours</li>
+                  <li>Les paiements en défaut peuvent entraîner la suspension du Service</li>
                 </ul>
 
-                <h3 className="text-xl font-semibold mb-3 mt-6 text-primary">4.3 Cancellation</h3>
+                <h3 className="text-xl font-semibold mb-3 mt-6 text-primary">4.3 Résiliation</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  You may cancel your subscription at any time. Access continues until the end of the billing period. No refunds for partial months.
+                  Vous pouvez résilier votre abonnement à tout moment. L&apos;accès reste actif jusqu&apos;à la fin de la période de facturation en cours. Aucun remboursement n&apos;est accordé pour les mois entamés.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">5. Acceptable Use Policy</h2>
+                <h2 className="text-2xl font-bold mb-4">5. Politique d&apos;utilisation acceptable</h2>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  You agree NOT to:
+                  Vous vous engagez à NE PAS :
                 </p>
                 <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Use the Service for any illegal purpose</li>
-                  <li>Attempt to circumvent usage limits or payment requirements</li>
-                  <li>Share your account credentials with others</li>
-                  <li>Reverse engineer, decompile, or hack the Service</li>
-                  <li>Use automated scripts or bots (except browser automation features we provide)</li>
-                  <li>Upload malicious content or code</li>
-                  <li>Harass, abuse, or harm other users</li>
-                  <li>Scrape or extract data without permission</li>
-                  <li>Resell or redistribute the Service</li>
-                </ul>
-              </section>
-
-              <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">6. Intellectual Property</h2>
-                <h3 className="text-xl font-semibold mb-3 text-primary">6.1 Our Content</h3>
-                <p className="text-gray-300 leading-relaxed mb-4">
-                  All content, features, and functionality of the Service are owned by Interview Coach and protected by copyright, trademark, and other intellectual property laws.
-                </p>
-
-                <h3 className="text-xl font-semibold mb-3 text-primary">6.2 Your Content</h3>
-                <p className="text-gray-300 leading-relaxed mb-4">
-                  You retain ownership of your interview responses. By using the Service, you grant us a license to:
-                </p>
-                <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Process and analyze your responses to provide feedback</li>
-                  <li>Store your data for service delivery</li>
-                  <li>Use anonymized, aggregated data to improve our AI</li>
+                  <li>Utiliser le Service à des fins illégales</li>
+                  <li>Tenter de contourner les limites d&apos;utilisation ou les obligations de paiement</li>
+                  <li>Partager vos identifiants de connexion avec des tiers</li>
+                  <li>Effectuer de la rétro-ingénierie, décompiler ou pirater le Service</li>
+                  <li>Utiliser des scripts automatisés ou des robots (sauf les fonctionnalités d&apos;automatisation que nous fournissons)</li>
+                  <li>Télécharger du contenu ou du code malveillant</li>
+                  <li>Harceler, abuser ou nuire à d&apos;autres utilisateurs</li>
+                  <li>Extraire ou collecter des données sans autorisation</li>
+                  <li>Revendre ou redistribuer le Service</li>
                 </ul>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">7. AI-Generated Content</h2>
-                <p className="text-gray-300 leading-relaxed">
-                  Our Service uses AI to generate interview questions and feedback. While we strive for accuracy, AI-generated content may contain errors or biases. The feedback is for educational purposes only and should not be considered professional career advice. We are not liable for decisions made based on AI feedback.
-                </p>
-              </section>
-
-              <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">8. Disclaimers and Limitations of Liability</h2>
-                <h3 className="text-xl font-semibold mb-3 text-primary">8.1 Service "As Is"</h3>
+                <h2 className="text-2xl font-bold mb-4">6. Propriété intellectuelle</h2>
+                <h3 className="text-xl font-semibold mb-3 text-primary">6.1 Notre contenu</h3>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  The Service is provided "as is" and "as available" without warranties of any kind, either express or implied.
+                  L&apos;ensemble du contenu, des fonctionnalités et des fonctions du Service est la propriété de HEX Technologies et est protégé par le droit d&apos;auteur, le droit des marques et les autres lois relatives à la propriété intellectuelle.
                 </p>
 
-                <h3 className="text-xl font-semibold mb-3 text-primary">8.2 No Guarantee of Results</h3>
+                <h3 className="text-xl font-semibold mb-3 text-primary">6.2 Votre contenu</h3>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  We do not guarantee that use of our Service will result in job offers, improved interview performance, or any specific outcome.
-                </p>
-
-                <h3 className="text-xl font-semibold mb-3 text-primary">8.3 Limitation of Liability</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  To the maximum extent permitted by law, Interview Coach shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service. Our total liability shall not exceed the amount you paid in the 12 months preceding the claim.
-                </p>
-              </section>
-
-              <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">9. Indemnification</h2>
-                <p className="text-gray-300 leading-relaxed">
-                  You agree to indemnify and hold harmless Interview Coach from any claims, damages, or expenses arising from your use of the Service, violation of these Terms, or infringement of any third-party rights.
-                </p>
-              </section>
-
-              <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">10. Termination</h2>
-                <p className="text-gray-300 leading-relaxed mb-4">
-                  We may suspend or terminate your account if you:
+                  Vous conservez la propriété de vos réponses lors des simulations d&apos;oral. En utilisant le Service, vous nous accordez une licence pour :
                 </p>
                 <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Violate these Terms</li>
-                  <li>Engage in fraudulent activity</li>
-                  <li>Fail to pay subscription fees</li>
-                  <li>Abuse the Service or harm other users</li>
+                  <li>Traiter et analyser vos réponses afin de fournir un retour</li>
+                  <li>Stocker vos données aux fins de la fourniture du Service</li>
+                  <li>Utiliser des données anonymisées et agrégées pour améliorer notre IA</li>
+                </ul>
+              </section>
+
+              <section className="glass p-8 rounded-xl">
+                <h2 className="text-2xl font-bold mb-4">7. Contenu généré par IA</h2>
+                <p className="text-gray-300 leading-relaxed">
+                  Notre Service utilise l&apos;IA pour générer des questions de simulation d&apos;oral et des retours. Bien que nous nous efforcions d&apos;assurer l&apos;exactitude, le contenu généré par IA peut contenir des erreurs ou des biais. Les retours sont fournis à titre pédagogique uniquement et ne sauraient constituer un conseil professionnel d&apos;orientation. Nous ne saurions être tenus responsables des décisions prises sur la base des retours de l&apos;IA.
+                </p>
+              </section>
+
+              <section className="glass p-8 rounded-xl">
+                <h2 className="text-2xl font-bold mb-4">8. Exclusions de garantie et limitations de responsabilité</h2>
+                <h3 className="text-xl font-semibold mb-3 text-primary">8.1 Service « en l&apos;état »</h3>
+                <p className="text-gray-300 leading-relaxed mb-4">
+                  Le Service est fourni « en l&apos;état » et « selon disponibilité », sans garantie d&apos;aucune sorte, expresse ou implicite.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 text-primary">8.2 Absence de garantie de résultats</h3>
+                <p className="text-gray-300 leading-relaxed mb-4">
+                  Nous ne garantissons pas que l&apos;utilisation de notre Service entraînera l&apos;admission à un concours, une amélioration des performances à l&apos;oral ou tout résultat spécifique.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 text-primary">8.3 Limitation de responsabilité</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  Dans les limites autorisées par la loi applicable, HEX Technologies ne saurait être tenue responsable de tout dommage indirect, accessoire, spécial, consécutif ou punitif découlant de votre utilisation du Service. Notre responsabilité totale ne saurait excéder le montant que vous avez payé au cours des 12 mois précédant la réclamation.
+                </p>
+              </section>
+
+              <section className="glass p-8 rounded-xl">
+                <h2 className="text-2xl font-bold mb-4">9. Indemnisation</h2>
+                <p className="text-gray-300 leading-relaxed">
+                  Vous acceptez d&apos;indemniser et de dégager de toute responsabilité HEX Technologies contre toute réclamation, tout dommage ou toute dépense découlant de votre utilisation du Service, de la violation des présentes Conditions ou de l&apos;atteinte aux droits de tiers.
+                </p>
+              </section>
+
+              <section className="glass p-8 rounded-xl">
+                <h2 className="text-2xl font-bold mb-4">10. Résiliation</h2>
+                <p className="text-gray-300 leading-relaxed mb-4">
+                  Nous pouvons suspendre ou résilier votre compte si vous :
+                </p>
+                <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
+                  <li>Enfreignez les présentes Conditions</li>
+                  <li>Vous livrez à des activités frauduleuses</li>
+                  <li>Ne réglez pas les frais d&apos;abonnement</li>
+                  <li>Abusez du Service ou nuisez à d&apos;autres utilisateurs</li>
                 </ul>
                 <p className="text-gray-300 leading-relaxed mt-4">
-                  Upon termination, your right to use the Service ceases immediately. You may request data export within 30 days.
+                  En cas de résiliation, votre droit d&apos;utiliser le Service cesse immédiatement. Vous pouvez demander l&apos;exportation de vos données dans un délai de 30 jours.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">11. Data Privacy</h2>
+                <h2 className="text-2xl font-bold mb-4">11. Protection des données personnelles</h2>
                 <p className="text-gray-300 leading-relaxed">
-                  Your use of the Service is also governed by our <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>, which is incorporated into these Terms by reference.
+                  Votre utilisation du Service est également régie par notre <Link href="/privacy" className="text-primary hover:underline">Politique de confidentialité</Link>, qui est incorporée aux présentes Conditions par référence.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">12. Dispute Resolution</h2>
-                <h3 className="text-xl font-semibold mb-3 text-primary">12.1 Informal Resolution</h3>
+                <h2 className="text-2xl font-bold mb-4">12. Règlement des litiges</h2>
+                <h3 className="text-xl font-semibold mb-3 text-primary">12.1 Résolution amiable</h3>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  Before filing a claim, you agree to contact us at <a href="mailto:legal@interviewcoach.com" className="text-primary hover:underline">legal@interviewcoach.com</a> to resolve the dispute informally.
+                  Avant de déposer une réclamation, vous acceptez de nous contacter à l&apos;adresse <a href="mailto:legal@jurya.fr" className="text-primary hover:underline">legal@jurya.fr</a> afin de tenter de résoudre le litige à l&apos;amiable.
                 </p>
 
-                <h3 className="text-xl font-semibold mb-3 text-primary">12.2 Arbitration</h3>
+                <h3 className="text-xl font-semibold mb-3 text-primary">12.2 Médiation et juridiction compétente</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  Any disputes shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association. You waive your right to a jury trial or class action.
+                  En cas d&apos;échec de la résolution amiable, tout litige sera soumis à une procédure de médiation conformément au droit français. À défaut d&apos;accord, les tribunaux compétents de Paris seront seuls compétents.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">13. Governing Law</h2>
+                <h2 className="text-2xl font-bold mb-4">13. Droit applicable</h2>
                 <p className="text-gray-300 leading-relaxed">
-                  These Terms are governed by the laws of the State of Delaware, USA, without regard to conflict of law principles.
+                  Les présentes Conditions sont régies par le droit français, sans égard aux principes de conflit de lois.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">14. Severability</h2>
+                <h2 className="text-2xl font-bold mb-4">14. Divisibilité</h2>
                 <p className="text-gray-300 leading-relaxed">
-                  If any provision of these Terms is found to be unenforceable, the remaining provisions shall remain in full effect.
+                  Si une disposition des présentes Conditions est jugée inapplicable, les dispositions restantes demeureront pleinement en vigueur.
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl">
-                <h2 className="text-2xl font-bold mb-4">15. Contact Information</h2>
+                <h2 className="text-2xl font-bold mb-4">15. Coordonnées</h2>
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  For questions about these Terms:
+                  Pour toute question relative aux présentes Conditions :
                 </p>
                 <p className="text-gray-300">
-                  Email: <a href="mailto:legal@interviewcoach.com" className="text-primary hover:underline">legal@interviewcoach.com</a><br />
-                  Company: Interview Coach, Inc.<br />
-                  Or visit our <Link href="/contact" className="text-primary hover:underline">Contact Page</Link>
+                  Email : <a href="mailto:legal@jurya.fr" className="text-primary hover:underline">legal@jurya.fr</a><br />
+                  Société : HEX Technologies<br />
+                  Ou consultez notre <Link href="/contact" className="text-primary hover:underline">page de contact</Link>
                 </p>
               </section>
 
               <section className="glass p-8 rounded-xl bg-gradient-primary/10 border-primary/20">
-                <h2 className="text-2xl font-bold mb-4">Agreement</h2>
+                <h2 className="text-2xl font-bold mb-4">Acceptation</h2>
                 <p className="text-gray-300 leading-relaxed">
-                  By clicking "I Accept" during registration or by using the Service, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+                  En cliquant sur « J&apos;accepte » lors de l&apos;inscription ou en utilisant le Service, vous reconnaissez avoir lu, compris et accepté d&apos;être lié par les présentes Conditions générales d&apos;utilisation.
                 </p>
               </section>
             </div>
 
             <div className="mt-12 text-center">
               <Link href="/">
-                <Button variant="outline">Back to Home</Button>
+                <Button variant="outline">Retour à l&apos;accueil</Button>
               </Link>
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function TermsPage() {
         <footer className="border-t border-border mt-20 py-8">
           <div className="container mx-auto px-6">
             <div className="text-center text-gray-400 text-sm">
-              <p>&copy; 2026 Interview Coach. All rights reserved.</p>
+              <p>&copy; 2026 HEX Technologies. Tous droits réservés.</p>
             </div>
           </div>
         </footer>

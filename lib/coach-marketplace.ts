@@ -1,4 +1,4 @@
-export type CoachReview = {
+﻿export type CoachReview = {
   author: string
   role: string
   rating: number
@@ -97,7 +97,7 @@ export const mockCoaches: MarketplaceCoach[] = [
   {
     id: 'amina-haddad',
     name: 'Amina Haddad',
-    title: 'Finance Leadership Interview Coach',
+    title: 'Finance Leadership Jurya',
     price: 110,
     rating: 4.7,
     reviewCount: 76,
@@ -105,7 +105,7 @@ export const mockCoaches: MarketplaceCoach[] = [
     languages: ['English', 'French', 'Arabic'],
     specializations: ['Finance', 'Sales'],
     bio: 'I help finance and consulting candidates structure answers with clarity and commercial impact.',
-    about: 'Former Big Four manager turned interview coach. I specialize in executive presence, case-style answers, and high-stakes finance interviews.',
+    about: 'Former Big Four manager turned Jurya. I specialize in executive presence, case-style answers, and high-stakes finance interviews.',
     yearsExperience: 12,
     sessionsBooked: 208,
     avatar: 'from-emerald-500 to-cyan-500',

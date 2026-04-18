@@ -1,21 +1,21 @@
-export function OrganizationSchema() {
+﻿export function OrganizationSchema() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Interview Coach',
-    description: 'AI-powered interview preparation platform helping job seekers practice and improve their interview skills.',
-    url: 'https://interview-coach.vercel.app',
-    logo: 'https://interview-coach.vercel.app/logo.png',
+    name: 'Jurya',
+    description: 'Plateforme de préparation aux oraux de concours de la fonction publique, propulsée par l\'IA, pour s\'entraîner et améliorer ses compétences à l\'oral.',
+    url: 'https://jurya.fr',
+    logo: 'https://jurya.fr/logo.png',
     foundingDate: '2026',
     sameAs: [
-      'https://twitter.com/interviewcoach',
-      'https://github.com/interviewcoach',
+      'https://twitter.com/jurya',
+      'https://github.com/jurya',
     ],
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'support@interviewcoach.com',
-      contactType: 'Customer Support',
-      availableLanguage: ['English', 'Arabic', 'Spanish', 'French', 'German'],
+      email: 'support@jurya.fr',
+      contactType: 'Support client',
+      availableLanguage: ['Français', 'English', 'Arabic', 'Spanish'],
     },
   }
 
@@ -31,12 +31,12 @@ export function WebsiteSchema() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Interview Coach',
-    url: 'https://interview-coach.vercel.app',
-    description: 'Master your next job interview with AI-powered coaching',
+    name: 'Jurya',
+    url: 'https://jurya.fr',
+    description: 'Préparez vos oraux de concours avec un coaching par IA',
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://interview-coach.vercel.app/search?q={search_term_string}',
+      target: 'https://jurya.fr/search?q={search_term_string}',
       'query-input': 'required name=search_term_string',
     },
   }
@@ -53,14 +53,14 @@ export function SoftwareApplicationSchema() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Interview Coach',
+    name: 'Jurya',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web Browser',
     offers: {
       '@type': 'AggregateOffer',
       lowPrice: '0',
       highPrice: '49',
-      priceCurrency: 'USD',
+      priceCurrency: 'EUR',
       offerCount: '4',
     },
     aggregateRating: {
@@ -71,11 +71,11 @@ export function SoftwareApplicationSchema() {
       worstRating: '1',
     },
     featureList: [
-      'AI-Powered Interview Practice',
-      'Instant Feedback',
-      'Multi-Language Support',
-      'Progress Tracking',
-      'Custom Interview Scenarios',
+      'Simulation d\'oral de concours par IA',
+      'Retour instantané',
+      'Support multilingue',
+      'Suivi de progression',
+      'Scénarios de simulation personnalisés',
     ],
   }
 
@@ -94,42 +94,42 @@ export function FAQPageSchema() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'How does the AI interview work?',
+        name: 'Comment fonctionne la simulation d\'oral par IA ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'The platform simulates a realistic interview based on your role, level, and interview type, then scores your answers and provides detailed feedback.',
+          text: 'La plateforme simule un oral de concours réaliste en fonction de votre concours, niveau et type d\'oral, puis note vos réponses et fournit un retour détaillé.',
         },
       },
       {
         '@type': 'Question',
-        name: 'How many free interviews do I get?',
+        name: 'Combien de simulations gratuites ai-je droit ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Free users receive 3 mock interviews each month before needing to upgrade.',
+          text: 'Les utilisateurs gratuits bénéficient de 3 simulations d\'oral par mois avant de devoir passer à un forfait supérieur.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Can I cancel my subscription anytime?',
+        name: 'Puis-je annuler mon abonnement à tout moment ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes, you can cancel your subscription at any time from your billing settings.',
+          text: 'Oui, vous pouvez annuler votre abonnement à tout moment depuis vos paramètres de facturation.',
         },
       },
       {
         '@type': 'Question',
-        name: 'What job roles are supported?',
+        name: 'Quels concours sont pris en charge ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'The app supports many roles including engineering, product, design, marketing, sales, finance, and more.',
+          text: 'L\'application prend en charge de nombreux concours de la fonction publique : administrateur territorial, attaché territorial, rédacteur, technicien, ingénieur, et bien d\'autres.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Is my data private?',
+        name: 'Mes données sont-elles protégées ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes, your interview data is stored securely and used only to power your interview practice experience.',
+          text: 'Oui, vos données de simulation sont stockées de manière sécurisée et utilisées uniquement pour améliorer votre expérience d\'entraînement.',
         },
       },
     ],

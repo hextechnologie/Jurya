@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { ArrowRight, Briefcase, Sparkles, UserRound } from 'lucide-react'
@@ -7,20 +7,20 @@ import { motion } from 'framer-motion'
 
 const loginTypes = [
   {
-    title: "I'm looking for a job 🎯",
-    description: 'Practice with AI, book expert coaches, and track your progress.',
+    title: 'Je prépare un concours 🎯',
+    description: 'Entraînez-vous avec l\'IA, réservez un membre de jury et suivez votre progression.',
     icon: UserRound,
     href: '/login/candidate',
     signupHref: '/signup/candidate',
-    badge: 'Candidate',
+    badge: 'Candidat',
   },
   {
-    title: "I'm a Coach 💼",
-    description: 'Create your profile, accept bookings, and earn with Stripe Connect.',
+    title: 'Je suis membre de jury 💼',
+    description: 'Créez votre profil, acceptez les réservations et recevez vos paiements.',
     icon: Briefcase,
     href: '/login/coach',
     signupHref: '/signup/coach',
-    badge: 'Coach',
+    badge: 'Jury',
   },
 ]
 
@@ -32,14 +32,14 @@ export default function LoginPage() {
       <div className="relative z-10 mx-auto max-w-6xl">
         <Link href="/" className="mb-10 flex items-center justify-center gap-2">
           <Sparkles className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+          <span className="text-2xl font-bold gradient-text">Jurya</span>
         </Link>
 
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <Badge className="mb-4">Choose your path</Badge>
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">Login by account type</h1>
+          <Badge className="mb-4">Choisissez votre espace</Badge>
+          <h1 className="mb-4 text-4xl font-bold md:text-5xl">Connexion par type de compte</h1>
           <p className="text-lg text-gray-300">
-            Candidates can practice and book sessions. Coaches can manage clients, availability, and payouts.
+            Les candidats peuvent s'entraîner et réserver des sessions. Les membres de jury gèrent leur disponibilité et leurs paiements.
           </p>
         </div>
 
@@ -67,13 +67,13 @@ export default function LoginPage() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <Link href={item.href}>
                       <Button variant="primary" fullWidth className="gap-2">
-                        Login
+                        Se connecter
                         <ArrowRight className="h-4 w-4" />
                       </Button>
                     </Link>
                     <Link href={item.signupHref}>
                       <Button variant="outline" fullWidth>
-                        Signup
+                        S'inscrire
                       </Button>
                     </Link>
                   </div>

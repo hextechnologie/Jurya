@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -23,9 +23,9 @@ export default function ForgotPasswordPage() {
     })
 
     if (error) {
-      setError("We couldn't send a reset email. Please check the address and try again.")
+      setError("Impossible d'envoyer l'e-mail de réinitialisation. Vérifiez l'adresse et réessayez.")
     } else {
-      setMessage('Check your inbox — a password reset link has been sent.')
+      setMessage('Vérifiez votre boîte de réception — un lien de réinitialisation a été envoyé.')
     }
 
     setLoading(false)
@@ -37,19 +37,19 @@ export default function ForgotPasswordPage() {
       <div className="relative z-10 w-full max-w-md">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <Sparkles className="w-8 h-8 text-primary" />
-          <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+          <span className="text-2xl font-bold gradient-text">Jurya</span>
         </Link>
         <Card>
-          <h1 className="text-3xl font-bold text-center mb-2">Forgot Password?</h1>
-          <p className="text-gray-400 text-center mb-6">Enter your email to receive a reset link.</p>
+          <h1 className="text-3xl font-bold text-center mb-2">Mot de passe oublié ?</h1>
+          <p className="text-gray-400 text-center mb-6">Entrez votre e-mail pour recevoir un lien de réinitialisation.</p>
           {message && <div className="mb-4 rounded-lg border border-green-500 bg-green-500/10 px-4 py-3 text-green-400">{message}</div>}
           {error && <div className="mb-4 rounded-lg border border-red-500 bg-red-500/10 px-4 py-3 text-red-400">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-5">
-            <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" required />
-            <Button type="submit" variant="primary" fullWidth loading={loading}>Send Reset Link</Button>
+            <Input label="E-mail" type="email" value={email} onChange={setEmail} placeholder="vous@exemple.com" required />
+            <Button type="submit" variant="primary" fullWidth loading={loading}>Envoyer le lien</Button>
           </form>
           <div className="mt-6 text-center text-sm text-gray-400">
-            <Link href="/login" className="text-primary hover:underline">Back to login</Link>
+            <Link href="/login" className="text-primary hover:underline">Retour à la connexion</Link>
           </div>
         </Card>
       </div>

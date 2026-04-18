@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/components/AuthProvider'
@@ -9,21 +9,21 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 const ROLES = [
-  'Software Engineer',
-  'Product Manager',
-  'Data Scientist',
-  'Frontend Engineer',
-  'Backend Engineer',
-  'DevOps Engineer',
-  'Marketing Manager',
-  'Sales Manager',
-  'Customer Success Manager',
-  'Other',
+  'Administrateur territorial',
+  'Attaché territorial',
+  'Rédacteur territorial',
+  'Ingénieur territorial',
+  'Technicien territorial',
+  'Inspecteur des finances publiques',
+  'Inspecteur des douanes',
+  'Commissaire de police',
+  'Magistrat',
+  'Autre',
 ]
 
 const EXPERIENCE_LEVELS = ['junior', 'mid', 'senior']
-const INTERVIEW_TYPES = ['Technical', 'Behavioral', 'Mixed']
-const LANGUAGES = ['English', 'French', 'Spanish', 'Arabic']
+const INTERVIEW_TYPES = ['Technique', 'Culture générale', 'Mixte']
+const LANGUAGES = ['Français', 'English', 'Español', 'العربية']
 
 export default function InterviewSetupPage() {
   const { user, profile, loading: authLoading } = useAuth()
@@ -77,16 +77,16 @@ export default function InterviewSetupPage() {
     const nextErrors: Record<string, string> = {}
 
     if (currentStep === 1 && resumeText.trim().length < 30) {
-      nextErrors.resumeText = 'Paste or upload enough resume content to personalize your interview.'
+      nextErrors.resumeText = 'Collez ou importez suffisamment de contenu de CV pour personnaliser votre simulation.'
     }
 
 
     if (currentStep === 3 && !jobTitle) {
-      nextErrors.jobTitle = 'Select the role you are interviewing for.'
+      nextErrors.jobTitle = 'Sélectionnez le concours que vous préparez.'
     }
 
     if (currentStep === 4 && !experienceLevel) {
-      nextErrors.experienceLevel = 'Choose your experience level.'
+      nextErrors.experienceLevel = 'Choisissez votre niveau d\'expérience.'
     }
 
     setErrors(nextErrors)
@@ -147,23 +147,23 @@ export default function InterviewSetupPage() {
         text = await file.text()
       } else {
         setResumeText('')
-        setResumeStatus('This file type is not supported for automatic parsing yet. Please upload a PDF or paste your resume text.')
+        setResumeStatus('Ce type de fichier n\'est pas encore pris en charge. Veuillez importer un PDF ou coller votre texte de CV.')
         return
       }
 
       if (!text || text.trim().length < 30) {
         setResumeText('')
-        setResumeStatus('I could not extract enough readable text from that file. Please paste your resume text or upload a text-based PDF.')
+        setResumeStatus('Impossible d\'extraire suffisamment de texte lisible de ce fichier. Veuillez coller votre CV ou utiliser un PDF textuel.')
         return
       }
 
       setResumeText(text)
-      setResumeStatus('Resume imported successfully. No extra text entry is needed unless you want to edit it.')
+      setResumeStatus('CV importé avec succès. Aucune saisie supplémentaire n\'est nécessaire sauf si vous souhaitez le modifier.')
       setErrors((prev) => ({ ...prev, resumeText: '' }))
     } catch (error) {
       console.error('Resume upload error:', error)
       setResumeText('')
-      setResumeStatus('That resume could not be parsed. Please paste your resume text or use a text-based PDF.')
+      setResumeStatus('Ce CV n\'a pas pu être analysé. Veuillez coller votre texte de CV ou utiliser un PDF textuel.')
     } finally {
       setUploadingResume(false)
     }
@@ -209,7 +209,7 @@ export default function InterviewSetupPage() {
           industry: 'Tech',
           experienceLevel,
           jobDescription,
-          language: language === 'French' ? 'fr' : language === 'Spanish' ? 'es' : language === 'Arabic' ? 'ar' : 'en',
+          language: language === 'Français' ? 'fr' : language === 'English' ? 'en' : language === 'Español' ? 'es' : language === 'العربية' ? 'ar' : 'fr',
           interviewerType: realCompanyMode ? 'Real Company Panel' : 'Hiring Manager',
           interviewType,
           interviewRound: realCompanyMode ? 'Final Round' : 'First Round',
@@ -224,7 +224,7 @@ export default function InterviewSetupPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        alert(data.error || 'Failed to create interview')
+        alert(data.error || 'Échec de la création de la simulation')
         return
       }
 
@@ -233,7 +233,7 @@ export default function InterviewSetupPage() {
       }
     } catch (error) {
       console.error('Error creating interview:', error)
-      alert('Failed to create interview. Please try again.')
+      alert('Échec de la création de la simulation. Veuillez réessayer.')
     } finally {
       setLoading(false)
     }
@@ -253,16 +253,16 @@ export default function InterviewSetupPage() {
         <div className="container mx-auto px-6 py-20 max-w-3xl">
           <Card className="text-center border-red-500/30 bg-red-500/5">
             <FileText className="w-14 h-14 text-red-400 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold mb-3">Complete Your Profile First</h1>
+            <h1 className="text-3xl font-bold mb-3">Complétez votre profil d'abord</h1>
             <p className="text-gray-400 mb-6">
-              Before starting an interview, you need to complete your profile with your professional headline, about section, experience, education, and skills.
+              Avant de commencer une simulation, vous devez compléter votre profil avec votre titre professionnel, votre présentation, votre expérience, votre formation et vos compétences.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Link href="/profile">
-                <Button variant="primary">Complete Profile</Button>
+                <Button variant="primary">Compléter le profil</Button>
               </Link>
               <Link href="/dashboard">
-                <Button variant="outline">Back to Dashboard</Button>
+                <Button variant="outline">Retour au tableau de bord</Button>
               </Link>
             </div>
           </Card>
@@ -277,16 +277,16 @@ export default function InterviewSetupPage() {
         <div className="container mx-auto px-6 py-20 max-w-3xl">
           <Card className="text-center border-primary/30 bg-primary/5">
             <ShieldCheck className="w-14 h-14 text-primary mx-auto mb-4" />
-            <h1 className="text-3xl font-bold mb-3">You’ve used your free interview sessions</h1>
+            <h1 className="text-3xl font-bold mb-3">Vous avez utilisé toutes vos sessions gratuites</h1>
             <p className="text-gray-400 mb-6">
-              Upgrade your plan to unlock more tailored mock interviews, deeper analytics, and continuous coaching.
+              Passez à un plan supérieur pour débloquer plus de simulations personnalisées, des analyses approfondies et un coaching continu.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Link href="/pricing">
-                <Button variant="primary">See Pricing</Button>
+                <Button variant="primary">Voir les tarifs</Button>
               </Link>
               <Link href="/dashboard">
-                <Button variant="outline">Back to Dashboard</Button>
+                <Button variant="outline">Retour au tableau de bord</Button>
               </Link>
             </div>
           </Card>
@@ -301,14 +301,14 @@ export default function InterviewSetupPage() {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors">
-              <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+              <ChevronLeft className="w-4 h-4" /> Retour au tableau de bord
             </Link>
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </Link>
           </div>
-          <p className="text-sm text-gray-400">Free plan: {profile?.interviews_used_this_month || 0} / {profile?.interviews_limit || 3} sessions used</p>
+          <p className="text-sm text-gray-400">Forfait gratuit : {profile?.interviews_used_this_month || 0} / {profile?.interviews_limit || 3} sessions utilisées</p>
         </div>
       </header>
 
@@ -316,15 +316,15 @@ export default function InterviewSetupPage() {
         <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-6 items-start">
           <Card className="p-6 md:p-8 transition-all duration-300">
             <div className="mb-8">
-              <p className="text-primary text-sm font-semibold mb-2">PERSONALIZED ONBOARDING</p>
-              <h1 className="text-4xl font-bold mb-2">Build your AI interview coach</h1>
-              <p className="text-gray-400">Upload your background, target the role, and get questions tailored to your next job.</p>
+              <p className="text-primary text-sm font-semibold mb-2">CONFIGURATION PERSONNALISÉE</p>
+              <h1 className="text-4xl font-bold mb-2">Configurez votre simulation d'oral</h1>
+              <p className="text-gray-400">Importez votre parcours, ciblez le concours, et obtenez des questions adaptées à votre préparation.</p>
             </div>
 
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3 text-sm">
-                <span className="text-primary font-semibold">Step {step} of 4</span>
-                <span className="text-gray-400">{['Resume', 'Job Description', 'Role', 'Experience'][step - 1]}</span>
+                <span className="text-primary font-semibold">Étape {step} sur 4</span>
+                <span className="text-gray-400">{['CV', 'Description du concours', 'Concours', 'Expérience'][step - 1]}</span>
               </div>
               <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                 <div className="h-full bg-gradient-primary transition-all duration-500" style={{ width: `${(step / 4) * 100}%` }} />
@@ -334,22 +334,22 @@ export default function InterviewSetupPage() {
             {step === 1 && (
               <div className="space-y-5 animate-fadeIn">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Step 1 — Upload or paste your resume</h2>
-                  <p className="text-gray-400">This helps the AI target your strongest skills, projects, and experience.</p>
+                  <h2 className="text-2xl font-bold mb-2">Étape 1 — Importez ou collez votre CV</h2>
+                  <p className="text-gray-400">Cela aide l'IA à cibler vos compétences, projets et expériences les plus pertinents.</p>
                 </div>
 
                 <label className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 px-4 py-4 text-sm cursor-pointer hover:bg-primary/10 transition-colors">
                   <Upload className="w-4 h-4" />
-                  {uploadingResume ? 'Reading resume...' : resumeFileName ? `Uploaded: ${resumeFileName}` : 'Upload a resume file'}
+                  {uploadingResume ? 'Lecture du CV...' : resumeFileName ? `Importé : ${resumeFileName}` : 'Importer un fichier CV'}
                   <input type="file" accept=".pdf,.txt,.md" className="hidden" onChange={handleResumeUpload} />
                 </label>
 
                 {resumeFileName && !showResumeEditor ? (
                   <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-4">
-                    <p className="text-sm text-green-400 font-medium mb-2">{resumeStatus || 'Resume imported successfully.'}</p>
-                    <p className="text-sm text-gray-300 mb-3">Your CV is already loaded and will be used to personalize the interview.</p>
+                    <p className="text-sm text-green-400 font-medium mb-2">{resumeStatus || 'CV importé avec succès.'}</p>
+                    <p className="text-sm text-gray-300 mb-3">Votre CV est déjà chargé et sera utilisé pour personnaliser la simulation.</p>
                     <Button variant="outline" className="text-sm px-4 py-2" onClick={() => setShowResumeEditor(true)}>
-                      Review or edit extracted text
+                      Vérifier ou modifier le texte extrait
                     </Button>
                   </div>
                 ) : (
@@ -358,7 +358,7 @@ export default function InterviewSetupPage() {
                     onChange={(e) => setResumeText(e.target.value)}
                     rows={10}
                     className={`w-full bg-background border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all ${errors.resumeText ? 'border-red-500' : 'border-border'}`}
-                    placeholder="Paste your resume here only if you want to type it manually or edit the imported text."
+                    placeholder="Collez votre CV ici uniquement si vous souhaitez le saisir manuellement ou modifier le texte importé."
                   />
                 )}
                 {resumeStatus && !resumeFileName && (
@@ -372,7 +372,7 @@ export default function InterviewSetupPage() {
                     onClick={() => setShowResumeEditor(false)}
                     className="text-sm text-primary hover:underline"
                   >
-                    Hide extracted text
+                    Masquer le texte extrait
                   </button>
                 )}
                 {errors.resumeText && <p className="text-sm text-red-400">{errors.resumeText}</p>}
@@ -382,15 +382,15 @@ export default function InterviewSetupPage() {
             {step === 2 && (
               <div className="space-y-5 animate-fadeIn">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Step 2 — Add the job description (optional)</h2>
-                  <p className="text-gray-400">If you have the job post, paste it here. If not, you can leave this blank and continue.</p>
+                  <h2 className="text-2xl font-bold mb-2">Étape 2 — Ajoutez la description du concours (optionnel)</h2>
+                  <p className="text-gray-400">Si vous avez la fiche du concours, collez-la ici. Sinon, laissez ce champ vide et continuez.</p>
                 </div>
                 <textarea
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   rows={12}
                   className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                  placeholder="Optional: paste the full job description or just a few keywords from the role."
+                  placeholder="Optionnel : collez la description complète du concours ou quelques mots-clés."
                 />
               </div>
             )}
@@ -398,15 +398,15 @@ export default function InterviewSetupPage() {
             {step === 3 && (
               <div className="space-y-5 animate-fadeIn">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Step 3 — Select your role</h2>
-                  <p className="text-gray-400">Choose the role so the questions match the expectations of the hiring team.</p>
+                  <h2 className="text-2xl font-bold mb-2">Étape 3 — Sélectionnez votre concours</h2>
+                  <p className="text-gray-400">Choisissez le concours pour que les questions correspondent aux attentes du jury.</p>
                 </div>
                 <select
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
                   className={`w-full bg-background border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary ${errors.jobTitle ? 'border-red-500' : 'border-border'}`}
                 >
-                  <option value="">Select your role...</option>
+                  <option value="">Sélectionnez votre concours...</option>
                   {ROLES.map((role) => (
                     <option key={role} value={role}>{role}</option>
                   ))}
@@ -418,19 +418,19 @@ export default function InterviewSetupPage() {
             {step === 4 && (
               <div className="space-y-5 animate-fadeIn">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Step 4 — Set your experience and interview mode</h2>
-                  <p className="text-gray-400">We’ll adjust the difficulty, tone, and evaluation style to fit your goals.</p>
+                  <h2 className="text-2xl font-bold mb-2">Étape 4 — Définissez votre expérience et le mode de simulation</h2>
+                  <p className="text-gray-400">Nous ajusterons la difficulté, le ton et le style d'évaluation selon vos objectifs.</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-300 mb-2">Experience level</label>
+                    <label className="block text-sm text-gray-300 mb-2">Niveau d'expérience</label>
                     <select
                       value={experienceLevel}
                       onChange={(e) => setExperienceLevel(e.target.value)}
                       className={`w-full bg-background border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary ${errors.experienceLevel ? 'border-red-500' : 'border-border'}`}
                     >
-                      <option value="">Select level...</option>
+                      <option value="">Sélectionnez un niveau...</option>
                       {EXPERIENCE_LEVELS.map((level) => (
                         <option key={level} value={level}>{level.charAt(0).toUpperCase() + level.slice(1)}</option>
                       ))}
@@ -438,7 +438,7 @@ export default function InterviewSetupPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-300 mb-2">Interview type</label>
+                    <label className="block text-sm text-gray-300 mb-2">Type d'épreuve</label>
                     <select
                       value={interviewType}
                       onChange={(e) => setInterviewType(e.target.value)}
@@ -451,7 +451,7 @@ export default function InterviewSetupPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-300 mb-2">Interview language</label>
+                    <label className="block text-sm text-gray-300 mb-2">Langue de la simulation</label>
                     <select
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
@@ -465,7 +465,7 @@ export default function InterviewSetupPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-gray-300 mb-2">Years of experience</label>
+                  <label className="block text-sm text-gray-300 mb-2">Années d'expérience</label>
                   <input
                     type="number"
                     min="0"
@@ -473,7 +473,7 @@ export default function InterviewSetupPage() {
                     value={yearsOfExperience}
                     onChange={(e) => setYearsOfExperience(e.target.value)}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Example: 4"
+                    placeholder="Exemple : 4"
                   />
                 </div>
 
@@ -485,9 +485,9 @@ export default function InterviewSetupPage() {
                       onChange={(e) => setRealCompanyMode(e.target.checked)}
                       className="w-4 h-4"
                     />
-                    <span className="font-medium">Enable real company interview mode</span>
+                    <span className="font-medium">Activer le mode entretien réel</span>
                   </label>
-                  <p className="text-sm text-gray-400 mt-2">Adds more realistic pressure and higher-signal questions based on your target company.</p>
+                  <p className="text-sm text-gray-400 mt-2">Ajoute plus de pression réaliste et des questions ciblées basées sur votre objectif.</p>
                 </div>
 
                 {realCompanyMode && (
@@ -496,19 +496,19 @@ export default function InterviewSetupPage() {
                     value={targetCompany}
                     onChange={(e) => setTargetCompany(e.target.value)}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Target company, e.g. Google, Stripe, Amazon"
+                    placeholder="Organisme cible, ex. ÉNA, INET, CNFPT"
                   />
                 )}
 
                 <div>
-                  <label className="block text-sm text-gray-300 mb-2">Optional focus skills</label>
+                  <label className="block text-sm text-gray-300 mb-2">Compétences à cibler (optionnel)</label>
                   <input
                     type="text"
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={addSkill}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Type a skill and press Enter, e.g. React, SQL, roadmap planning"
+                    placeholder="Tapez une compétence et appuyez sur Entrée, ex. Droit public, Management, Finances"
                   />
                   <div className="flex flex-wrap gap-2 mt-3">
                     {mainSkills.map((skill) => (
@@ -532,18 +532,18 @@ export default function InterviewSetupPage() {
                 </Button>
               ) : (
                 <Link href="/dashboard">
-                  <Button variant="outline">Cancel</Button>
+                  <Button variant="outline">Annuler</Button>
                 </Link>
               )}
 
               {step < 4 ? (
                 <Button onClick={handleNext}>
-                  Next
+                  Suivant
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               ) : (
                 <Button onClick={handleStartInterview} loading={loading}>
-                  Start personalized interview
+                  Lancer la simulation personnalisée
                   {!loading && <Sparkles className="w-4 h-4" />}
                 </Button>
               )}
@@ -552,40 +552,40 @@ export default function InterviewSetupPage() {
 
           <div className="space-y-6 lg:sticky lg:top-6">
             <Card>
-              <h3 className="text-xl font-bold mb-4">Your interview preview</h3>
+              <h3 className="text-xl font-bold mb-4">Aperçu de votre simulation</h3>
               <div className="space-y-4 text-sm">
                 <div className="flex gap-3">
                   <FileText className="w-4 h-4 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium">Resume context</p>
-                    <p className="text-gray-400">{resumeText ? 'Loaded and ready for personalization' : 'Add your resume to unlock tailored questions'}</p>
+                    <p className="font-medium">Contexte CV</p>
+                    <p className="text-gray-400">{resumeText ? 'Chargé et prêt pour la personnalisation' : 'Ajoutez votre CV pour débloquer des questions personnalisées'}</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
                   <Briefcase className="w-4 h-4 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium">Target role</p>
-                    <p className="text-gray-400">{jobTitle || 'Not selected yet'}</p>
+                    <p className="font-medium">Concours visé</p>
+                    <p className="text-gray-400">{jobTitle || 'Pas encore sélectionné'}</p>
                   </div>
                 </div>
                 <div>
-                  <p className="font-medium mb-1">Coach will tailor for:</p>
+                  <p className="font-medium mb-1">Le jury adaptera pour :</p>
                   <ul className="text-gray-400 space-y-1 list-disc pl-5">
-                    <li>{experienceLevel ? `${experienceLevel} level difficulty` : 'Your experience level'}</li>
-                    <li>{interviewType} interview questions</li>
-                    <li>{realCompanyMode && targetCompany ? `${targetCompany} style pressure` : 'General hiring manager style'}</li>
+                    <li>{experienceLevel ? `Difficulté niveau ${experienceLevel}` : 'Votre niveau d\'expérience'}</li>
+                    <li>Questions de type {interviewType}</li>
+                    <li>{realCompanyMode && targetCompany ? `Style pression ${targetCompany}` : 'Style jury général'}</li>
                   </ul>
                 </div>
               </div>
             </Card>
 
             <Card className="bg-primary/5 border-primary/30">
-              <h3 className="text-lg font-bold mb-2">What you’ll get</h3>
+              <h3 className="text-lg font-bold mb-2">Ce que vous obtiendrez</h3>
               <ul className="space-y-2 text-sm text-gray-300">
-                <li>• Questions tailored to your resume and target job</li>
-                <li>• Ideal answers and STAR-style rewrites</li>
-                <li>• Confidence, clarity, and filler-word coaching</li>
-                <li>• A progress dashboard to track improvement over time</li>
+                <li>• Questions adaptées à votre CV et au concours visé</li>
+                <li>• Réponses idéales et reformulations structurées</li>
+                <li>• Coaching sur la confiance, la clarté et les mots de remplissage</li>
+                <li>• Un tableau de bord pour suivre votre progression</li>
               </ul>
             </Card>
           </div>

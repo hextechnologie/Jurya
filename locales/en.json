@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "login": "Login",
     "getStarted": "Get Started",
@@ -10,7 +10,7 @@
   "hero": {
     "title": "Practice real interviews with",
     "titleHighlight": "AI tailored to your job",
-    "description": "Upload your resume, paste the job description, and rehearse with a personal AI interview coach that adapts to your role, experience, and target company.",
+    "description": "Upload your resume, paste the job description, and rehearse with a personal AI Jurya that adapts to your role, experience, and target company.",
     "startFree": "Start Practicing Free",
     "viewPricing": "View Pricing",
     "watchDemo": "Watch Demo",
@@ -46,7 +46,7 @@
   },
   "cta": {
     "title": "Ready to Ace Your Next Interview?",
-    "description": "Join thousands of job seekers who have improved their interview skills with Interview Coach.",
+    "description": "Join thousands of job seekers who have improved their interview skills with Jurya.",
     "button": "Start Practicing Now"
   },
   "footer": {
@@ -56,6 +56,6 @@
     "legal": "Legal",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
-    "copyright": "© 2026 Interview Coach. All rights reserved. Powered by Claude AI."
+    "copyright": "© 2026 Jurya. All rights reserved. Powered by Claude AI."
   }
 }

@@ -82,7 +82,7 @@ export default function CoachTemplatesPage() {
   }
 
   const deleteTemplate = async (id: string) => {
-    if (!window.confirm('Delete this template? This cannot be undone.')) return
+    if (!window.confirm('Supprimer ce modèle ? Cette action est irréversible.')) return
     await supabase.from('template_questions').delete().eq('template_id', id)
     await supabase.from('interview_templates').delete().eq('id', id)
     setTemplates((prev) => prev.filter((t) => t.id !== id))
@@ -96,34 +96,34 @@ export default function CoachTemplatesPage() {
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Interview Templates</h1>
-            <p className="text-gray-400">Create reusable interview templates to assign to candidates before sessions.</p>
+            <h1 className="text-3xl font-bold mb-1">Modèles de simulation</h1>
+            <p className="text-gray-400">Créez des modèles de simulation réutilisables pour vos candidats.</p>
           </div>
           <Button variant="primary" onClick={() => setCreating((v) => !v)} className="gap-2 self-start">
-            <Plus className="w-4 h-4" /> {creating ? 'Cancel' : 'New Template'}
+            <Plus className="w-4 h-4" /> {creating ? 'Annuler' : 'Nouveau modèle'}
           </Button>
         </div>
 
         {/* Create form */}
         {creating && (
           <DarkCard className="mb-6 space-y-5">
-            <h2 className="text-xl font-bold flex items-center gap-2"><BookOpen className="w-5 h-5 text-purple-400" /> New Template</h2>
+            <h2 className="text-xl font-bold flex items-center gap-2"><BookOpen className="w-5 h-5 text-purple-400" /> Nouveau modèle</h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Template Name *</label>
-                <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Google SWE Interview" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-500/40" />
+                <label className="block text-sm text-gray-400 mb-1.5">Nom du modèle *</label>
+                <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="ex. Oral administrateur territorial" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-500/40" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Job Role</label>
-                <input value={form.job_role} onChange={(e) => setForm((f) => ({ ...f, job_role: e.target.value }))} placeholder="e.g. Software Engineer" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-500/40" />
+                <label className="block text-sm text-gray-400 mb-1.5">Concours</label>
+                <input value={form.job_role} onChange={(e) => setForm((f) => ({ ...f, job_role: e.target.value }))} placeholder="ex. Attaché territorial" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-500/40" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Industry</label>
-                <input value={form.industry} onChange={(e) => setForm((f) => ({ ...f, industry: e.target.value }))} placeholder="e.g. Tech, Finance" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-500/40" />
+                <label className="block text-sm text-gray-400 mb-1.5">Filière</label>
+                <input value={form.industry} onChange={(e) => setForm((f) => ({ ...f, industry: e.target.value }))} placeholder="ex. Administrative, Technique" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-500/40" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Difficulty</label>
+                <label className="block text-sm text-gray-400 mb-1.5">Difficulté</label>
                 <select value={form.difficulty} onChange={(e) => setForm((f) => ({ ...f, difficulty: e.target.value as Template['difficulty'] }))} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-purple-500/40">
                   <option value="junior">Junior</option>
                   <option value="mid">Mid</option>
@@ -131,7 +131,7 @@ export default function CoachTemplatesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Duration (minutes)</label>
+                <label className="block text-sm text-gray-400 mb-1.5">Durée (minutes)</label>
                 <input type="number" value={form.duration_minutes} onChange={(e) => setForm((f) => ({ ...f, duration_minutes: Number(e.target.value) }))} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-purple-500/40" />
               </div>
             </div>
@@ -140,7 +140,7 @@ export default function CoachTemplatesPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-base font-semibold">Questions</h3>
                 <Button variant="outline" onClick={addQuestion} className="gap-1 text-sm px-3 py-1.5">
-                  <Plus className="w-3 h-3" /> Add Question
+                  <Plus className="w-3 h-3" /> Ajouter une question
                 </Button>
               </div>
               <div className="space-y-3">
@@ -180,9 +180,9 @@ export default function CoachTemplatesPage() {
 
             <div className="flex gap-3">
               <Button variant="primary" onClick={saveTemplate} loading={saving} className="gap-2">
-                Save Template
+                Enregistrer le modèle
               </Button>
-              <Button variant="outline" onClick={() => setCreating(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setCreating(false)}>Annuler</Button>
             </div>
           </DarkCard>
         )}
@@ -191,9 +191,9 @@ export default function CoachTemplatesPage() {
         {templates.length === 0 && !creating ? (
           <DarkCard className="text-center py-12">
             <BookOpen className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-            <p className="text-gray-300 font-semibold mb-2">No templates yet</p>
-            <p className="text-gray-500 text-sm mb-4">Create your first interview template to streamline coaching sessions.</p>
-            <Button variant="primary" onClick={() => setCreating(true)} className="gap-2"><Plus className="w-4 h-4" /> Create Template</Button>
+            <p className="text-gray-300 font-semibold mb-2">Aucun modèle</p>
+            <p className="text-gray-500 text-sm mb-4">Créez votre premier modèle de simulation pour vos sessions.</p>
+            <Button variant="primary" onClick={() => setCreating(true)} className="gap-2"><Plus className="w-4 h-4" /> Créer un modèle</Button>
           </DarkCard>
         ) : (
           <div className="space-y-3">

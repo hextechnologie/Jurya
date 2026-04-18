@@ -144,7 +144,7 @@ export default function BookingPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create booking')
+        throw new Error(data.error || 'Échec de la réservation')
       }
 
       if (data.url) {
@@ -154,7 +154,7 @@ export default function BookingPage() {
 
       setConfirmation({ bookingId: data.bookingId || `booking-${Date.now()}` })
     } catch (err: any) {
-      setError(err.message || 'Could not create your booking. Please try again.')
+      setError(err.message || 'Impossible de créer votre réservation. Veuillez réessayer.')
     } finally {
       setBooking(false)
     }
@@ -171,8 +171,8 @@ export default function BookingPage() {
   if (notFound || !coach) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background text-white">
-        <p className="text-xl font-semibold">Coach not found</p>
-        <Link href="/coaches" className="text-primary hover:underline text-sm">Browse all coaches</Link>
+        <p className="text-xl font-semibold">Membre de jury introuvable</p>
+        <Link href="/coaches" className="text-primary hover:underline text-sm">Parcourir tous les membres de jury</Link>
       </div>
     )
   }
@@ -183,7 +183,7 @@ export default function BookingPage() {
     <div className="min-h-screen bg-background text-white px-6 py-8">
       <div className="mx-auto max-w-5xl">
         <Link href="/coaches" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to coaches
+          <ArrowLeft className="h-4 w-4" /> Retour aux membres de jury
         </Link>
 
         <div className="mb-6 flex items-center gap-4">
@@ -196,7 +196,7 @@ export default function BookingPage() {
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-bold">Book a session with {coach.name}</h1>
+            <h1 className="text-3xl font-bold">Réserver une session avec {coach.name}</h1>
             {coach.title && <p className="text-sm text-gray-400 mt-0.5">{coach.title}</p>}
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function BookingPage() {
           <div className="space-y-5">
             {/* Step 1: Date */}
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Step 1 — Choose a date</h2>
+              <h2 className="mb-4 text-xl font-bold">Étape 1 — Choisir une date</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {days.map((d) => (
                   <button key={d.date} type="button" onClick={() => { setSelectedDate(d.date); setSelectedTime('') }}
@@ -219,8 +219,8 @@ export default function BookingPage() {
 
             {/* Step 2: Time + duration */}
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Step 2 — Choose time &amp; duration</h2>
-              <p className="text-xs text-gray-500 mb-3">Time slots (your local time)</p>
+              <h2 className="mb-4 text-xl font-bold">Étape 2 — Choisir l'heure et la durée</h2>
+              <p className="text-xs text-gray-500 mb-3">Créneaux horaires (heure locale)</p>
               <div className="flex flex-wrap gap-2 mb-5">
                 {TIME_SLOTS.map((time) => (
                   <button key={time} type="button" onClick={() => setSelectedTime(time)} disabled={!selectedDate}
@@ -229,7 +229,7 @@ export default function BookingPage() {
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mb-3">Duration</p>
+              <p className="text-xs text-gray-500 mb-3">Durée</p>
               <div className="flex gap-2">
                 {[30, 60, 90].map((val) => (
                   <button key={val} type="button" onClick={() => setDuration(val)}
@@ -242,30 +242,30 @@ export default function BookingPage() {
 
             {/* Step 3: Notes */}
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Step 3 — Session notes</h2>
+              <h2 className="mb-4 text-xl font-bold">Étape 3 — Notes de session</h2>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4}
-                placeholder="Tell your coach what you want to focus on (e.g. system design, behavioural questions, salary negotiation…)"
+                placeholder="Indiquez au membre de jury les points sur lesquels vous souhaitez travailler (ex. mise en situation, questions de motivation, dossier RAEP…)"
                 className="w-full rounded-xl border border-border bg-background/60 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" />
             </Card>
 
             {/* Step 4: Pay */}
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Step 4 — Confirm Booking</h2>
+              <h2 className="mb-4 text-xl font-bold">Étape 4 — Confirmer la réservation</h2>
               <p className="text-sm text-gray-400 mb-4">
-                {sessionCreditsCost} credits will be held in escrow. Released to coach after session or refunded if cancelled 48h+ in advance.
+                {sessionCreditsCost} crédits seront retenus en séquestre. Versés au membre de jury après la session ou remboursés si annulation 48h+ à l'avance.
               </p>
               
               {hasInsufficientCredits && (
                 <div className="mb-4 rounded-lg border border-yellow-500/40 bg-yellow-500/10 px-4 py-3">
                   <div className="flex items-center gap-2 text-yellow-300 text-sm font-semibold mb-2">
-                    <AlertCircle className="h-4 w-4" /> Insufficient Credits
+                    <AlertCircle className="h-4 w-4" /> Crédits insuffisants
                   </div>
                   <p className="text-xs text-gray-400 mb-3">
-                    You need {sessionCreditsCost} credits but only have {userCredits ?? 0} credits.
+                    Vous avez besoin de {sessionCreditsCost} crédits mais n'en avez que {userCredits ?? 0}.
                   </p>
                   <Link href="/credits">
                     <Button variant="secondary" className="w-full text-sm">
-                      Top Up Credits
+                      Recharger les crédits
                     </Button>
                   </Link>
                 </div>
@@ -284,7 +284,7 @@ export default function BookingPage() {
                 disabled={!selectedDate || !selectedTime || !user || hasInsufficientCredits}
               >
                 <CreditCard className="h-4 w-4" />
-                Confirm Booking — {sessionCreditsCost} credits
+                Confirmer la réservation — {sessionCreditsCost} crédits
               </Button>
             </Card>
           </div>
@@ -292,12 +292,12 @@ export default function BookingPage() {
           {/* Summary sidebar */}
           <div className="space-y-4">
             <Card className="sticky top-6">
-              <h2 className="mb-4 text-lg font-bold">Booking summary</h2>
+              <h2 className="mb-4 text-lg font-bold">Résumé de la réservation</h2>
               <div className="space-y-2 text-sm text-gray-300">
-                <div className="flex justify-between"><span className="text-gray-500">Coach</span><span>{coach.name}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Jury</span><span>{coach.name}</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">Date</span><span>{selectedDate || '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Time</span><span>{selectedTime || '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Duration</span><span>{duration} min</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Heure</span><span>{selectedTime || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Durée</span><span>{duration} min</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">Rate</span><span>{coach.creditsPerHour} credits/hr</span></div>
               </div>
               <div className="mt-4 rounded-xl border border-border bg-background/40 p-4 text-center">

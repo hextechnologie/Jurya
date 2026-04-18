@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { ArrowRight, Briefcase, Sparkles, UserRound } from 'lucide-react'
@@ -6,14 +6,14 @@ import { Button, Card, Badge } from '@/components/ui'
 
 const signupTypes = [
   {
-    title: 'Candidate account',
-    description: 'Practice AI interviews, book coaches, and track your job search prep.',
+    title: 'Compte candidat',
+    description: 'Entraînez-vous aux oraux avec l\'IA, réservez un membre de jury et suivez votre progression.',
     href: '/signup/candidate',
     icon: UserRound,
   },
   {
-    title: 'Coach account',
-    description: 'Build your expert profile, set your pricing, and earn from sessions.',
+    title: 'Compte jury',
+    description: 'Créez votre profil d\'expert, fixez vos tarifs et gagnez de l\'argent grâce aux sessions.',
     href: '/signup/coach',
     icon: Briefcase,
   },
@@ -27,13 +27,13 @@ export default function SignupPage() {
       <div className="relative z-10 mx-auto max-w-5xl">
         <Link href="/" className="mb-10 flex items-center justify-center gap-2">
           <Sparkles className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+          <span className="text-2xl font-bold gradient-text">Jurya</span>
         </Link>
 
         <div className="mb-10 text-center">
-          <Badge className="mb-4">Create your account</Badge>
-          <h1 className="mb-3 text-4xl font-bold">Choose your signup flow</h1>
-          <p className="text-lg text-gray-300">Pick the experience that matches how you want to use the platform.</p>
+          <Badge className="mb-4">Créez votre compte</Badge>
+          <h1 className="mb-3 text-4xl font-bold">Choisissez votre inscription</h1>
+          <p className="text-lg text-gray-300">Choisissez l'expérience qui correspond à votre utilisation de la plateforme.</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -48,7 +48,7 @@ export default function SignupPage() {
                 <p className="mb-6 text-gray-300">{item.description}</p>
                 <Link href={item.href}>
                   <Button variant="primary" className="gap-2">
-                    Continue
+                    Continuer
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>

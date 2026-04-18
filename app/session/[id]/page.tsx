@@ -7,8 +7,8 @@ import { mockCoaches } from '@/lib/coach-marketplace'
 import { Clock3, MonitorUp, PhoneOff, Send, Video } from 'lucide-react'
 
 const initialMessages = [
-  { sender: 'Coach', content: 'Welcome! I reviewed your session notes and I am ready when you are.' },
-  { sender: 'You', content: 'Great, I would like to focus on behavioral answers and confidence.' },
+  { sender: 'Jury', content: 'Bienvenue ! J\'ai consulté vos notes de session et je suis prêt quand vous l\'êtes.' },
+  { sender: 'Vous', content: 'Parfait, j\'aimerais me concentrer sur les réponses comportementales et la confiance.' },
 ]
 
 export default function SessionPage({ params }: { params: { id: string } }) {
@@ -20,7 +20,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
   const [secondsLeft, setSecondsLeft] = useState(duration * 60)
   const [messages, setMessages] = useState(initialMessages)
   const [messageInput, setMessageInput] = useState('')
-  const [sharedNotes, setSharedNotes] = useState('Focus on STAR examples, measurable outcomes, and clearer closing statements.')
+  const [sharedNotes, setSharedNotes] = useState('Se concentrer sur les exemples STAR, les résultats mesurables et des conclusions plus claires.')
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -47,11 +47,11 @@ export default function SessionPage({ params }: { params: { id: string } }) {
       <div className="mx-auto max-w-7xl space-y-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Live session with {coach.name}</h1>
-            <p className="text-gray-400">Session ID: {params.id}</p>
+            <h1 className="text-3xl font-bold">Session en direct avec {coach.name}</h1>
+            <p className="text-gray-400">ID de session : {params.id}</p>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="success">Session room live</Badge>
+            <Badge variant="success">Salle de session en direct</Badge>
             <Badge><Clock3 className="h-3 w-3" />{formattedTime}</Badge>
           </div>
         </div>
@@ -62,21 +62,21 @@ export default function SessionPage({ params }: { params: { id: string } }) {
               <div className={`mb-4 h-72 rounded-2xl bg-gradient-to-br ${coach.avatar} flex items-center justify-center text-center`}>
                 <div>
                   <Video className="mx-auto mb-3 h-12 w-12 text-white" />
-                  <p className="text-xl font-semibold text-white">Daily.co room ready</p>
+                  <p className="text-xl font-semibold text-white">Salle Daily.co prête</p>
                   <p className="mt-2 max-w-md text-sm text-white/80">
-                    Add your Daily room URL in the environment to embed a real live call here.
+                    Ajoutez votre URL de salle Daily dans l'environnement pour intégrer un appel en direct ici.
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <Button variant="outline"><MonitorUp className="h-4 w-4" />Screen share</Button>
-                <Button variant="danger" onClick={() => router.push(`/review/${params.id}`)}><PhoneOff className="h-4 w-4" />End Session</Button>
+                <Button variant="outline"><MonitorUp className="h-4 w-4" />Partage d'écran</Button>
+                <Button variant="danger" onClick={() => router.push(`/review/${params.id}`)}><PhoneOff className="h-4 w-4" />Terminer la session</Button>
               </div>
             </Card>
 
             <Card>
-              <h2 className="mb-3 text-2xl font-bold">Shared notes</h2>
+              <h2 className="mb-3 text-2xl font-bold">Notes partagées</h2>
               <textarea
                 value={sharedNotes}
                 onChange={(e) => setSharedNotes(e.target.value)}
@@ -88,7 +88,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
 
           <div className="space-y-5">
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Chat</h2>
+              <h2 className="mb-4 text-xl font-bold">Discussion</h2>
               <div className="space-y-3 max-h-80 overflow-y-auto">
                 {messages.map((message, index) => (
                   <div key={`${message.sender}-${index}`} className={`rounded-xl px-4 py-3 ${message.sender === 'You' ? 'bg-primary/20 text-white' : 'bg-background/50 text-gray-300'}`}>
@@ -98,16 +98,16 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                 ))}
               </div>
               <div className="mt-4 flex gap-2">
-                <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)} placeholder="Send a message" className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-white outline-none" />
+                <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)} placeholder="Envoyer un message" className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-white outline-none" />
                 <Button variant="primary" onClick={sendMessage}><Send className="h-4 w-4" /></Button>
               </div>
             </Card>
 
             <Card>
-              <h2 className="mb-2 text-xl font-bold">Session details</h2>
-              <p className="text-sm text-gray-400">Coach: {coach.title}</p>
-              <p className="text-sm text-gray-400">Duration: {duration} minutes</p>
-              <p className="mt-3 text-sm text-gray-300">Use this room for video, chat, and collaborative notes during the coaching session.</p>
+              <h2 className="mb-2 text-xl font-bold">Détails de la session</h2>
+              <p className="text-sm text-gray-400">Membre de jury : {coach.title}</p>
+              <p className="text-sm text-gray-400">Durée : {duration} minutes</p>
+              <p className="mt-3 text-sm text-gray-300">Utilisez cette salle pour la vidéo, la discussion et les notes collaboratives pendant la session.</p>
             </Card>
           </div>
         </div>

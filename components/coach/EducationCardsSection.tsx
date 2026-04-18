@@ -58,7 +58,7 @@ export default function EducationCardsSection({ coachId, userCountry }: Educatio
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this education?')) return
+    if (!confirm('Supprimer cette formation ?')) return
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const { error } = await supabase
@@ -80,15 +80,15 @@ export default function EducationCardsSection({ coachId, userCountry }: Educatio
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-white">Education & Certifications</h3>
-          <p className="text-sm text-gray-400">{educations.length} {educations.length === 1 ? 'entry' : 'entries'} added</p>
+          <h3 className="text-lg font-semibold text-white">Formation et certifications</h3>
+          <p className="text-sm text-gray-400">{educations.length} {educations.length === 1 ? 'formation' : 'formations'} ajoutée{educations.length !== 1 ? 's' : ''}</p>
         </div>
         <button
           onClick={handleAddClick}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-primary text-white rounded-lg hover:opacity-90 transition"
         >
           <Plus className="w-4 h-4" />
-          Add Education
+          Ajouter une formation
         </button>
       </div>
 
@@ -103,7 +103,7 @@ export default function EducationCardsSection({ coachId, userCountry }: Educatio
         ))}
         {educations.length === 0 && (
           <div className="text-center py-8 text-gray-500 border border-gray-700 rounded-lg">
-            No education added yet. Click "Add Education" to get started.
+            Aucune formation ajoutée. Cliquez sur « Ajouter » pour commencer.
           </div>
         )}
       </div>
@@ -141,13 +141,13 @@ function EducationCard({
     if (education.education_type === 'Certification') {
       if (education.issue_month && education.issue_year) {
         const month = MONTHS.find(m => m.value === education.issue_month)?.label.slice(0, 3)
-        return `Issued ${month} ${education.issue_year}`
+        return `Délivré ${month} ${education.issue_year}`
       }
-      return education.issue_year ? `Issued ${education.issue_year}` : ''
+      return education.issue_year ? `Délivré ${education.issue_year}` : ''
     }
 
     if (education.start_year && education.end_year) {
-      return `${education.start_year} → ${education.is_ongoing ? 'Present' : education.end_year}`
+      return `${education.start_year} → ${education.is_ongoing ? 'En cours' : education.end_year}`
     }
     return education.end_year || education.start_year || ''
   }
@@ -168,7 +168,7 @@ function EducationCard({
             <div className="flex-1">
               <h4 className="text-white font-semibold">
                 {education.education_type === 'University' && education.degree
-                  ? `${education.degree}${education.field_of_study ? ` in ${education.field_of_study}` : ''}`
+                  ? `${education.degree}${education.field_of_study ? ` en ${education.field_of_study}` : ''}`
                   : education.education_type === 'Certification'
                     ? education.institution_name
                     : education.education_type === 'Online Course'
@@ -187,11 +187,11 @@ function EducationCard({
               <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
                 <Calendar className="w-3 h-3" />
                 {formatDate()}
-                {education.grade && ` · Grade: ${education.grade}`}
+                {education.grade && ` · Mention : ${education.grade}`}
               </div>
               {education.credential_id && (
                 <div className="mt-2 text-sm text-gray-400">
-                  Credential ID: {education.credential_id}
+                  N° de certification : {education.credential_id}
                   {education.credential_url && (
                     <a
                       href={education.credential_url}
@@ -200,7 +200,7 @@ function EducationCard({
                       className="ml-2 text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
                     >
                       <ExternalLink className="w-3 h-3" />
-                      Verify
+                      Vérifier
                     </a>
                   )}
                 </div>
@@ -215,14 +215,14 @@ function EducationCard({
           <button
             onClick={onEdit}
             className="p-2 hover:bg-gray-700 rounded-lg transition"
-            title="Edit"
+            title="Modifier"
           >
             <Edit2 className="w-4 h-4 text-gray-400" />
           </button>
           <button
             onClick={onDelete}
             className="p-2 hover:bg-red-500/20 rounded-lg transition"
-            title="Delete"
+            title="Supprimer"
           >
             <Trash2 className="w-4 h-4 text-red-400" />
           </button>
@@ -314,16 +314,16 @@ function EducationModal({
     const newErrors: Partial<Record<keyof EducationFormData, string>> = {}
 
     if (!formData.institution_name.trim()) {
-      newErrors.institution_name = 'This field is required'
+      newErrors.institution_name = 'Ce champ est requis'
     }
 
     if (educationType === 'University') {
-      if (!formData.degree) newErrors.degree = 'Degree is required'
-      if (!formData.field_of_study) newErrors.field_of_study = 'Field of study is required'
+      if (!formData.degree) newErrors.degree = 'Le diplôme est requis'
+      if (!formData.field_of_study) newErrors.field_of_study = 'Le domaine d\'\u00e9tude est requis'
     }
 
     if (educationType === 'High School') {
-      if (!formData.end_year) newErrors.end_year = 'Graduation year is required'
+      if (!formData.end_year) newErrors.end_year = 'L\'année de fin est requise'
     }
 
     setErrors(newErrors)
@@ -356,7 +356,7 @@ function EducationModal({
       onSave()
     } catch (error) {
       console.error('Error saving education:', error)
-      alert('Failed to save education')
+      alert('Échec de la sauvegarde')
     } finally {
       setLoading(false)
     }
@@ -379,7 +379,7 @@ function EducationModal({
       >
         <div className="sticky top-0 bg-gray-900 border-b border-gray-700 px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-xl font-semibold text-white">
-            {education ? 'Edit Education' : 'Add Education'}
+            {education ? 'Modifier la formation' : 'Ajouter une formation'}
           </h2>
           <button
             onClick={onClose}
@@ -426,7 +426,7 @@ function EducationModal({
                   value={formData.institution_name}
                   onChange={(e) => handleUniversitySearch(e.target.value)}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="Start typing to search..."
+                  placeholder="Commencez à taper pour rechercher..."
                 />
                 {errors.institution_name && <p className="text-red-400 text-sm mt-1">{errors.institution_name}</p>}
                 {universitySuggestions.length > 0 && (
@@ -449,7 +449,7 @@ function EducationModal({
                       onClick={() => setUniversitySuggestions([])}
                       className="w-full px-4 py-2 text-left text-gray-400 hover:bg-gray-700 transition text-sm border-t border-gray-700"
                     >
-                      Other — use "{formData.institution_name}"
+                      Autre — utiliser « {formData.institution_name} »
                     </button>
                   </div>
                 )}
@@ -464,7 +464,7 @@ function EducationModal({
                   onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Select degree</option>
+                  <option value="">Sélectionnez un diplôme</option>
                   {DEGREE_TYPES.map((degree) => (
                     <option key={degree} value={degree}>{degree}</option>
                   ))}
@@ -481,7 +481,7 @@ function EducationModal({
                   value={formData.field_of_study}
                   onChange={(e) => setFormData({ ...formData, field_of_study: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="e.g. Computer Science"
+                  placeholder="ex. Droit public"
                 />
                 {errors.field_of_study && <p className="text-red-400 text-sm mt-1">{errors.field_of_study}</p>}
               </div>
@@ -524,17 +524,17 @@ function EducationModal({
                   onChange={(e) => setFormData({ ...formData, is_ongoing: e.target.checked })}
                   className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
-                Currently studying here
+                En cours d'études
               </label>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Grade / Mention</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Mention</label>
                 <select
                   value={formData.grade}
                   onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Select grade</option>
+                  <option value="">Sélectionnez la mention</option>
                   {GRADES.map((grade) => (
                     <option key={grade} value={grade}>{grade}</option>
                   ))}
@@ -554,7 +554,7 @@ function EducationModal({
                   value={formData.institution_name}
                   onChange={(e) => handleCertificationSearch(e.target.value)}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="e.g. AWS Certified Solutions Architect"
+                  placeholder="ex. Certification de formateur"
                 />
                 {errors.institution_name && <p className="text-red-400 text-sm mt-1">{errors.institution_name}</p>}
                 {certificationSuggestions.length > 0 && (
@@ -578,20 +578,20 @@ function EducationModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Issuing Organization
+                  Organisme de délivrance
                 </label>
                 <input
                   type="text"
                   value={formData.field_of_study}
                   onChange={(e) => setFormData({ ...formData, field_of_study: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="e.g. Amazon, Google, PMI"
+                  placeholder="ex. CNFPT, ENA"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Issue Date <span className="text-red-400">*</span>
+                  Date de délivrance <span className="text-red-400">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <select
@@ -599,7 +599,7 @@ function EducationModal({
                     onChange={(e) => setFormData({ ...formData, issue_month: e.target.value ? parseInt(e.target.value) : undefined })}
                     className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                   >
-                    <option value="">Month</option>
+                    <option value="">Mois</option>
                     {MONTHS.map((month) => (
                       <option key={month.value} value={month.value}>{month.label}</option>
                     ))}
@@ -609,7 +609,7 @@ function EducationModal({
                     onChange={(e) => setFormData({ ...formData, issue_year: e.target.value ? parseInt(e.target.value) : undefined })}
                     className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                   >
-                    <option value="">Year</option>
+                    <option value="">Année</option>
                     {YEARS.reverse().map((year) => (
                       <option key={year} value={year}>{year}</option>
                     ))}
@@ -624,19 +624,19 @@ function EducationModal({
                   onChange={(e) => setFormData({ ...formData, no_expiry: e.target.checked })}
                   className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
-                This credential does not expire
+                Cette certification n'expire pas
               </label>
 
               {!formData.no_expiry && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Date</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Date d'expiration</label>
                   <div className="grid grid-cols-2 gap-3">
                     <select
                       value={formData.expiry_month || ''}
                       onChange={(e) => setFormData({ ...formData, expiry_month: e.target.value ? parseInt(e.target.value) : undefined })}
                       className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                     >
-                      <option value="">Month</option>
+                      <option value="">Mois</option>
                       {MONTHS.map((month) => (
                         <option key={month.value} value={month.value}>{month.label}</option>
                       ))}
@@ -646,7 +646,7 @@ function EducationModal({
                       onChange={(e) => setFormData({ ...formData, expiry_year: e.target.value ? parseInt(e.target.value) : undefined })}
                       className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                     >
-                      <option value="">Year</option>
+                      <option value="">Année</option>
                       {YEARS.map((year) => (
                         <option key={year} value={year}>{year}</option>
                       ))}
@@ -656,18 +656,18 @@ function EducationModal({
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Credential ID</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">N° de certification</label>
                 <input
                   type="text"
                   value={formData.credential_id}
                   onChange={(e) => setFormData({ ...formData, credential_id: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="Enter credential ID"
+                  placeholder="Numéro de certification"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Credential URL</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">URL de la certification</label>
                 <input
                   type="url"
                   value={formData.credential_url}
@@ -690,7 +690,7 @@ function EducationModal({
                   value={formData.institution_name}
                   onChange={(e) => setFormData({ ...formData, institution_name: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="e.g. Full Stack Web Development"
+                  placeholder="ex. Préparation aux concours A+"
                 />
                 {errors.institution_name && <p className="text-red-400 text-sm mt-1">{errors.institution_name}</p>}
               </div>
@@ -704,7 +704,7 @@ function EducationModal({
                   onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Select platform</option>
+                  <option value="">Sélectionnez la plateforme</option>
                   {COURSE_PLATFORMS.map((platform) => (
                     <option key={platform} value={platform}>{platform}</option>
                   ))}
@@ -712,14 +712,14 @@ function EducationModal({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Completion Date</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Date d'achèvement</label>
                 <div className="grid grid-cols-2 gap-3">
                   <select
                     value={formData.issue_month || ''}
                     onChange={(e) => setFormData({ ...formData, issue_month: e.target.value ? parseInt(e.target.value) : undefined })}
                     className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                   >
-                    <option value="">Month</option>
+                    <option value="">Mois</option>
                     {MONTHS.map((month) => (
                       <option key={month.value} value={month.value}>{month.label}</option>
                     ))}
@@ -729,7 +729,7 @@ function EducationModal({
                     onChange={(e) => setFormData({ ...formData, issue_year: e.target.value ? parseInt(e.target.value) : undefined })}
                     className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                   >
-                    <option value="">Year</option>
+                    <option value="">Année</option>
                     {YEARS.reverse().map((year) => (
                       <option key={year} value={year}>{year}</option>
                     ))}
@@ -738,7 +738,7 @@ function EducationModal({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Certificate URL</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">URL du certificat</label>
                 <input
                   type="url"
                   value={formData.credential_url}
@@ -761,19 +761,19 @@ function EducationModal({
                   value={formData.institution_name}
                   onChange={(e) => setFormData({ ...formData, institution_name: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="Enter school name"
+                  placeholder="Nom de l'établissement"
                 />
                 {errors.institution_name && <p className="text-red-400 text-sm mt-1">{errors.institution_name}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Specialization</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Spécialisation</label>
                 <select
                   value={formData.specialization}
                   onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Select specialization</option>
+                  <option value="">Sélectionnez la spécialisation</option>
                   {BAC_SPECIALIZATIONS.map((spec) => (
                     <option key={spec} value={spec}>{spec}</option>
                   ))}
@@ -782,14 +782,14 @@ function EducationModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Year of Graduation <span className="text-red-400">*</span>
+                  Année d'obtention <span className="text-red-400">*</span>
                 </label>
                 <select
                   value={formData.end_year || ''}
                   onChange={(e) => setFormData({ ...formData, end_year: e.target.value ? parseInt(e.target.value) : undefined })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Select year</option>
+                  <option value="">Sélectionnez l'année</option>
                   {YEARS.reverse().map((year) => (
                     <option key={year} value={year}>{year}</option>
                   ))}
@@ -804,7 +804,7 @@ function EducationModal({
                   onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Select mention</option>
+                  <option value="">Sélectionnez la mention</option>
                   {GRADES.map((grade) => (
                     <option key={grade} value={grade}>{grade}</option>
                   ))}
@@ -817,38 +817,38 @@ function EducationModal({
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  {educationType === 'Vocational' ? 'Training Name' : 'Title'} <span className="text-red-400">*</span>
+                  {educationType === 'Vocational' ? 'Nom de la formation' : 'Intitulé'} <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.institution_name}
                   onChange={(e) => setFormData({ ...formData, institution_name: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="Name your education"
+                  placeholder="Intitulé de la formation"
                 />
                 {errors.institution_name && <p className="text-red-400 text-sm mt-1">{errors.institution_name}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Institution</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Établissement</label>
                 <input
                   type="text"
                   value={formData.field_of_study}
                   onChange={(e) => setFormData({ ...formData, field_of_study: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                  placeholder="Institution or organization"
+                  placeholder="Établissement ou organisme"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Start Year</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Année de début</label>
                   <select
                     value={formData.start_year || ''}
                     onChange={(e) => setFormData({ ...formData, start_year: e.target.value ? parseInt(e.target.value) : undefined })}
                     className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                   >
-                    <option value="">Select year</option>
+                    <option value="">Sélectionnez l'année</option>
                     {YEARS.reverse().map((year) => (
                       <option key={year} value={year}>{year}</option>
                     ))}
@@ -856,14 +856,14 @@ function EducationModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">End Year</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Année de fin</label>
                   <select
                     value={formData.end_year || ''}
                     onChange={(e) => setFormData({ ...formData, end_year: e.target.value ? parseInt(e.target.value) : undefined })}
                     className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                     disabled={formData.is_ongoing}
                   >
-                    <option value="">Select year</option>
+                    <option value="">Sélectionnez l'année</option>
                     {YEARS.reverse().map((year) => (
                       <option key={year} value={year}>{year}</option>
                     ))}
@@ -878,7 +878,7 @@ function EducationModal({
                   onChange={(e) => setFormData({ ...formData, is_ongoing: e.target.checked })}
                   className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
-                Ongoing
+                En cours
               </label>
             </>
           )}
@@ -892,9 +892,9 @@ function EducationModal({
               rows={3}
               maxLength={300}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none resize-none"
-              placeholder="Additional details..."
+              placeholder="Détails supplémentaires..."
             />
-            <p className="text-xs text-gray-500 mt-1">{formData.description?.length || 0}/300 characters</p>
+            <p className="text-xs text-gray-500 mt-1">{formData.description?.length || 0}/300 caractères</p>
           </div>
 
           {/* Buttons */}
@@ -905,14 +905,14 @@ function EducationModal({
               className="flex-1 px-6 py-3 border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition"
               disabled={loading}
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               className="flex-1 px-6 py-3 bg-gradient-primary text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
               disabled={loading}
             >
-              {loading ? 'Saving...' : education ? 'Update Education' : 'Add Education'}
+              {loading ? 'Enregistrement...' : education ? 'Mettre à jour' : 'Ajouter'}
             </button>
           </div>
         </form>

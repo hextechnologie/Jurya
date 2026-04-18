@@ -44,7 +44,7 @@ export default function CreditBalanceButton() {
   return (
     <button
       onClick={() => router.push('/credits')}
-      title={isLow ? 'Low balance! Top up now' : 'Click to manage credits'}
+      title={isLow ? 'Solde faible ! Rechargez' : 'Gérer vos crédits'}
       className={`
         group relative px-4 py-2 rounded-lg font-medium transition-all
         border ${colors.borderColor} ${colors.bgColor}
@@ -55,13 +55,13 @@ export default function CreditBalanceButton() {
       <div className="flex items-center gap-2">
         <Wallet className={`w-4 h-4 ${colors.textColor}`} />
         <span className={`${colors.textColor} font-bold`}>
-          {loading ? '...' : `${balance} Credits`}
+          {loading ? '...' : `${balance} Crédits`}
         </span>
       </div>
       
       {/* Tooltip */}
       <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg">
-        {isLow ? 'Low balance! Top up now' : 'Top Up'}
+        {isLow ? 'Solde faible ! Rechargez' : 'Recharger'}
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-4px] border-4 border-transparent border-b-gray-900" />
       </div>
     </button>

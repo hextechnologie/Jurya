@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -8,54 +8,54 @@ import { FAQPageSchema } from '@/components/StructuredData'
 
 const faqs = [
   {
-    question: 'How does the AI interview work?',
+    question: 'Comment fonctionne la simulation d\'oral par IA ?',
     answer:
-      'The platform simulates a realistic interview based on your role, level, and interview type. The AI asks questions, reviews your answers, scores your performance, and gives personalized feedback to help you improve quickly.',
+      'La plateforme simule un oral de concours réaliste en fonction de votre concours, votre niveau et le type d\'épreuve. L\'IA pose des questions, analyse vos réponses, évalue votre performance et vous fournit un retour personnalisé pour progresser rapidement.',
   },
   {
-    question: 'How many free interviews do I get?',
+    question: 'Combien de simulations gratuites ai-je droit ?',
     answer:
-      'Free users receive 3 mock interviews each month. You can upgrade at any time if you want more practice sessions and deeper analytics.',
+      'Les utilisateurs gratuits bénéficient de 3 simulations d\'oral par mois. Vous pouvez passer à un forfait supérieur à tout moment pour accéder à plus de sessions et à des analyses approfondies.',
   },
   {
-    question: 'Can I cancel my subscription anytime?',
+    question: 'Puis-je annuler mon abonnement à tout moment ?',
     answer:
-      'Yes. You can cancel at any time from your billing settings, and your access will remain active until the end of your current billing cycle.',
+      'Oui. Vous pouvez annuler à tout moment depuis vos paramètres de facturation. Votre accès restera actif jusqu\'à la fin de votre cycle de facturation en cours.',
   },
   {
-    question: 'What job roles are supported?',
+    question: 'Quels concours sont pris en charge ?',
     answer:
-      'You can practice for software engineering, product, design, marketing, sales, finance, operations, customer support, and many other professional roles.',
+      'Vous pouvez vous entraîner pour les concours de la fonction publique, les grandes écoles, les écoles de commerce, les concours d\'ingénieur, les concours de santé, et bien d\'autres filières.',
   },
   {
-    question: 'Is my data private?',
+    question: 'Mes données sont-elles confidentielles ?',
     answer:
-      'Yes. Your interview data is stored securely and used only to run your sessions and generate feedback. We do not sell your personal information.',
+      'Oui. Vos données de simulation sont stockées de manière sécurisée et utilisées uniquement pour exécuter vos sessions et générer vos retours. Nous ne vendons pas vos informations personnelles.',
   },
   {
-    question: 'How is my score calculated?',
+    question: 'Comment mon score est-il calculé ?',
     answer:
-      'Your score is based on answer relevance, clarity, structure, confidence, and depth. The AI also checks how well you support your answers with examples and measurable impact.',
+      'Votre score repose sur la pertinence de vos réponses, la clarté, la structure, l\'assurance et la profondeur. L\'IA évalue également la qualité de vos exemples et l\'impact mesurable de vos arguments.',
   },
   {
-    question: 'Can I practice in Arabic or other languages?',
+    question: 'Puis-je m\'entraîner en arabe ou dans d\'autres langues ?',
     answer:
-      'Yes. The app supports Arabic and multiple other languages including English, French, and Spanish, so you can practice in the language you are most comfortable with.',
+      'Oui. L\'application prend en charge l\'arabe et plusieurs autres langues, dont l\'anglais, le français et l\'espagnol. Vous pouvez vous entraîner dans la langue de votre choix.',
   },
   {
-    question: 'How is this different from ChatGPT?',
+    question: 'En quoi Jurya est-il différent de ChatGPT ?',
     answer:
-      'Interview Coach is built specifically for interview preparation. It gives structured mock interviews, tracks progress, stores sessions, and provides targeted scoring and coaching rather than general conversation only.',
+      'Jurya est conçu spécifiquement pour la préparation aux oraux de concours. Il propose des simulations structurées, suit votre progression, conserve l\'historique de vos sessions et fournit une évaluation ciblée avec un accompagnement de jury, bien au-delà d\'une simple conversation.',
   },
   {
-    question: 'Do I need to install anything?',
+    question: 'Dois-je installer quelque chose ?',
     answer:
-      'No installation is required. You can use the app directly in your browser on desktop or mobile.',
+      'Aucune installation n\'est nécessaire. Vous pouvez utiliser l\'application directement dans votre navigateur, sur ordinateur ou mobile.',
   },
   {
-    question: 'How do I upgrade my plan?',
+    question: 'Comment changer de forfait ?',
     answer:
-      'Visit the pricing page, choose the plan that fits your needs, and complete checkout. Your account limits will update automatically after payment.',
+      'Rendez-vous sur la page des tarifs, choisissez le forfait qui vous convient et finalisez le paiement. Les limites de votre compte seront mises à jour automatiquement.',
   },
 ]
 
@@ -80,10 +80,10 @@ export default function FAQPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </Link>
             <Link href="/dashboard">
-              <Button variant="outline">Dashboard</Button>
+              <Button variant="outline">Tableau de bord</Button>
             </Link>
           </div>
         </div>
@@ -94,9 +94,9 @@ export default function FAQPage() {
         <div className="container mx-auto px-6 py-20">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold mb-4">Frequently Asked Questions</h1>
+            <h1 className="text-5xl font-bold mb-4">Questions fréquentes</h1>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Everything you need to know about Interview Coach and how it works
+              Tout ce que vous devez savoir sur Jurya
             </p>
           </div>
 
@@ -129,13 +129,13 @@ export default function FAQPage() {
 
           {/* CTA Section */}
           <div className="mt-16 text-center glass p-8 rounded-2xl max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold mb-3">Still have questions?</h2>
+            <h2 className="text-2xl font-bold mb-3">Vous avez d'autres questions ?</h2>
             <p className="text-gray-400 mb-6">
-              Can't find the answer you're looking for? Feel free to reach out to our support team.
+              Vous ne trouvez pas la réponse que vous cherchez ? N'hésitez pas à contacter notre équipe.
             </p>
             <Link href="/contact">
               <Button variant="primary" className="px-8 py-3">
-                Contact Us
+                Nous contacter
               </Button>
             </Link>
           </div>
@@ -145,7 +145,7 @@ export default function FAQPage() {
         <footer className="border-t border-border mt-20 py-8">
           <div className="container mx-auto px-6">
             <div className="text-center text-gray-400 text-sm">
-              <p>&copy; 2026 Interview Coach. All rights reserved.</p>
+              <p>&copy; 2026 Jurya. Tous droits réservés.</p>
             </div>
           </div>
         </footer>

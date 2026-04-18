@@ -78,11 +78,11 @@ export async function DELETE(
       .single()
 
     if (fetchError || !session) {
-      return NextResponse.json({ error: 'Interview session not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Session de simulation introuvable' }, { status: 404 })
     }
 
     if (session.user_id !== user.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
     // Delete the interview session (answers will cascade delete due to foreign key)
@@ -101,7 +101,7 @@ export async function DELETE(
     return NextResponse.json(
       { 
         success: true, 
-        message: 'Interview deleted successfully. Credits are not refunded.' 
+        message: 'Simulation supprimée. Les crédits ne sont pas remboursés.' 
       },
       { status: 200 }
     )

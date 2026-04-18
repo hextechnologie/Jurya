@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { isFreeCancellation } from '@/lib/credits'
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (bookingError || !booking) {
-      return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Réservation introuvable' }, { status: 404 })
     }
 
     // Check if user is authorized to cancel
@@ -37,12 +37,12 @@ export async function POST(request: NextRequest) {
     const isCandidate = booking.candidate_id === user.id
 
     if (!isCoach && !isCandidate) {
-      return NextResponse.json({ error: 'Not authorized to cancel this booking' }, { status: 403 })
+      return NextResponse.json({ error: 'Non autorisé à annuler cette réservation' }, { status: 403 })
     }
 
     // Check if already cancelled
     if (booking.status === 'cancelled') {
-      return NextResponse.json({ error: 'Booking already cancelled' }, { status: 400 })
+      return NextResponse.json({ error: 'Réservation déjà annulée' }, { status: 400 })
     }
 
     // Calculate hours before session
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!escrow) {
-      return NextResponse.json({ error: 'No escrow record found' }, { status: 404 })
+      return NextResponse.json({ error: 'Aucun séquestre trouvé' }, { status: 404 })
     }
 
     const creditsCost = booking.credits_cost || 0
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       // Issue strike to coach
       await supabase.from('coach_strikes').insert({
         coach_id: user.id,
-        reason: reasonDetail || 'Coach cancelled booking',
+        reason: reasonDetail || 'Le membre de jury a annulé la réservation',
         booking_id: bookingId,
         strike_type: 'cancellation',
       })
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         type: 'refund',
         amount: refundAmount,
         balance_after: 0, // Will be updated by trigger
-        description: `Refund: Coach cancelled ${booking.duration_minutes}min session`,
+        description: `Remboursement : Le membre de jury a annulé la session de ${booking.duration_minutes} min`,
         booking_id: bookingId,
       })
 
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
           type: 'refund',
           amount: refundAmount,
           balance_after: 0,
-          description: `Refund: Cancelled ${booking.duration_minutes}min session (free cancellation)`,
+          description: `Remboursement : Annulation de la session de ${booking.duration_minutes} min (annulation gratuite)`,
           booking_id: bookingId,
         })
 
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
           type: 'earned',
           amount: escrow.coach_earnings,
           balance_after: 0,
-          description: `Earned: Candidate late cancellation (${booking.duration_minutes}min session)`,
+        description: `Gagné : Annulation tardive du candidat (session de ${booking.duration_minutes} min)`,
           booking_id: bookingId,
         })
 
@@ -224,8 +224,8 @@ export async function POST(request: NextRequest) {
 
     await supabase.from('notifications').insert({
       user_id: recipientId,
-      title: 'Booking cancelled',
-      message: `Your session has been cancelled by the ${cancellor}. ${refundAmount > 0 ? `${refundAmount} credits refunded.` : ''}`,
+      title: 'Réservation annulée',
+      message: `Votre session a été annulée par ${cancellor === 'coach' ? 'le membre de jury' : 'le candidat'}. ${refundAmount > 0 ? `${refundAmount} crédits remboursés.` : ''}`,
       type: 'booking',
       read: false,
     })
@@ -241,14 +241,14 @@ export async function POST(request: NextRequest) {
 
       if (recipientProfile?.email) {
         await resend.emails.send({
-          from: 'Interview Coach <onboarding@resend.dev>',
+          from: 'Jurya <onboarding@resend.dev>',
           to: [recipientProfile.email],
-          subject: 'Booking Cancelled',
+          subject: 'Réservation annulée',
           html: `
-            <p>Your ${booking.duration_minutes}-minute session scheduled for ${booking.scheduled_at} has been cancelled by the ${cancellor}.</p>
-            ${refundAmount > 0 ? `<p>✅ ${refundAmount} credits have been refunded to your account.</p>` : ''}
-            ${strikeIssued ? `<p>⚠️ A strike has been issued to the coach for this cancellation.</p>` : ''}
-            <p>Reason: ${reasonDetail || 'No reason provided'}</p>
+            <p>Votre session de ${booking.duration_minutes} minutes prévue le ${booking.scheduled_at} a été annulée par ${cancellor === 'coach' ? 'le membre de jury' : 'le candidat'}.</p>
+            ${refundAmount > 0 ? `<p>✅ ${refundAmount} crédits ont été remboursés sur votre compte.</p>` : ''}
+            ${strikeIssued ? `<p>⚠️ Un avertissement a été émis au membre de jury pour cette annulation.</p>` : ''}
+            <p>Raison : ${reasonDetail || 'Aucune raison fournie'}</p>
           `,
         })
       }
@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
       success: true, 
       refundAmount,
       refundStatus,
-      message: refundAmount > 0 ? `${refundAmount} credits refunded` : 'Cancellation processed'
+      message: refundAmount > 0 ? `${refundAmount} crédits remboursés` : 'Annulation effectuée'
     })
   } catch (error: any) {
     console.error('Cancellation error:', error)

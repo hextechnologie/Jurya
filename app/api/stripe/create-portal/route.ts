@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!profile || !profile.stripe_customer_id) {
-      return NextResponse.json({ error: 'No subscription found' }, { status: 404 })
+      return NextResponse.json({ error: 'Aucun abonnement trouvé' }, { status: 404 })
     }
 
     // Create Stripe portal session

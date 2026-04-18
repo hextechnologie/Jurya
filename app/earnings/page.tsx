@@ -110,7 +110,7 @@ export default function CoachEarningsPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-white">
-        <p>Please log in to view earnings</p>
+        <p>Veuillez vous connecter pour voir vos revenus</p>
       </div>
     )
   }
@@ -119,47 +119,47 @@ export default function CoachEarningsPage() {
     <div className="min-h-screen bg-background text-white px-6 py-8">
       <div className="mx-auto max-w-5xl">
         <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to dashboard
+          <ArrowLeft className="h-4 w-4" /> Retour au tableau de bord
         </Link>
 
-        <h1 className="text-3xl font-bold mb-6">💰 Earnings</h1>
+        <h1 className="text-3xl font-bold mb-6">💰 Revenus</h1>
 
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/20">
             <div className="flex items-center gap-3 mb-2">
               <TrendingUp className="h-5 w-5 text-blue-400" />
-              <p className="text-xs text-gray-400 uppercase tracking-wide">Total Earned</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide">Total gagné</p>
             </div>
             <p className="text-2xl font-bold text-blue-400">⭐ {summary.totalEarned}</p>
-            <p className="text-xs text-gray-500 mt-1">All-time earnings</p>
+            <p className="text-xs text-gray-500 mt-1">Revenus totaux</p>
           </Card>
 
           <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-yellow-500/20">
             <div className="flex items-center gap-3 mb-2">
               <Wallet className="h-5 w-5 text-yellow-400" />
-              <p className="text-xs text-gray-400 uppercase tracking-wide">In Escrow</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide">En attente</p>
             </div>
             <p className="text-2xl font-bold text-yellow-400">⭐ {summary.pendingInEscrow}</p>
-            <p className="text-xs text-gray-500 mt-1">Held until session complete</p>
+            <p className="text-xs text-gray-500 mt-1">Bloqué jusqu'à la fin de la session</p>
           </Card>
 
           <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/20">
             <div className="flex items-center gap-3 mb-2">
               <DollarSign className="h-5 w-5 text-green-400" />
-              <p className="text-xs text-gray-400 uppercase tracking-wide">Available</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide">Disponible</p>
             </div>
             <p className="text-2xl font-bold text-green-400">⭐ {summary.availableToWithdraw}</p>
-            <p className="text-xs text-gray-500 mt-1">Ready to withdraw</p>
+            <p className="text-xs text-gray-500 mt-1">Prêt à retirer</p>
           </Card>
 
           <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border-purple-500/20">
             <div className="flex items-center gap-3 mb-2">
               <Download className="h-5 w-5 text-purple-400" />
-              <p className="text-xs text-gray-400 uppercase tracking-wide">Withdrawn</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide">Retiré</p>
             </div>
             <p className="text-2xl font-bold text-purple-400">⭐ {summary.totalWithdrawn}</p>
-            <p className="text-xs text-gray-500 mt-1">Total withdrawals</p>
+            <p className="text-xs text-gray-500 mt-1">Total des retraits</p>
           </Card>
         </div>
 
@@ -167,11 +167,11 @@ export default function CoachEarningsPage() {
         <Card className="mb-8 bg-primary/5 border-primary/20">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold mb-1">Withdraw Credits</h3>
+              <h3 className="text-lg font-semibold mb-1">Retirer des crédits</h3>
               <p className="text-sm text-gray-400">
                 {canWithdraw 
-                  ? `You have ${summary.availableToWithdraw} credits available to withdraw` 
-                  : `Minimum ${MIN_WITHDRAWAL} credits required (you have ${summary.availableToWithdraw})`
+                  ? `Vous avez ${summary.availableToWithdraw} crédits disponibles à retirer` 
+                  : `Minimum ${MIN_WITHDRAWAL} crédits requis (vous avez ${summary.availableToWithdraw})`
                 }
               </p>
             </div>
@@ -182,7 +182,7 @@ export default function CoachEarningsPage() {
                 className="gap-2"
               >
                 <Download className="h-4 w-4" />
-                Withdraw
+                Retirer
               </Button>
             </Link>
           </div>
@@ -191,7 +191,7 @@ export default function CoachEarningsPage() {
         {/* Transaction History */}
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Transaction History</h2>
+            <h2 className="text-xl font-bold">Historique des transactions</h2>
             <div className="flex gap-2">
               <button
                 onClick={() => setFilter('all')}
@@ -199,7 +199,7 @@ export default function CoachEarningsPage() {
                   filter === 'all' ? 'bg-primary text-white' : 'bg-background/40 text-gray-400'
                 }`}
               >
-                All
+                Tout
               </button>
               <button
                 onClick={() => setFilter('earned')}
@@ -207,7 +207,7 @@ export default function CoachEarningsPage() {
                   filter === 'earned' ? 'bg-primary text-white' : 'bg-background/40 text-gray-400'
                 }`}
               >
-                Earned
+                Gagné
               </button>
               <button
                 onClick={() => setFilter('withdrawn')}
@@ -215,15 +215,15 @@ export default function CoachEarningsPage() {
                   filter === 'withdrawn' ? 'bg-primary text-white' : 'bg-background/40 text-gray-400'
                 }`}
               >
-                Withdrawn
+                Retiré
               </button>
             </div>
           </div>
 
           {loading ? (
-            <p className="text-gray-400 text-center py-8">Loading...</p>
+            <p className="text-gray-400 text-center py-8">Chargement...</p>
           ) : filteredTransactions.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">No transactions yet</p>
+            <p className="text-gray-400 text-center py-8">Aucune transaction</p>
           ) : (
             <div className="space-y-3">
               {filteredTransactions.map((tx) => (

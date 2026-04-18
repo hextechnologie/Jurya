@@ -73,26 +73,26 @@ export default function CoachAvailabilityPage() {
           {/* Back button */}
           <Link href="/coach/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            Back to dashboard
+            Retour au tableau de bord
           </Link>
 
           <div>
-            <h1 className="text-4xl font-bold">Coach availability</h1>
-            <p className="mt-2 text-gray-400">Set recurring availability, block dates, and add buffer time between sessions.</p>
+            <h1 className="text-4xl font-bold">Disponibilités jury</h1>
+            <p className="mt-2 text-gray-400">Définissez vos disponibilités récurrentes, bloquez des dates et ajoutez un temps tampon entre les sessions.</p>
           </div>
 
           {/* Save confirmation banner */}
           {saved && (
             <div className="rounded-xl border border-green-500/30 bg-green-500/10 px-5 py-3 text-sm text-green-400">
-              ✓ Availability saved successfully!
+              ✓ Disponibilités enregistrées !
             </div>
           )}
 
           <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
             <Card>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Weekly calendar grid</h2>
-                <Button variant="primary" onClick={handleSave}>Save availability</Button>
+                <h2 className="text-2xl font-bold">Calendrier hebdomadaire</h2>
+                <Button variant="primary" onClick={handleSave}>Enregistrer les disponibilités</Button>
               </div>
               <div className="overflow-x-auto">
                 <div className="grid min-w-[720px] grid-cols-7 gap-2 text-sm">
@@ -106,7 +106,7 @@ export default function CoachAvailabilityPage() {
                         const active = selected.includes(key)
                         return (
                           <button key={key} type="button" onClick={() => toggleSlot(key)} className={`rounded-lg p-3 transition-colors ${active ? 'bg-primary text-white' : 'border border-border bg-background/50 text-gray-400 hover:border-primary/40'}`}>
-                            {active ? 'Available' : '—'}
+                            {active ? 'Disponible' : '—'}
                           </button>
                         )
                       })}
@@ -118,25 +118,25 @@ export default function CoachAvailabilityPage() {
 
             <div className="space-y-6">
               <Card>
-                <h2 className="mb-4 text-xl font-bold">Recurring settings</h2>
+                <h2 className="mb-4 text-xl font-bold">Paramètres récurrents</h2>
                 <div className="space-y-2 text-sm text-gray-300 mb-4">
                   {recurringRules.map((r, i) => (
                     <p key={i}>Every {r.day} {r.start} – {r.end}</p>
                   ))}
                 </div>
-                <Button variant="outline" fullWidth onClick={() => setShowRecurring(true)}>Set recurring availability</Button>
+                <Button variant="outline" fullWidth onClick={() => setShowRecurring(true)}>Définir la récurrence</Button>
               </Card>
 
               <Card>
-                <h2 className="mb-4 text-xl font-bold">Block specific dates</h2>
+                <h2 className="mb-4 text-xl font-bold">Bloquer des dates</h2>
                 <input type="date" value={blockedDate} onChange={(e) => setBlockedDate(e.target.value)} className="w-full rounded-lg border border-border bg-background px-4 py-3 text-white outline-none" />
                 {blockedDate && <Badge className="mt-3">Blocked: {blockedDate}</Badge>}
               </Card>
 
               <Card>
-                <h2 className="mb-4 text-xl font-bold">Session buffer time</h2>
+                <h2 className="mb-4 text-xl font-bold">Temps tampon entre sessions</h2>
                 <input type="range" min="0" max="45" step="5" value={buffer} onChange={(e) => setBuffer(Number(e.target.value))} className="w-full accent-primary" />
-                <p className="mt-2 text-sm text-gray-300">Current buffer: {buffer} minutes between sessions</p>
+                <p className="mt-2 text-sm text-gray-300">Tampon actuel : {buffer} minutes entre les sessions</p>
               </Card>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function CoachAvailabilityPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
           <div className="w-full max-w-md rounded-2xl border border-white/10 p-6 shadow-2xl" style={{ background: '#111827' }}>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold">Set recurring availability</h2>
+              <h2 className="text-xl font-bold">Définir la récurrence</h2>
               <button onClick={() => setShowRecurring(false)} className="text-gray-400 hover:text-white"><X className="h-5 w-5" /></button>
             </div>
 
@@ -164,33 +164,33 @@ export default function CoachAvailabilityPage() {
 
             {/* Add new rule */}
             <div className="mb-4 space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-sm font-semibold text-gray-300">Add rule</p>
+              <p className="text-sm font-semibold text-gray-300">Ajouter une règle</p>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="mb-1 block text-xs text-gray-400">Day</label>
+                  <label className="mb-1 block text-xs text-gray-400">Jour</label>
                   <select value={newRule.day} onChange={(e) => setNewRule((r) => ({ ...r, day: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-white outline-none">
                     {weekDays.map((d) => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-gray-400">From</label>
+                  <label className="mb-1 block text-xs text-gray-400">De</label>
                   <select value={newRule.start} onChange={(e) => setNewRule((r) => ({ ...r, start: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-white outline-none">
                     {hours.map((h) => <option key={h} value={h}>{h}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-gray-400">To</label>
+                  <label className="mb-1 block text-xs text-gray-400">À</label>
                   <select value={newRule.end} onChange={(e) => setNewRule((r) => ({ ...r, end: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-2 py-2 text-sm text-white outline-none">
                     {hours.map((h) => <option key={h} value={h}>{h}</option>)}
                   </select>
                 </div>
               </div>
-              <Button variant="outline" fullWidth onClick={addRule}>+ Add rule</Button>
+              <Button variant="outline" fullWidth onClick={addRule}>+ Ajouter une règle</Button>
             </div>
 
             <div className="flex gap-3">
-              <Button variant="outline" fullWidth onClick={() => setShowRecurring(false)}>Cancel</Button>
-              <Button variant="primary" fullWidth onClick={applyRecurringRules}>Apply to calendar</Button>
+              <Button variant="outline" fullWidth onClick={() => setShowRecurring(false)}>Annuler</Button>
+              <Button variant="primary" fullWidth onClick={applyRecurringRules}>Appliquer au calendrier</Button>
             </div>
           </div>
         </div>

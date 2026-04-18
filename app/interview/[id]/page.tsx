@@ -296,7 +296,7 @@ export default function InterviewPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data.error || 'Failed to get question')
+        toast.error(data.error || 'Échec de récupération de la question')
         return
       }
 
@@ -311,7 +311,7 @@ export default function InterviewPage() {
       }
     } catch (error) {
       console.error('Error getting question:', error)
-      toast.error('Failed to get next question')
+      toast.error('Échec de récupération de la question suivante')
     } finally {
       setLoading(false)
       isLoadingQuestionRef.current = false
@@ -357,14 +357,14 @@ export default function InterviewPage() {
 
         setSessionComplete(Boolean(data.completed))
         if (data.completed) {
-          toast.success('Interview complete! Your summary email is on the way.')
+          toast.success('Simulation terminée ! Votre résumé par e-mail est en cours d\'envoi.')
         }
       } else {
-        toast.error('No feedback was returned for this answer.')
+        toast.error('Aucun feedback retourné pour cette réponse.')
       }
     } catch (error) {
       console.error('Error submitting answer:', error)
-      toast.error('Failed to submit answer')
+      toast.error('Échec de soumission de la réponse')
     } finally {
       setWaitingForFeedback(false)
       setLoading(false)
@@ -392,7 +392,7 @@ export default function InterviewPage() {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
 
     if (!SpeechRecognition) {
-      toast.error('Voice input is not supported in this browser.')
+      toast.error('La saisie vocale n\'est pas supportée par ce navigateur.')
       return
     }
 
@@ -460,7 +460,7 @@ export default function InterviewPage() {
     setCurrentAnswer('')
     setSessionComplete(false)
     setTimeout(() => setActionLoading(null), 300)
-    toast.success('You can try the same question again now.')
+    toast.success('Vous pouvez réessayer la même question.')
   }
 
   const handleNextQuestion = async () => {
@@ -479,20 +479,20 @@ export default function InterviewPage() {
   const copyFeedback = async (feedback: FeedbackData) => {
     try {
       await navigator.clipboard.writeText([
-        `Score: ${feedback.score}/10`,
-        `Strengths: ${feedback.strengths.join('; ')}`,
-        `Areas to improve: ${feedback.weaknesses.join('; ')}`,
-        `Quick fix: ${feedback.quick_fix || ''}`,
-        `Improved answer: ${feedback.improved_answer}`,
+        `Score : ${feedback.score}/10`,
+        `Points forts : ${feedback.strengths.join('; ')}`,
+        `Axes d'amélioration : ${feedback.weaknesses.join('; ')}`,
+        `Correction rapide : ${feedback.quick_fix || ''}`,
+        `Réponse améliorée : ${feedback.improved_answer}`,
       ].join('\n'))
       toast.success(t.copied)
     } catch {
-      toast.error('Copy failed')
+      toast.error('Échec de la copie')
     }
   }
 
   const shareOnLinkedIn = (feedback: FeedbackData) => {
-    const shareText = encodeURIComponent(`I just scored ${feedback.score}/10 on an AI mock interview for ${session?.job_role || 'my role'}! Practicing with Interview Coach 🎯`)
+    const shareText = encodeURIComponent(`Je viens d'obtenir ${feedback.score}/10 à une simulation d'oral pour ${session?.job_role || 'mon concours'} ! S'entraîner avec Jurya 🎯`)
     window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${shareText}`, '_blank', 'noopener,noreferrer')
   }
 
@@ -522,10 +522,10 @@ export default function InterviewPage() {
 
       setMessages(translatedMessages)
       setFeedbackLanguage(targetLanguage)
-      toast.success(`Feedback switched to ${targetLanguage.toUpperCase()}`)
+      toast.success(`Feedback traduit en ${targetLanguage.toUpperCase()}`)
     } catch (error) {
       console.error('Translate feedback error:', error)
-      toast.error('Translation failed')
+      toast.error('La traduction a échoué')
     } finally {
       setTranslating(false)
     }
@@ -557,13 +557,13 @@ export default function InterviewPage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </Link>
             <div className="flex flex-wrap items-center gap-2 md:justify-end">
               {session && (
                 <div className="text-right mr-2">
-                  <p className="text-sm text-gray-400">Question {questionCount} of ~6</p>
-                  <p className="text-sm font-semibold">{session.job_role} • {session.difficulty_level} • {session.interview_config?.interviewType || 'Mixed'}</p>
+                  <p className="text-sm text-gray-400">Question {questionCount} sur ~6</p>
+                  <p className="text-sm font-semibold">{session.job_role} • {session.difficulty_level} • {session.interview_config?.interviewType || 'Mixte'}</p>
                 </div>
               )}
               <div className="flex items-center gap-1 rounded-xl border border-border bg-card/70 p-1">
@@ -598,11 +598,11 @@ export default function InterviewPage() {
                     <div className="flex justify-end gap-2 mb-3">
                       <Button variant="outline" className="px-3 py-2 text-xs" onClick={toggleSpeech}>
                         <VolumeX className="w-3 h-3" />
-                        {speechEnabled ? 'Mute' : 'Unmute'}
+                        {speechEnabled ? 'Couper le son' : 'Activer le son'}
                       </Button>
                       <Button variant="outline" className="px-3 py-2 text-xs" onClick={replayLastQuestion} disabled={!speechEnabled}>
                         <RotateCcw className="w-3 h-3" />
-                        Replay Question
+                        Réécouter
                       </Button>
                     </div>
                     <div className="prose prose-invert max-w-none">
@@ -693,7 +693,7 @@ export default function InterviewPage() {
 
                       <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-violet-500/15 to-blue-500/15 p-4">
                         <h4 className="mb-1 flex items-center gap-2 font-semibold text-primary">💡 {t.quickFix}</h4>
-                        <p className="text-sm text-gray-200">{message.feedback.quick_fix || 'Start your answer with the situation, explain your action, then the result.'}</p>
+                        <p className="text-sm text-gray-200">{message.feedback.quick_fix || 'Commencez par la situation, expliquez votre action, puis le résultat.'}</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -726,11 +726,11 @@ export default function InterviewPage() {
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4">
                               <h4 className="font-semibold text-red-300 mb-2">{t.yourAnswer}</h4>
-                              <p className="text-sm text-gray-300 whitespace-pre-wrap">{messages[index - 1]?.role === 'user' ? messages[index - 1].content : 'Your latest answer appears here.'}</p>
+                              <p className="text-sm text-gray-300 whitespace-pre-wrap">{messages[index - 1]?.role === 'user' ? messages[index - 1].content : 'Votre dernière réponse apparaît ici.'}</p>
                             </div>
                             <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-4">
                               <h4 className="font-semibold text-green-300 mb-2">{t.idealAnswer}</h4>
-                              <p className="text-sm text-gray-200 whitespace-pre-wrap">{message.feedback.ideal_answer || 'No ideal answer available yet.'}</p>
+                              <p className="text-sm text-gray-200 whitespace-pre-wrap">{message.feedback.ideal_answer || 'Pas de réponse idéale disponible.'}</p>
                             </div>
                           </div>
 
@@ -791,7 +791,7 @@ export default function InterviewPage() {
               <Card className="flex-1 bg-card/50">
                 <div className="flex items-center gap-3">
                   <LoadingSpinner size="sm" />
-                  <span className="text-gray-400">Thinking...</span>
+                  <span className="text-gray-400">Réflexion en cours...</span>
                 </div>
               </Card>
             </div>
@@ -806,7 +806,7 @@ export default function InterviewPage() {
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your answer here or use the microphone..."
+              placeholder="Tapez votre réponse ici ou utilisez le microphone..."
               disabled={loading || waitingForFeedback || awaitingChoice}
               rows={3}
               className="flex-1 bg-background border border-border rounded-lg px-4 py-3 text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none disabled:opacity-50"
@@ -831,7 +831,7 @@ export default function InterviewPage() {
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Tip: Use the microphone or type your answer, then choose Try Again or Next Question after feedback appears.
+            Conseil : Utilisez le microphone ou tapez votre réponse, puis choisissez Réessayer ou Question suivante après le feedback.
           </p>
         </Card>
       </div>

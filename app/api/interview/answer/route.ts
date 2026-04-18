@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { Resend } from 'resend'
@@ -20,7 +20,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const SYSTEM_PROMPT = `You are a senior interview coach.
+const SYSTEM_PROMPT = `You are a senior Jurya.
 Evaluate the answer and return ONLY valid JSON in this exact shape:
 {
   "score": 1-10,
@@ -213,27 +213,27 @@ All natural-language content must be written entirely in ${languageName}.`
           const scoreColor = averageScore >= 8 ? '#22c55e' : averageScore >= 5 ? '#f59e0b' : '#ef4444'
           const summaryUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://interview-coach-tau.vercel.app'}/interview/summary/${sessionId}`
           const motivation = averageScore >= 7
-            ? 'Great job — keep practicing and try to beat your score next time.'
-            : 'You are getting closer. Focus on one improvement area and come back stronger.'
+            ? 'Excellent travail — continuez à vous entraîner et essayez de battre votre score la prochaine fois.'
+            : 'Vous progressez. Concentrez-vous sur un axe d\'amélioration et revenez plus fort.'
 
           await resend.emails.send({
-            from: 'Interview Coach <onboarding@resend.dev>',
+            from: 'Jurya <onboarding@resend.dev>',
             to: profile.email,
-            subject: `Your interview summary for ${session.job_role}`,
+            subject: `Votre résumé de simulation pour ${session.job_role}`,
             html: `
               <div style="background:#0b1020;padding:32px;font-family:Arial,sans-serif;color:#f8fafc;">
                 <div style="max-width:640px;margin:0 auto;background:#111827;border:1px solid rgba(139,92,246,0.35);border-radius:20px;padding:32px;">
-                  <h2 style="margin-top:0;color:#a78bfa;">Interview Summary</h2>
-                  <p><strong>Job role:</strong> ${session.job_role}</p>
-                  <p><strong>Overall score:</strong> <span style="color:${scoreColor};font-weight:700;">${averageScore}/10</span></p>
-                  <p><strong>Confidence:</strong> ${feedback.metrics.confidence}%</p>
-                  <p><strong>Clarity:</strong> ${feedback.metrics.clarity}%</p>
-                  <h3 style="color:#4ade80;">Top 3 strengths</h3>
+                  <h2 style="margin-top:0;color:#a78bfa;">Résumé de simulation</h2>
+                  <p><strong>Poste visé :</strong> ${session.job_role}</p>
+                  <p><strong>Score global :</strong> <span style="color:${scoreColor};font-weight:700;">${averageScore}/10</span></p>
+                  <p><strong>Confiance :</strong> ${feedback.metrics.confidence}%</p>
+                  <p><strong>Clarté :</strong> ${feedback.metrics.clarity}%</p>
+                  <h3 style="color:#4ade80;">Top 3 des points forts</h3>
                   <ul>${(feedback.strengths || []).slice(0, 3).map((item: string) => `<li>${item}</li>`).join('')}</ul>
-                  <h3 style="color:#fbbf24;">Top 3 areas to improve</h3>
+                  <h3 style="color:#fbbf24;">Top 3 des axes d'amélioration</h3>
                   <ul>${(feedback.weaknesses || []).slice(0, 3).map((item: string) => `<li>${item}</li>`).join('')}</ul>
                   <p style="margin-top:20px;color:#cbd5e1;">${motivation}</p>
-                  <a href="${summaryUrl}" style="display:inline-block;margin-top:12px;background:linear-gradient(90deg,#8b5cf6,#3b82f6);color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:700;">View full session</a>
+                  <a href="${summaryUrl}" style="display:inline-block;margin-top:12px;background:linear-gradient(90deg,#8b5cf6,#3b82f6);color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:700;">Voir la session complète</a>
                 </div>
               </div>
             `,

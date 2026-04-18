@@ -44,12 +44,12 @@ export default function WithdrawPage() {
     const withdrawAmount = parseInt(amount)
 
     if (isNaN(withdrawAmount) || withdrawAmount < MIN_WITHDRAWAL) {
-      setError(`Minimum withdrawal is ${MIN_WITHDRAWAL} credits`)
+      setError(`Le retrait minimum est de ${MIN_WITHDRAWAL} crédits`)
       return
     }
 
     if (withdrawAmount > balance) {
-      setError('Insufficient balance')
+      setError('Solde insuffisant')
       return
     }
 
@@ -72,7 +72,7 @@ export default function WithdrawPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to process withdrawal')
+        throw new Error(data.error || 'Échec du traitement du retrait')
       }
 
       setSuccess(true)
@@ -89,7 +89,7 @@ export default function WithdrawPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-white">
-        <p>Please log in to withdraw credits</p>
+        <p>Veuillez vous connecter pour retirer des crédits</p>
       </div>
     )
   }
@@ -99,16 +99,16 @@ export default function WithdrawPage() {
       <div className="min-h-screen flex items-center justify-center bg-background text-white px-6">
         <Card className="max-w-md w-full text-center">
           <CheckCircle2 className="h-16 w-16 text-green-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Withdrawal Initiated</h2>
+          <h2 className="text-2xl font-bold mb-2">Retrait initié</h2>
           <p className="text-gray-400 mb-4">
-            Your withdrawal of {amount} credits (${amount}) has been processed.
+            Votre retrait de {amount} crédits ({amount} €) a été traité.
           </p>
           <p className="text-sm text-gray-500 mb-6">
-            Funds will arrive in your account within 2-5 business days.
+            Les fonds arriveront sur votre compte dans 2 à 5 jours ouvrables.
           </p>
           <Link href="/earnings">
             <Button variant="primary" fullWidth>
-              Back to Earnings
+              Retour aux revenus
             </Button>
           </Link>
         </Card>
@@ -120,39 +120,39 @@ export default function WithdrawPage() {
     <div className="min-h-screen bg-background text-white px-6 py-8">
       <div className="mx-auto max-w-2xl">
         <Link href="/earnings" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to earnings
+          <ArrowLeft className="h-4 w-4" /> Retour aux revenus
         </Link>
 
-        <h1 className="text-3xl font-bold mb-6">Withdraw Credits</h1>
+        <h1 className="text-3xl font-bold mb-6">Retirer des crédits</h1>
 
         <Card>
           <div className="mb-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
             <div className="flex items-center gap-3 mb-2">
               <DollarSign className="h-5 w-5 text-blue-400" />
-              <p className="text-sm font-semibold text-blue-400">Available Balance</p>
+              <p className="text-sm font-semibold text-blue-400">Solde disponible</p>
             </div>
             <p className="text-3xl font-bold text-blue-400">⭐ {balance}</p>
-            <p className="text-sm text-gray-400 mt-1">${balance} USD</p>
+            <p className="text-sm text-gray-400 mt-1">{balance} €</p>
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm text-gray-300 mb-2">Withdrawal Amount (Credits)</label>
+            <label className="block text-sm text-gray-300 mb-2">Montant du retrait (crédits)</label>
             <input
               type="number"
               min={MIN_WITHDRAWAL}
               max={balance}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder={`Minimum ${MIN_WITHDRAWAL} credits`}
+              placeholder={`Minimum ${MIN_WITHDRAWAL} crédits`}
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-white text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <div className="flex items-center justify-between mt-2">
-              <p className="text-xs text-gray-500">= ${amount || 0} USD</p>
+              <p className="text-xs text-gray-500">= {amount || 0} €</p>
               <button
                 onClick={() => setAmount(String(balance))}
                 className="text-xs text-primary hover:underline"
               >
-                Withdraw Maximum
+                Retirer le maximum
               </button>
             </div>
           </div>
@@ -160,14 +160,14 @@ export default function WithdrawPage() {
           <div className="mb-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="h-4 w-4 text-yellow-400" />
-              <p className="text-sm font-semibold text-yellow-400">Important Information</p>
+              <p className="text-sm font-semibold text-yellow-400">Information importante</p>
             </div>
             <ul className="text-xs text-gray-400 space-y-1">
-              <li>• Minimum withdrawal: ${MIN_WITHDRAWAL} ({MIN_WITHDRAWAL} credits)</li>
-              <li>• 1 credit = $1 USD</li>
-              <li>• Funds will arrive in 2-5 business days</li>
-              <li>• Bank transfer fees may apply</li>
-              <li>• You'll receive email confirmation once processed</li>
+              <li>• Retrait minimum : {MIN_WITHDRAWAL} € ({MIN_WITHDRAWAL} crédits)</li>
+              <li>• 1 crédit = 1 €</li>
+              <li>• Les fonds arriveront dans 2 à 5 jours ouvrables</li>
+              <li>• Des frais de virement bancaire peuvent s'appliquer</li>
+              <li>• Vous recevrez un e-mail de confirmation une fois traité</li>
             </ul>
           </div>
 
@@ -186,14 +186,14 @@ export default function WithdrawPage() {
             className="gap-2"
           >
             <DollarSign className="h-4 w-4" />
-            Withdraw {amount || 0} Credits (${amount || 0})
+            Retirer {amount || 0} crédits ({amount || 0} €)
           </Button>
         </Card>
 
         <div className="mt-6 p-4 rounded-lg bg-background/40 border border-border">
-          <p className="text-xs text-gray-500 mb-2">💡 Tip</p>
+          <p className="text-xs text-gray-500 mb-2">💡 Conseil</p>
           <p className="text-sm text-gray-400">
-            Keep some credits in your balance for potential refunds from cancelled sessions. We recommend maintaining at least 50 credits.
+            Gardez quelques crédits sur votre solde pour d'éventuels remboursements de sessions annulées. Nous recommandons de maintenir au moins 50 crédits.
           </p>
         </div>
       </div>

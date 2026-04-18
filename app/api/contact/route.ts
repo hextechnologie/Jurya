@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     // Validate input
     if (!name || !email || !subject || !message) {
       return NextResponse.json(
-        { error: 'Name, email, subject, and message are required' },
+        { error: 'Le nom, l\'e-mail, le sujet et le message sont requis' },
         { status: 400 }
       )
     }
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: 'Format d\'e-mail invalide' },
         { status: 400 }
       )
     }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     if (error) {
       console.error('Supabase error:', error)
       return NextResponse.json(
-        { error: 'Failed to save message. Please try again.' },
+        { error: 'Échec de l\'enregistrement. Veuillez réessayer.' },
         { status: 500 }
       )
     }
@@ -57,19 +57,19 @@ export async function POST(request: Request) {
         const resend = new Resend(process.env.RESEND_API_KEY)
 
         await resend.emails.send({
-          from: 'Interview Coach <onboarding@resend.dev>',
+          from: 'Jurya <onboarding@resend.dev>',
           to: 'abdelkarim.boudara@gmail.com',
           reply_to: email,
-          subject: `[${subject}] New Contact Form Message from ${name}`,
+          subject: `[${subject}] Nouveau message du formulaire de contact de ${name}`,
           html: `
-            <h2>New Contact Form Submission</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Subject:</strong> ${subject}</p>
-            <p><strong>Message:</strong></p>
+            <h2>Nouveau message de contact</h2>
+            <p><strong>Nom :</strong> ${name}</p>
+            <p><strong>E-mail :</strong> ${email}</p>
+            <p><strong>Sujet :</strong> ${subject}</p>
+            <p><strong>Message :</strong></p>
             <p>${message.replace(/\n/g, '<br>')}</p>
             <hr>
-            <p><small>Submitted at: ${new Date().toLocaleString()}</small></p>
+            <p><small>Envoyé le : ${new Date().toLocaleString()}</small></p>
           `,
         })
       } catch (emailError) {
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: true,
-        message: 'Thank you for your message! We will get back to you within 24 hours.',
+        message: 'Merci pour votre message ! Nous vous répondrons sous 24 heures.',
         data,
       },
       { status: 200 }
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Contact form error:', error)
     return NextResponse.json(
-      { error: 'An unexpected error occurred. Please try again later.' },
+      { error: 'Une erreur inattendue s\'est produite. Veuillez réessayer plus tard.' },
       { status: 500 }
     )
   }

@@ -37,18 +37,18 @@ export default function ReviewPage() {
     <div className="min-h-screen bg-background px-6 py-10">
       <div className="mx-auto max-w-2xl">
         <Card>
-          <h1 className="mb-2 text-3xl font-bold">Rate your coaching session</h1>
-          <p className="mb-6 text-gray-400">Your review helps improve coach quality and updates their public rating.</p>
+          <h1 className="mb-2 text-3xl font-bold">Évaluez votre session</h1>
+          <p className="mb-6 text-gray-400">Votre avis aide à améliorer la qualité des membres de jury et met à jour leur note publique.</p>
 
           {done ? (
             <div className="space-y-4">
-              <div className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-4 text-green-300">Thank you. Your review has been submitted.</div>
-              <Button variant="primary" onClick={() => router.push('/dashboard')}>Return to dashboard</Button>
+              <div className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-4 text-green-300">Merci. Votre avis a été soumis.</div>
+              <Button variant="primary" onClick={() => router.push('/dashboard')}>Retour au tableau de bord</Button>
             </div>
           ) : (
             <div className="space-y-5">
               <div>
-                <p className="mb-2 text-sm text-gray-300">Star rating</p>
+                <p className="mb-2 text-sm text-gray-300">Note</p>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((value) => (
                     <button key={value} type="button" onClick={() => setRating(value)}>
@@ -59,22 +59,22 @@ export default function ReviewPage() {
               </div>
 
               <div>
-                <p className="mb-2 text-sm text-gray-300">Written review</p>
-                <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={5} placeholder="What stood out in the session?" className="w-full rounded-xl border border-border bg-background px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary" />
+                <p className="mb-2 text-sm text-gray-300">Avis écrit</p>
+                <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={5} placeholder="Qu'est-ce qui vous a marqué dans cette session ?" className="w-full rounded-xl border border-border bg-background px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
 
               <div>
-                <p className="mb-2 text-sm text-gray-300">Would you recommend this coach?</p>
+                <p className="mb-2 text-sm text-gray-300">Recommanderiez-vous ce membre de jury ?</p>
                 <div className="flex gap-2">
                   {['yes', 'no'].map((value) => (
                     <button key={value} type="button" onClick={() => setRecommend(value as 'yes' | 'no')} className={`rounded-full px-4 py-2 ${recommend === value ? 'bg-primary text-white' : 'border border-border text-gray-300'}`}>
-                      {value === 'yes' ? 'Yes' : 'No'}
+                      {value === 'yes' ? 'Oui' : 'Non'}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <Button variant="primary" onClick={handleSubmit} loading={loading}>Submit review</Button>
+              <Button variant="primary" onClick={handleSubmit} loading={loading}>Envoyer l'avis</Button>
             </div>
           )}
         </Card>

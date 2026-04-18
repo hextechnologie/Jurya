@@ -59,7 +59,7 @@ export default function CreditsPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        alert('Please log in again')
+        alert('Veuillez vous reconnecter')
         return
       }
 
@@ -78,7 +78,7 @@ export default function CreditsPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to process payment')
+        throw new Error(data.error || 'Échec du traitement du paiement')
       }
 
       if (data.url) {
@@ -87,7 +87,7 @@ export default function CreditsPage() {
       }
     } catch (error: any) {
       console.error('Purchase error:', error)
-      alert(error.message || 'Failed to process purchase. Please try again.')
+      alert(error.message || 'Échec de l\'achat. Veuillez réessayer.')
     } finally {
       setProcessingPayment(false)
       setSelectedPackage(null)
@@ -97,7 +97,7 @@ export default function CreditsPage() {
   const handleCustomPurchase = async () => {
     const amount = parseInt(customAmount)
     if (!user || !amount || amount < 10 || processingPayment) {
-      alert('Please enter an amount of at least $10')
+      alert('Veuillez entrer un montant d\'au moins 10 €')
       return
     }
 
@@ -106,7 +106,7 @@ export default function CreditsPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        alert('Please log in again')
+        alert('Veuillez vous reconnecter')
         return
       }
 
@@ -124,7 +124,7 @@ export default function CreditsPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to process payment')
+        throw new Error(data.error || 'Échec du traitement du paiement')
       }
 
       if (data.url) {
@@ -132,7 +132,7 @@ export default function CreditsPage() {
       }
     } catch (error: any) {
       console.error('Purchase error:', error)
-      alert(error.message || 'Failed to process purchase. Please try again.')
+      alert(error.message || 'Échec de l\'achat. Veuillez réessayer.')
     } finally {
       setProcessingPayment(false)
     }
@@ -162,16 +162,16 @@ export default function CreditsPage() {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back
+              <ArrowLeft className="w-4 h-4" /> Retour
             </Link>
             <div className="flex items-center gap-2">
               <span className="text-3xl">⭐</span>
-              <h1 className="text-2xl font-bold">Top Up Your Credits</h1>
+              <h1 className="text-2xl font-bold">Recharger vos crédits</h1>
             </div>
           </div>
           <div className={`px-4 py-2 rounded-lg border ${balanceColors.borderColor} ${balanceColors.bgColor}`}>
             <span className={`text-lg font-bold ${balanceColors.textColor}`}>
-              ⭐ {userCredits?.balance || 0} credits
+              ⭐ {userCredits?.balance || 0} crédits
             </span>
           </div>
         </div>
@@ -181,13 +181,13 @@ export default function CreditsPage() {
         {/* Balance Warning */}
         {(userCredits?.balance || 0) < 20 && (
           <div className="mb-6 p-4 rounded-lg border border-red-500/30 bg-red-500/10">
-            <p className="text-red-400 font-medium">⚠️ Low balance warning: You have {userCredits?.balance || 0} credits left. Top up now to book more sessions!</p>
+            <p className="text-red-400 font-medium">⚠️ Solde bas : il vous reste {userCredits?.balance || 0} crédits. Rechargez maintenant pour réserver plus de sessions !</p>
           </div>
         )}
 
         {/* Credit Packages */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Choose a Package</h2>
+          <h2 className="text-2xl font-bold mb-6">Choisir un forfait</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {packages.map((pkg) => (
               <Card
@@ -199,24 +199,24 @@ export default function CreditsPage() {
                 {pkg.is_popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="px-3 py-1 rounded-full bg-purple-600 text-xs font-bold text-white">
-                      🔥 MOST POPULAR
+                      🔥 LE PLUS POPULAIRE
                     </span>
                   </div>
                 )}
                 <div className="text-center">
                   <h3 className="text-xl font-bold mb-2">{pkg.name}</h3>
                   <div className="text-4xl font-bold text-purple-400 mb-1">
-                    ${pkg.price_usd}
+                    {pkg.price_usd} €
                   </div>
                   <div className="text-gray-400 text-sm mb-4">
-                    {pkg.base_credits} credits
+                    {pkg.base_credits} crédits
                     {pkg.bonus_credits > 0 && (
                       <span className="text-yellow-400"> + {pkg.bonus_credits} bonus</span>
                     )}
                   </div>
                   <div className="flex items-center justify-center gap-2 mb-4 text-sm text-gray-400">
                     <TrendingUp className="w-4 h-4" />
-                    <span>${(pkg.price_usd / pkg.total_credits).toFixed(2)} per credit</span>
+                    <span>{(pkg.price_usd / pkg.total_credits).toFixed(2)} € par crédit</span>
                   </div>
                   <Button
                     variant={pkg.is_popular ? 'primary' : 'outline'}
@@ -226,9 +226,9 @@ export default function CreditsPage() {
                     disabled={processingPayment}
                   >
                     {processingPayment && selectedPackage === pkg.id ? (
-                      'Processing...'
+                      'Traitement...'
                     ) : (
-                      `Get ${pkg.total_credits} Credits`
+                      `Obtenir ${pkg.total_credits} crédits`
                     )}
                   </Button>
                 </div>
@@ -239,9 +239,9 @@ export default function CreditsPage() {
 
         {/* Custom Amount */}
         <Card className="mb-12">
-          <h3 className="text-xl font-bold mb-4">Custom Amount</h3>
+          <h3 className="text-xl font-bold mb-4">Montant personnalisé</h3>
           <p className="text-gray-400 text-sm mb-4">
-            Purchase any amount of credits. Minimum $10.
+            Achetez le nombre de crédits souhaité. Minimum 10 €.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -253,13 +253,13 @@ export default function CreditsPage() {
                   step="5"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
-                  placeholder="Enter amount (min $10)"
+                  placeholder="Entrer le montant (min 10 €)"
                   className="w-full bg-background border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               {customAmount && parseInt(customAmount) >= 10 && (
                 <p className="mt-2 text-sm text-gray-400">
-                  You'll receive {parseInt(customAmount)} credits
+                  Vous recevrez {parseInt(customAmount)} crédits
                 </p>
               )}
             </div>
@@ -270,7 +270,7 @@ export default function CreditsPage() {
               disabled={!customAmount || parseInt(customAmount) < 10 || processingPayment}
               className="sm:w-auto px-8"
             >
-              {processingPayment && !selectedPackage ? 'Processing...' : 'Purchase'}
+              {processingPayment && !selectedPackage ? 'Traitement...' : 'Acheter'}
             </Button>
           </div>
         </Card>
@@ -278,7 +278,7 @@ export default function CreditsPage() {
         {/* Transaction History */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Transaction History</h2>
+            <h2 className="text-2xl font-bold">Historique des transactions</h2>
             <div className="flex gap-2">
               {(['all', 'purchase', 'spent', 'refund'] as const).map((f) => (
                 <button
@@ -290,7 +290,7 @@ export default function CreditsPage() {
                       : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                  {f === 'all' ? 'Tout' : f === 'purchase' ? 'Achat' : f === 'spent' ? 'Dépensé' : 'Remboursement'}
                 </button>
               ))}
             </div>
@@ -299,7 +299,7 @@ export default function CreditsPage() {
           {filteredTransactions.length === 0 ? (
             <Card className="text-center py-12">
               <Sparkles className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400">No transactions yet</p>
+              <p className="text-gray-400">Aucune transaction</p>
             </Card>
           ) : (
             <div className="space-y-3">
@@ -326,7 +326,7 @@ export default function CreditsPage() {
                         {txn.description || txn.type.charAt(0).toUpperCase() + txn.type.slice(1)}
                       </p>
                       <p className="text-sm text-gray-400">
-                        {new Date(txn.created_at).toLocaleDateString('en-US', {
+                        {new Date(txn.created_at).toLocaleDateString('fr-FR', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric',
@@ -347,7 +347,7 @@ export default function CreditsPage() {
                       {txn.type === 'purchase' || txn.type === 'refund' || txn.type === 'earned' ? '+' : '-'}
                       {Math.abs(txn.amount)}
                     </p>
-                    <p className="text-sm text-gray-400">Balance: {txn.balance_after}</p>
+                    <p className="text-sm text-gray-400">Solde : {txn.balance_after}</p>
                   </div>
                 </Card>
               ))}

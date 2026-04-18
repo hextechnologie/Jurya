@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -53,7 +53,7 @@ export default function ContactPage() {
   }
 
   const openWhatsApp = () => {
-    window.open('https://wa.me/1234567890?text=Hello,%20I%20need%20help%20with%20Interview%20Coach', '_blank')
+    window.open('https://wa.me/1234567890?text=Bonjour,%20j%27ai%20besoin%20d%27aide%20avec%20Jurya', '_blank')
   }
 
   return (
@@ -68,7 +68,7 @@ export default function ContactPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </Link>
             <Link href="/dashboard">
               <Button variant="outline">Dashboard</Button>
@@ -82,9 +82,9 @@ export default function ContactPage() {
         <div className="container mx-auto px-6 py-20">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold mb-4">Get in Touch</h1>
+            <h1 className="text-5xl font-bold mb-4">Nous contacter</h1>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Have a question or need support? We're here to help!
+              Une question ou besoin d'aide ? Nous sommes là pour vous !
             </p>
           </div>
 
@@ -92,11 +92,11 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div>
               <Card>
-                <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
+                <h2 className="text-2xl font-bold mb-6">Envoyez-nous un message</h2>
                 
                 {success && (
                   <div className="bg-green-500/10 border border-green-500 text-green-500 px-4 py-3 rounded-lg mb-6">
-                    Thank you! We'll get back to you within 24 hours.
+                    Merci ! Nous vous répondrons dans les 24 heures.
                   </div>
                 )}
 
@@ -108,29 +108,29 @@ export default function ContactPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <Input
-                    label="Full Name"
+                    label="Nom complet"
                     type="text"
                     value={name}
                     onChange={setName}
-                    placeholder="John Doe"
+                    placeholder="Jean Dupont"
                     required
                   />
 
                   <Input
-                    label="Email Address"
+                    label="Adresse e-mail"
                     type="email"
                     value={email}
                     onChange={setEmail}
-                    placeholder="you@example.com"
+                    placeholder="vous@exemple.com"
                     required
                   />
 
                   <Input
-                    label="Subject"
+                    label="Objet"
                     type="text"
                     value={subject}
                     onChange={setSubject}
-                    placeholder="Billing, support, partnership..."
+                    placeholder="Facturation, support, partenariat..."
                     required
                   />
 
@@ -139,7 +139,7 @@ export default function ContactPage() {
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Tell us how we can help you..."
+                      placeholder="Dites-nous comment nous pouvons vous aider..."
                       required
                       rows={6}
                       className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder-gray-500"
@@ -147,7 +147,7 @@ export default function ContactPage() {
                   </div>
 
                   <Button type="submit" variant="primary" fullWidth loading={loading}>
-                    Send Message
+                    Envoyer le message
                   </Button>
                 </form>
               </Card>
@@ -162,13 +162,13 @@ export default function ContactPage() {
                     <Phone className="w-6 h-6 text-green-500" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold mb-2">WhatsApp Support</h3>
+                    <h3 className="text-lg font-semibold mb-2">Support WhatsApp</h3>
                     <p className="text-gray-400 mb-4">
-                      Get instant help via WhatsApp. We're available Monday to Friday, 9 AM - 6 PM EST.
+                      Obtenez de l'aide instantanée via WhatsApp. Nous sommes disponibles du lundi au vendredi, 9h - 18h.
                     </p>
                     <Button variant="outline" onClick={openWhatsApp} className="gap-2">
                       <MessageSquare className="w-4 h-4" />
-                      Chat on WhatsApp
+                      Discuter sur WhatsApp
                     </Button>
                   </div>
                 </div>
@@ -181,12 +181,12 @@ export default function ContactPage() {
                     <Mail className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">Email Us</h3>
+                    <h3 className="text-lg font-semibold mb-2">E-mail</h3>
                     <p className="text-gray-400 mb-2">
-                      For detailed inquiries or support requests
+                      Pour les demandes détaillées ou les demandes de support
                     </p>
-                    <a href="mailto:support@interviewcoach.com" className="text-primary hover:underline">
-                      support@interviewcoach.com
+                    <a href="mailto:support@jurya.fr" className="text-primary hover:underline">
+                      support@jurya.fr
                     </a>
                   </div>
                 </div>
@@ -194,20 +194,20 @@ export default function ContactPage() {
 
               {/* FAQ */}
               <div className="glass p-6 rounded-xl">
-                <h3 className="text-lg font-semibold mb-2">Looking for Answers?</h3>
+                <h3 className="text-lg font-semibold mb-2">Vous cherchez des réponses ?</h3>
                 <p className="text-gray-400 mb-4">
-                  Check out our FAQ page for quick answers to common questions.
+                  Consultez notre FAQ pour des réponses rapides aux questions courantes.
                 </p>
                 <Link href="/faq">
-                  <Button variant="outline">Visit FAQ</Button>
+                  <Button variant="outline">Voir la FAQ</Button>
                 </Link>
               </div>
 
               {/* Response Time */}
               <div className="glass p-6 rounded-xl bg-gradient-primary/10 border-primary/20">
-                <h3 className="text-lg font-semibold mb-2">⚡ Quick Response Time</h3>
+                <h3 className="text-lg font-semibold mb-2">⚡ Réponse rapide</h3>
                 <p className="text-gray-300">
-                  We typically respond to all inquiries within 24 hours on business days.
+                  Nous répondons généralement à toutes les demandes dans les 24 heures ouvrables.
                 </p>
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function ContactPage() {
         <footer className="border-t border-border mt-20 py-8">
           <div className="container mx-auto px-6">
             <div className="text-center text-gray-400 text-sm">
-              <p>&copy; 2026 Interview Coach. All rights reserved.</p>
+              <p>&copy; 2026 Jurya. Tous droits réservés.</p>
             </div>
           </div>
         </footer>

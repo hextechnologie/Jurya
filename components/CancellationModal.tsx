@@ -21,19 +21,19 @@ type CancellationModalProps = {
 }
 
 const COACH_CANCELLATION_REASONS = [
-  'Emergency',
-  'Illness',
-  'Schedule conflict',
-  'Technical issues',
-  'Other'
+  'Urgence',
+  'Maladie',
+  'Conflit d\'emploi du temps',
+  'Problème technique',
+  'Autre'
 ]
 
 const CANDIDATE_CANCELLATION_REASONS = [
-  'Schedule changed',
-  'No longer needed',
-  'Found different coach',
-  'Technical issues',
-  'Other'
+  'Changement de planning',
+  'Plus nécessaire',
+  'Autre membre de jury trouvé',
+  'Problème technique',
+  'Autre'
 ]
 
 export function CancellationModal({ booking, userRole, onClose, onSuccess }: CancellationModalProps) {
@@ -51,7 +51,7 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
 
   const handleCancel = async () => {
     if (!reason) {
-      setError('Please select a reason')
+      setError('Veuillez sélectionner une raison')
       return
     }
 
@@ -74,7 +74,7 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to cancel booking')
+        throw new Error(data.error || 'Échec de l\'annulation')
       }
 
       onSuccess()
@@ -91,7 +91,7 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-6 w-6 text-yellow-500" />
-            <h2 className="text-xl font-bold">Cancel Booking</h2>
+            <h2 className="text-xl font-bold">Annuler la réservation</h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <X className="h-5 w-5" />
@@ -101,36 +101,36 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
         {/* Warning message */}
         {userRole === 'coach' && (
           <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 p-4">
-            <p className="text-sm text-red-300 font-semibold mb-1">⚠️ Coach Cancellation Warning</p>
+            <p className="text-sm text-red-300 font-semibold mb-1">⚠️ Attention — annulation jury</p>
             <p className="text-xs text-gray-300">
-              • Full refund will be given to the candidate ({creditsCost} credits)<br />
-              • You will receive a strike on your account<br />
-              • 5 strikes in 30 days will suspend your account
+              • Remboursement intégral au candidat ({creditsCost} crédits)<br />
+              • Un avertissement sera ajouté à votre compte<br />
+              • 5 avertissements en 30 jours entraînent la suspension de votre compte
             </p>
           </div>
         )}
 
         {userRole === 'candidate' && !isFree && (
           <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 p-4">
-            <p className="text-sm text-red-300 font-semibold mb-1">⚠️ Late Cancellation - No Refund</p>
+            <p className="text-sm text-red-300 font-semibold mb-1">⚠️ Annulation tardive — Pas de remboursement</p>
             <p className="text-xs text-gray-300">
-              You are cancelling within 48 hours of the session. No credits will be refunded ({creditsCost} credits will go to the coach).
+              Vous annulez dans les 48 heures précédant la session. Aucun crédit ne sera remboursé ({creditsCost} crédits iront au membre de jury).
             </p>
           </div>
         )}
 
         {userRole === 'candidate' && isFree && (
           <div className="mb-4 rounded-lg border border-green-500/40 bg-green-500/10 p-4">
-            <p className="text-sm text-green-300 font-semibold mb-1">✅ Free Cancellation</p>
+            <p className="text-sm text-green-300 font-semibold mb-1">✅ Annulation gratuite</p>
             <p className="text-xs text-gray-300">
-              Full refund of {creditsCost} credits will be processed.
+              Remboursement intégral de {creditsCost} crédits.
             </p>
           </div>
         )}
 
         {/* Booking details */}
         <div className="mb-4 p-3 rounded-lg bg-background/40 border border-border">
-          <p className="text-sm text-gray-400 mb-1">Session Details</p>
+          <p className="text-sm text-gray-400 mb-1">Détails de la session</p>
           <p className="text-sm">
             {userRole === 'coach' ? booking.candidate_name_snapshot : booking.coach_name_snapshot}
           </p>
@@ -141,13 +141,13 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
 
         {/* Reason selection */}
         <div className="mb-4">
-          <label className="block text-sm text-gray-300 mb-2">Cancellation Reason *</label>
+          <label className="block text-sm text-gray-300 mb-2">Raison de l'annulation *</label>
           <select
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-white text-sm"
           >
-            <option value="">Select a reason...</option>
+            <option value="">Sélectionnez une raison...</option>
             {reasons.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
@@ -156,11 +156,11 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
 
         {/* Additional details */}
         <div className="mb-4">
-          <label className="block text-sm text-gray-300 mb-2">Additional Details (Optional)</label>
+          <label className="block text-sm text-gray-300 mb-2">Détails supplémentaires (facultatif)</label>
           <textarea
             value={reasonDetail}
             onChange={(e) => setReasonDetail(e.target.value)}
-            placeholder="Provide more context about the cancellation..."
+            placeholder="Précisez les circonstances..."
             rows={3}
             className="w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-white text-sm resize-none"
           />
@@ -175,7 +175,7 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
         {/* Actions */}
         <div className="flex gap-3">
           <Button variant="secondary" onClick={onClose} disabled={loading} fullWidth>
-            Keep Booking
+            Conserver la réservation
           </Button>
           <Button 
             variant="primary" 
@@ -185,7 +185,7 @@ export function CancellationModal({ booking, userRole, onClose, onSuccess }: Can
             fullWidth
             className="bg-red-600 hover:bg-red-700"
           >
-            Confirm Cancellation
+            Confirmer l'annulation
           </Button>
         </div>
       </Card>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { ChangeEvent, useMemo, useState } from 'react'
 import Link from 'next/link'
@@ -7,37 +7,37 @@ import { Button, Card, Input, Select } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
 
 const jobRoleOptions = [
-  { value: 'Software Engineer', label: 'Software Engineer' },
-  { value: 'Product Manager', label: 'Product Manager' },
-  { value: 'Data Analyst', label: 'Data Analyst' },
-  { value: 'Product Designer', label: 'Product Designer' },
-  { value: 'Marketing Manager', label: 'Marketing Manager' },
-  { value: 'Sales Executive', label: 'Sales Executive' },
-  { value: 'Business Analyst', label: 'Business Analyst' },
-  { value: 'DevOps Engineer', label: 'DevOps Engineer' },
+  { value: 'Software Engineer', label: 'Ingénieur logiciel' },
+  { value: 'Product Manager', label: 'Chef de produit' },
+  { value: 'Data Analyst', label: 'Analyste de données' },
+  { value: 'Product Designer', label: 'Designer produit' },
+  { value: 'Marketing Manager', label: 'Responsable marketing' },
+  { value: 'Sales Executive', label: 'Responsable commercial' },
+  { value: 'Business Analyst', label: 'Analyste métier' },
+  { value: 'DevOps Engineer', label: 'Ingénieur DevOps' },
   { value: 'Data Scientist', label: 'Data Scientist' },
   { value: 'UX Researcher', label: 'UX Researcher' },
-  { value: 'Finance Analyst', label: 'Finance Analyst' },
-  { value: 'HR Specialist', label: 'HR Specialist' },
-  { value: 'Other', label: 'Other' },
+  { value: 'Finance Analyst', label: 'Analyste financier' },
+  { value: 'HR Specialist', label: 'Spécialiste RH' },
+  { value: 'Other', label: 'Autre' },
 ]
 
 const statusOptions = [
-  { value: 'student', label: '🎓 Student' },
-  { value: 'employed', label: '👨‍💼 Employed' },
-  { value: 'unemployed', label: '🔍 Actively Job Seeking' },
-  { value: 'career-change', label: '🔄 Career Change' },
-  { value: 'fresh-graduate', label: '💼 Fresh Graduate' },
-  { value: 'other', label: '🌍 Other' },
+  { value: 'student', label: '🎓 Étudiant(e)' },
+  { value: 'employed', label: '👨‍💼 En poste' },
+  { value: 'unemployed', label: '🔍 En recherche active' },
+  { value: 'career-change', label: '🔄 Reconversion professionnelle' },
+  { value: 'fresh-graduate', label: '💼 Jeune diplômé(e)' },
+  { value: 'other', label: '🌍 Autre' },
 ]
 
 const statusDetailConfig: Record<string, { label: string; placeholder: string }> = {
-  student:        { label: 'University & Major',           placeholder: 'e.g. MIT — Computer Science' },
-  employed:       { label: 'Current Job Title & Company',  placeholder: 'e.g. Software Engineer at Google' },
-  unemployed:     { label: 'Last Role / How Long Seeking', placeholder: 'e.g. Software Engineer — 3 months' },
-  'career-change':{ label: 'Coming From → Target Field',   placeholder: 'e.g. Finance → Software Engineering' },
-  'fresh-graduate':{ label: 'Degree & Major',              placeholder: 'e.g. BSc Computer Science' },
-  other:          { label: 'Tell us your situation',       placeholder: 'Brief description of your current status' },
+  student:        { label: 'Université & filière',               placeholder: 'ex. Sorbonne — Droit public' },
+  employed:       { label: 'Poste actuel & employeur',        placeholder: 'ex. Attaché territorial — Mairie de Lyon' },
+  unemployed:     { label: 'Dernier poste / Durée de recherche', placeholder: 'ex. Rédacteur territorial — 3 mois' },
+  'career-change':{ label: 'Secteur actuel → Secteur visé',    placeholder: 'ex. Privé → Fonction publique' },
+  'fresh-graduate':{ label: 'Diplôme & filière',               placeholder: 'ex. Master Droit public' },
+  other:          { label: 'Décrivez votre situation',        placeholder: 'Brève description de votre situation actuelle' },
 }
 
 export default function CandidateSignupPage() {
@@ -89,15 +89,15 @@ export default function CandidateSignupPage() {
     setSuccess('')
 
     if (!firstName.trim() || !email.includes('@') || !currentStatus) {
-      setError('Please complete all required fields.')
+      setError('Veuillez remplir tous les champs obligatoires.')
       return
     }
     if (strength !== 'Strong') {
-      setError('Password must be strong (at least 10 characters with uppercase, lowercase, and numbers).')
+      setError('Le mot de passe doit être fort (au moins 10 caractères avec majuscules, minuscules et chiffres).')
       return
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.')
+      setError('Les mots de passe ne correspondent pas.')
       return
     }
 
@@ -112,13 +112,13 @@ export default function CandidateSignupPage() {
 
       if (existingProfile) {
         if (existingProfile.user_type === 'candidate' || existingProfile.user_type === 'both') {
-          throw new Error('This email is already registered as a candidate. Please log in instead.')
+          throw new Error('Cet e-mail est déjà enregistré en tant que candidat. Veuillez vous connecter.')
         }
 
         // user_type === 'coach' → add candidate role to existing account
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) {
-          throw new Error('This email already has a coach account. Enter your existing password to also activate the candidate role.')
+          throw new Error('Cet e-mail possède déjà un compte jury. Entrez votre mot de passe actuel pour activer également le rôle candidat.')
         }
 
         const userId = signInData.user.id
@@ -155,7 +155,7 @@ export default function CandidateSignupPage() {
         }).eq('id', userId)
 
         await supabase.auth.signOut()
-        setSuccess('Candidate role added to your account! Please log in.')
+        setSuccess('Le rôle candidat a été ajouté à votre compte ! Veuillez vous connecter.')
         return
       }
 
@@ -180,9 +180,9 @@ export default function CandidateSignupPage() {
           .eq('email', email)
           .maybeSingle()
         if (existing) {
-          throw new Error('This email is already registered. Please log in instead.')
+          throw new Error('Cet e-mail est déjà enregistré. Veuillez vous connecter.')
         } else {
-          throw new Error('You already signed up with this email but haven\'t confirmed it yet. Please check your inbox (and spam folder) for the confirmation link.')
+          throw new Error('Vous vous êtes déjà inscrit(e) avec cet e-mail mais vous ne l\'avez pas encore confirmé. Vérifiez votre boîte de réception (et le dossier spam) pour le lien de confirmation.')
         }
       }
 
@@ -231,9 +231,9 @@ export default function CandidateSignupPage() {
 
       if (data.session) await supabase.auth.signOut()
 
-      setSuccess('Account created! Please check your email to confirm, then log in.')
+      setSuccess('Compte créé ! Vérifiez votre e-mail pour confirmer, puis connectez-vous.')
     } catch (err: any) {
-      setError(err.message || 'Unable to create your account right now.')
+      setError(err.message || 'Impossible de créer votre compte pour le moment.')
     } finally {
       setLoading(false)
     }
@@ -245,17 +245,17 @@ export default function CandidateSignupPage() {
       <div className="relative z-10 mx-auto max-w-2xl">
         <Link href="/signup" className="mb-6 inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white">
           <ArrowLeft className="h-4 w-4" />
-          Back to signup options
+          Retour aux options d'inscription
         </Link>
 
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
           <Sparkles className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+          <span className="text-2xl font-bold gradient-text">Jurya</span>
         </Link>
 
         <Card>
-          <h1 className="mb-2 text-3xl font-bold">Candidate signup</h1>
-          <p className="mb-6 text-gray-400">Create your practice account and start preparing for real interviews.</p>
+          <h1 className="mb-2 text-3xl font-bold">Inscription candidat</h1>
+          <p className="mb-6 text-gray-400">Créez votre compte et commencez à préparer vos oraux de concours.</p>
 
           {error && <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
 
@@ -263,35 +263,35 @@ export default function CandidateSignupPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name row */}
               <div className="grid gap-5 md:grid-cols-2">
-                <Input label="First Name *" value={firstName} onChange={setFirstName} placeholder="Jane" required />
-                <Input label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
+                <Input label="Prénom *" value={firstName} onChange={setFirstName} placeholder="Marie" required />
+                <Input label="Nom" value={lastName} onChange={setLastName} placeholder="Dupont" />
               </div>
 
-              <Input label="Email *" type="email" value={email} onChange={setEmail} placeholder="jane@example.com" required />
+              <Input label="E-mail *" type="email" value={email} onChange={setEmail} placeholder="marie@exemple.com" required />
 
               {/* Password row */}
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">Password *</label>
+                  <label className="mb-2 block text-sm font-medium text-foreground">Mot de passe *</label>
                   <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
-                  <p className={`mt-1.5 text-xs ${strength === 'Strong' ? 'text-green-400' : strength === 'Medium' ? 'text-yellow-400' : 'text-red-400'}`}>Strength: {strength}</p>
+                  <p className={`mt-1.5 text-xs ${strength === 'Strong' ? 'text-green-400' : strength === 'Medium' ? 'text-yellow-400' : 'text-red-400'}`}>Sécurité : {strength === 'Strong' ? 'Fort' : strength === 'Medium' ? 'Moyen' : 'Faible'}</p>
                   {strength !== 'Strong' && (
-                    <p className="mt-1 text-xs text-gray-400">Must be 10+ characters with uppercase, lowercase & number</p>
+                    <p className="mt-1 text-xs text-gray-400">10 caractères minimum avec majuscules, minuscules et chiffres</p>
                   )}
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">Confirm Password *</label>
+                  <label className="mb-2 block text-sm font-medium text-foreground">Confirmez le mot de passe *</label>
                   <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
               </div>
 
               {/* Current status */}
               <Select
-                label="Current Status *"
+                label="Situation actuelle *"
                 value={currentStatus}
                 onChange={(v) => { setCurrentStatus(v); setStatusDetail('') }}
                 options={statusOptions}
-                placeholder="What describes you best?"
+                placeholder="Qu'est-ce qui vous décrit le mieux ?"
                 required
               />
 
@@ -307,69 +307,69 @@ export default function CandidateSignupPage() {
 
               {/* Target role + experience */}
               <Select
-                label="Target Job Role"
+                label="Concours visé"
                 value={targetJobRole}
                 onChange={(v) => { setTargetJobRole(v); setCustomJobRole('') }}
                 options={jobRoleOptions}
-                placeholder="What role are you aiming for? (optional)"
+                placeholder="Quel concours préparez-vous ? (facultatif)"
               />
 
               {/* Custom job role input - show when "Other" is selected */}
               {targetJobRole === 'Other' && (
                 <Input
-                  label="Specify Your Target Role *"
+                  label="Précisez le concours visé *"
                   value={customJobRole}
                   onChange={setCustomJobRole}
-                  placeholder="e.g. Machine Learning Engineer"
+                  placeholder="ex. Inspecteur des finances publiques"
                   required
                 />
               )}
 
               {targetJobRole && (
                 <Select
-                  label="Experience Level"
+                  label="Niveau d'expérience"
                   value={experienceLevel}
                   onChange={setExperienceLevel}
                   options={[
-                    { value: 'junior', label: 'Junior (0–2 yrs)' },
-                    { value: 'mid', label: 'Mid-level (3–5 yrs)' },
-                    { value: 'senior', label: 'Senior (6+ yrs)' },
+                    { value: 'junior', label: 'Débutant (0–2 ans)' },
+                    { value: 'mid', label: 'Intermédiaire (3–5 ans)' },
+                    { value: 'senior', label: 'Confirmé (6+ ans)' },
                   ]}
-                  placeholder="Select level"
+                  placeholder="Sélectionnez un niveau"
                 />
               )}
 
               {/* Country + City */}
               <div className="grid gap-5 md:grid-cols-2">
-                <Input label="Country" value={country} onChange={setCountry} placeholder="e.g. United States" />
-                <Input label="City" value={city} onChange={setCity} placeholder="e.g. San Francisco" />
+                <Input label="Pays" value={country} onChange={setCountry} placeholder="ex. France" />
+                <Input label="Ville" value={city} onChange={setCity} placeholder="ex. Paris" />
               </div>
 
               {/* LinkedIn */}
               <Input
-                label="LinkedIn URL (optional)"
+                label="URL LinkedIn (facultatif)"
                 value={linkedinUrl}
                 onChange={setLinkedinUrl}
-                placeholder="https://linkedin.com/in/yourprofile"
+                placeholder="https://linkedin.com/in/votreprofil"
               />
 
               {/* Avatar */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Profile photo (optional)</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Photo de profil (facultatif)</label>
                 <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-primary/40 bg-background/40 px-4 py-4 text-sm text-gray-300 hover:bg-white/5">
                   <Camera className="h-5 w-5 text-primary" />
-                  <span>{avatarFile ? avatarFile.name : 'Choose image'}</span>
+                  <span>{avatarFile ? avatarFile.name : 'Choisir une image'}</span>
                   <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 </label>
                 {avatarPreview && <img src={avatarPreview} alt="Preview" className="mt-3 h-16 w-16 rounded-full object-cover" />}
               </div>
 
-              <Button type="submit" variant="primary" fullWidth loading={loading}>Create candidate account</Button>
+              <Button type="submit" variant="primary" fullWidth loading={loading}>Créer mon compte candidat</Button>
             </form>
           ) : (
             <div className="pt-2">
               <Link href="/login/candidate">
-                <Button variant="primary" fullWidth>Go to login</Button>
+                <Button variant="primary" fullWidth>Accéder à la connexion</Button>
               </Link>
             </div>
           )}

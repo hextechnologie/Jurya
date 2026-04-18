@@ -1,12 +1,12 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { Sparkles } from 'lucide-react'
 import { Button, Card } from '@/components/ui'
 
 export default function AboutPage() {
   const team = [
-    { name: 'Product Lead', role: 'Designing a smarter interview journey' },
-    { name: 'AI Engineer', role: 'Building realistic interview feedback systems' },
-    { name: 'Growth Lead', role: 'Helping candidates reach more opportunities' },
+    { name: 'Product Lead', role: 'Concevoir un parcours de préparation plus intelligent' },
+    { name: 'AI Engineer', role: 'Développer des simulations d\'oral réalistes' },
+    { name: 'Growth Lead', role: 'Aider les candidats à maximiser leurs chances' },
   ]
 
   return (
@@ -17,55 +17,55 @@ export default function AboutPage() {
           <div className="container mx-auto px-6 py-4 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </Link>
-            <Link href="/dashboard"><Button variant="outline">Dashboard</Button></Link>
+            <Link href="/dashboard"><Button variant="outline">Tableau de bord</Button></Link>
           </div>
         </header>
 
         <div className="container mx-auto px-6 py-16 max-w-6xl">
           <div className="text-center mb-14">
-            <h1 className="text-5xl font-bold mb-4">About Interview Coach</h1>
+            <h1 className="text-5xl font-bold mb-4">À propos de Jurya</h1>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              We built Interview Coach to make world-class interview practice accessible, practical, and confidence-boosting for everyone.
+              Nous avons créé Jurya pour démocratiser la préparation aux oraux de concours grâce à des simulations réalistes, accessibles et efficaces.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6 mb-10">
             <Card>
-              <h2 className="text-2xl font-bold mb-3">Our Mission</h2>
+              <h2 className="text-2xl font-bold mb-3">Notre mission</h2>
               <p className="text-gray-300 leading-relaxed">
-                Our mission is to help job seekers prepare with confidence using realistic AI-powered mock interviews, fast feedback, and personalized improvement tips.
+                Notre mission est d'aider les candidats à préparer leurs oraux de concours avec confiance grâce à des simulations réalistes pilotées par l'IA, des retours détaillés et des conseils personnalisés.
               </p>
             </Card>
             <Card>
-              <h2 className="text-2xl font-bold mb-3">Why We Built This</h2>
+              <h2 className="text-2xl font-bold mb-3">Pourquoi Jurya</h2>
               <p className="text-gray-300 leading-relaxed">
-                Too many candidates miss great opportunities because they never get enough practice. We wanted to create a private, affordable, always-available coach.
+                Trop de candidats échouent aux oraux faute de pratique suffisante. Nous avons voulu créer un outil accessible, abordable et disponible à tout moment pour s'entraîner.
               </p>
             </Card>
           </div>
 
           <Card className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">How the App Works</h2>
+            <h2 className="text-2xl font-bold mb-4">Comment ça marche</h2>
             <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-300">
               <div className="rounded-xl border border-border p-4">
-                <p className="text-primary font-semibold mb-2">1. Choose your interview</p>
-                <p>Select the role, level, language, and interview type.</p>
+                <p className="text-primary font-semibold mb-2">1. Choisissez votre oral</p>
+                <p>Sélectionnez le concours, le niveau, la langue et le type d'épreuve.</p>
               </div>
               <div className="rounded-xl border border-border p-4">
-                <p className="text-primary font-semibold mb-2">2. Practice with AI</p>
-                <p>Answer realistic questions in a guided mock interview experience.</p>
+                <p className="text-primary font-semibold mb-2">2. Entraînez-vous avec l'IA</p>
+                <p>Répondez à des questions réalistes dans une simulation d'oral guidée.</p>
               </div>
               <div className="rounded-xl border border-border p-4">
-                <p className="text-primary font-semibold mb-2">3. Improve faster</p>
-                <p>Review your score, strengths, weak spots, and coaching suggestions.</p>
+                <p className="text-primary font-semibold mb-2">3. Progressez plus vite</p>
+                <p>Consultez votre note, vos points forts, vos axes d'amélioration et les conseils du jury.</p>
               </div>
             </div>
           </Card>
 
           <div>
-            <h2 className="text-2xl font-bold mb-4">Team</h2>
+            <h2 className="text-2xl font-bold mb-4">Équipe</h2>
             <div className="grid md:grid-cols-3 gap-4">
               {team.map((member) => (
                 <Card key={member.name}>

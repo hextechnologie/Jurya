@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { ChangeEvent, useMemo, useState } from 'react'
 import Link from 'next/link'
@@ -61,15 +61,15 @@ export default function CoachSignupPage() {
     setSuccess('')
 
     if (!firstName.trim() || !email.includes('@') || password.length < 6 || !title.trim()) {
-      setError('Please complete the required fields.')
+      setError('Veuillez remplir les champs obligatoires.')
       return
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.')
+      setError('Les mots de passe ne correspondent pas.')
       return
     }
     if (bio.length > 300) {
-      setError('Bio must stay under 300 characters.')
+      setError('La biographie ne doit pas dépasser 300 caractères.')
       return
     }
 
@@ -84,13 +84,13 @@ export default function CoachSignupPage() {
 
       if (existingProfile) {
         if (existingProfile.user_type === 'coach' || existingProfile.user_type === 'both') {
-          throw new Error('This email is already registered as a coach. Please log in instead.')
+          throw new Error('Cet e-mail est déjà enregistré en tant que membre de jury. Veuillez vous connecter.')
         }
 
         // user_type === 'candidate' → add coach role to existing account
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) {
-          throw new Error('This email already has a candidate account. Enter your existing password to also activate the coach role.')
+          throw new Error('Cet e-mail possède déjà un compte candidat. Entrez votre mot de passe actuel pour activer également le rôle jury.')
         }
 
         const userId = signInData.user.id
@@ -138,7 +138,7 @@ export default function CoachSignupPage() {
         }
 
         await supabase.auth.signOut()
-        setSuccess('Coach role added to your account! Please log in.')
+        setSuccess('Le rôle jury a été ajouté à votre compte ! Veuillez vous connecter.')
         return
       }
 
@@ -163,9 +163,9 @@ export default function CoachSignupPage() {
           .eq('email', email)
           .maybeSingle()
         if (existing) {
-          throw new Error('This email is already registered. Please log in instead.')
+          throw new Error('Cet e-mail est déjà enregistré. Veuillez vous connecter.')
         } else {
-          throw new Error('You already signed up with this email but haven\'t confirmed it yet. Please check your inbox (and spam folder) for the confirmation link.')
+          throw new Error('Vous vous êtes déjà inscrit(e) avec cet e-mail mais vous ne l\'avez pas encore confirmé. Vérifiez votre boîte de réception (et le dossier spam) pour le lien de confirmation.')
         }
       }
 
@@ -225,9 +225,9 @@ export default function CoachSignupPage() {
 
       if (data.session) await supabase.auth.signOut()
 
-      setSuccess('Coach account created successfully. Please check your email, confirm your account, then log in again as a coach.')
+      setSuccess('Compte jury créé avec succès. Vérifiez votre e-mail, confirmez votre compte, puis reconnectez-vous en tant que membre de jury.')
     } catch (err: any) {
-      setError(err.message || 'Unable to create your coach account right now.')
+      setError(err.message || 'Impossible de créer votre compte jury pour le moment.')
     } finally {
       setLoading(false)
     }
@@ -239,22 +239,22 @@ export default function CoachSignupPage() {
       <div className="relative z-10 mx-auto max-w-3xl">
         <Link href="/signup" className="mb-6 inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white">
           <ArrowLeft className="h-4 w-4" />
-          Back to signup options
+          Retour aux options d'inscription
         </Link>
 
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
           <Sparkles className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+          <span className="text-2xl font-bold gradient-text">Jurya</span>
         </Link>
 
         <Card>
           <div className="mb-4 flex items-center gap-2">
-            <Badge>Platform fee: 20%</Badge>
-            <span className="text-sm text-gray-400">Coaches receive 80% after each session.</span>
+            <Badge>Commission plateforme : 20 %</Badge>
+            <span className="text-sm text-gray-400">Les membres de jury reçoivent 80 % après chaque session.</span>
           </div>
 
-          <h1 className="mb-2 text-3xl font-bold">Coach signup</h1>
-          <p className="mb-6 text-gray-400">Create your professional profile and start earning from mock interview sessions.</p>
+          <h1 className="mb-2 text-3xl font-bold">Inscription jury</h1>
+          <p className="mb-6 text-gray-400">Créez votre profil professionnel et commencez à gagner de l'argent grâce aux simulations d'oral.</p>
 
           {error && <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
 
@@ -262,40 +262,40 @@ export default function CoachSignupPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name */}
               <div className="grid gap-5 md:grid-cols-2">
-                <Input label="First Name *" value={firstName} onChange={setFirstName} placeholder="Alex" required />
-                <Input label="Last Name" value={lastName} onChange={setLastName} placeholder="Morgan" />
+                <Input label="Prénom *" value={firstName} onChange={setFirstName} placeholder="Jean" required />
+                <Input label="Nom" value={lastName} onChange={setLastName} placeholder="Martin" />
               </div>
 
               {/* Credentials */}
-              <Input label="Email *" type="email" value={email} onChange={setEmail} placeholder="coach@example.com" required />
+              <Input label="E-mail *" type="email" value={email} onChange={setEmail} placeholder="jury@exemple.com" required />
 
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">Password *</label>
+                  <label className="mb-2 block text-sm font-medium text-foreground">Mot de passe *</label>
                   <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
-                  <p className={`mt-1.5 text-xs ${strength === 'Strong' ? 'text-green-400' : strength === 'Medium' ? 'text-yellow-400' : 'text-red-400'}`}>Strength: {strength}</p>
+                  <p className={`mt-1.5 text-xs ${strength === 'Strong' ? 'text-green-400' : strength === 'Medium' ? 'text-yellow-400' : 'text-red-400'}`}>Sécurité : {strength === 'Strong' ? 'Fort' : strength === 'Medium' ? 'Moyen' : 'Faible'}</p>
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">Confirm Password *</label>
+                  <label className="mb-2 block text-sm font-medium text-foreground">Confirmez le mot de passe *</label>
                   <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
               </div>
 
               {/* Professional info */}
               <div className="grid gap-5 md:grid-cols-2">
-                <Input label="Professional Title *" value={title} onChange={setTitle} placeholder="Senior Google Engineer" required />
-                <Input label="Years of Experience *" type="number" value={experience} onChange={setExperience} placeholder="8" required />
+                <Input label="Titre professionnel *" value={title} onChange={setTitle} placeholder="Professeur agrégé de droit" required />
+                <Input label="Années d'expérience *" type="number" value={experience} onChange={setExperience} placeholder="8" required />
               </div>
 
               {/* Location */}
               <div className="grid gap-5 md:grid-cols-2">
-                <Input label="Country" value={country} onChange={setCountry} placeholder="e.g. United States" />
-                <Input label="City" value={city} onChange={setCity} placeholder="e.g. San Francisco" />
+                <Input label="Pays" value={country} onChange={setCountry} placeholder="ex. France" />
+                <Input label="Ville" value={city} onChange={setCity} placeholder="ex. Paris" />
               </div>
 
               {/* Specializations */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Industries and specializations</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Secteurs et spécialisations</label>
                 <div className="flex flex-wrap gap-2">
                   {specializationOptions.map((tag) => (
                     <button
@@ -312,16 +312,16 @@ export default function CoachSignupPage() {
 
               {/* Companies */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Companies worked at</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Employeurs précédents</label>
                 <div className="flex gap-2">
                   <input
                     value={companyInput}
                     onChange={(e) => setCompanyInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCompany() } }}
-                    placeholder="Add company"
+                    placeholder="Ajouter un employeur"
                     className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
-                  <Button type="button" variant="outline" onClick={addCompany}><Plus className="h-4 w-4" />Add</Button>
+                  <Button type="button" variant="outline" onClick={addCompany}><Plus className="h-4 w-4" />Ajouter</Button>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {companies.map((company) => (
@@ -335,38 +335,38 @@ export default function CoachSignupPage() {
 
               {/* Price */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Session price: ${price}/hour</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Prix par session : {price} €/heure</label>
                 <input type="range" min="10" max="500" value={price} onChange={(e) => setPrice(Number(e.target.value))} className="w-full accent-primary" />
-                <p className="mt-2 text-sm text-gray-400">Platform fee: ${platformFee} • You keep ~${(price * 0.8).toFixed(0)}</p>
+                <p className="mt-2 text-sm text-gray-400">Commission : {platformFee} € • Vous gardez ~{(price * 0.8).toFixed(0)} €</p>
               </div>
 
               {/* Bio */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Short bio</label>
-                <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={300} rows={4} placeholder="Describe your coaching style and areas of expertise." className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
+                <label className="mb-2 block text-sm font-medium text-foreground">Courte biographie</label>
+                <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={300} rows={4} placeholder="Décrivez votre style de coaching et vos domaines d'expertise." className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
                 <p className="mt-1 text-xs text-gray-400">{bio.length}/300</p>
               </div>
 
               {/* LinkedIn */}
-              <Input label="LinkedIn URL (optional)" value={linkedinUrl} onChange={setLinkedinUrl} placeholder="https://linkedin.com/in/yourname" />
+              <Input label="URL LinkedIn (facultatif)" value={linkedinUrl} onChange={setLinkedinUrl} placeholder="https://linkedin.com/in/votreprofil" />
 
               {/* Avatar */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Profile photo (optional)</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Photo de profil (facultatif)</label>
                 <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-primary/40 bg-background/40 px-4 py-4 text-sm text-gray-300 hover:bg-white/5">
                   <Camera className="h-5 w-5 text-primary" />
-                  <span>{avatarFile ? avatarFile.name : 'Choose image'}</span>
+                  <span>{avatarFile ? avatarFile.name : 'Choisir une image'}</span>
                   <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 </label>
                 {avatarPreview && <img src={avatarPreview} alt="Preview" className="mt-3 h-16 w-16 rounded-full object-cover" />}
               </div>
 
-              <Button type="submit" variant="primary" fullWidth loading={loading}>Create coach account</Button>
+              <Button type="submit" variant="primary" fullWidth loading={loading}>Créer mon compte jury</Button>
             </form>
           ) : (
             <div className="pt-2">
               <Link href="/login/coach">
-                <Button variant="primary" fullWidth>Go to coach login</Button>
+                <Button variant="primary" fullWidth>Accéder à la connexion jury</Button>
               </Link>
             </div>
           )}

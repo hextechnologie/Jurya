@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 
@@ -23,7 +23,7 @@ const getLanguageName = (code: string): string => {
   return languages[code] || 'English'
 }
 
-const SYSTEM_PROMPT = `You are an elite AI interview coach.
+const SYSTEM_PROMPT = `You are an elite AI Jurya.
 Ask exactly one realistic interview question at a time.
 Tailor every question to the candidate's resume, target job description, role, experience level, and strongest skills.
 Keep the tone warm, direct, and professional.

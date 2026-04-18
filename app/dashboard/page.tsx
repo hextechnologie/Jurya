@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '@/components/AuthProvider'
@@ -41,16 +41,16 @@ import {
 } from 'recharts'
 
 const DAILY_TIPS = [
-  { tip: 'Use the STAR method (Situation, Task, Action, Result) to keep your answers structured and memorable.', category: 'Structure 📋' },
-  { tip: 'Add specific numbers and outcomes to prove the impact of your work.', category: 'Confidence 💪' },
-  { tip: 'Take 2-3 seconds to pause before answering — it shows composure, not hesitation.', category: 'Confidence 💪' },
-  { tip: 'Keep each answer focused on one strong example instead of listing many weak ones.', category: 'Structure 📋' },
-  { tip: "Research the company's latest product launches or news before your interview.", category: 'Preparation 📚' },
-  { tip: 'Prepare 3 genuine questions to ask the interviewer to demonstrate your interest.', category: 'Communication 💬' },
-  { tip: 'Avoid filler words like "um", "uh", and "like" by practicing answers out loud daily.', category: 'Communication 💬' },
-  { tip: 'Mirror the calm energy of the interviewer — composure always wins.', category: 'Confidence 💪' },
-  { tip: 'Tailor each answer to the specific job description and company values.', category: 'Preparation 📚' },
-  { tip: 'End each answer with a brief summary sentence to reinforce your key point.', category: 'Structure 📋' },
+  { tip: 'Utilisez la méthode STAR (Situation, Tâche, Action, Résultat) pour structurer vos réponses de manière mémorable.', category: 'Structure 📋' },
+  { tip: "Ajoutez des chiffres et résultats concrets pour prouver l'impact de votre travail.", category: 'Confiance 💪' },
+  { tip: "Prenez 2 à 3 secondes de pause avant de répondre — cela montre du sang-froid, pas de l'hésitation.", category: 'Confiance 💪' },
+  { tip: "Concentrez chaque réponse sur un exemple fort plutôt que d'en lister plusieurs faibles.", category: 'Structure 📋' },
+  { tip: "Renseignez-vous sur les dernières actualités de l'institution ou du concours avant votre oral.", category: 'Préparation 📚' },
+  { tip: 'Préparez 3 questions pertinentes à poser au jury pour démontrer votre intérêt.', category: 'Communication 💬' },
+  { tip: 'Évitez les mots de remplissage comme « euh », « ben », « en fait » en vous entraînant à voix haute chaque jour.', category: 'Communication 💬' },
+  { tip: 'Adoptez une énergie calme face au jury — la maîtrise de soi est toujours gagnante.', category: 'Confiance 💪' },
+  { tip: "Adaptez chaque réponse au concours visé et aux valeurs de l'institution.", category: 'Préparation 📚' },
+  { tip: 'Terminez chaque réponse par une phrase de synthèse pour renforcer votre point clé.', category: 'Structure 📋' },
 ]
 
 type BookingWithCoach = {
@@ -91,8 +91,8 @@ function getInterviewType(session: InterviewSession) {
 }
 
 function trendLabel(val: number) {
-  if (val > 0) return <span className="text-green-400">↑ Improving</span>
-  if (val < 0) return <span className="text-red-400">↓ Declining</span>
+  if (val > 0) return <span className="text-green-400">↑ En hausse</span>
+  if (val < 0) return <span className="text-red-400">↓ En baisse</span>
   return <span className="text-gray-400">→ Stable</span>
 }
 
@@ -292,7 +292,7 @@ export default function DashboardPage() {
     }
 
     const confirmed = window.confirm(
-      'Delete this interview? This action cannot be undone and credits will not be refunded.'
+      'Supprimer cette simulation ? Cette action est irréversible et les crédits ne seront pas remboursés.'
     )
 
     if (!confirmed) return
@@ -302,7 +302,7 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session) {
-        alert('Session expired. Please log in again.')
+        alert('Session expirée. Veuillez vous reconnecter.')
         router.push('/login')
         return
       }
@@ -317,14 +317,14 @@ export default function DashboardPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        alert(data.error || 'Failed to delete interview')
+        alert(data.error || 'Échec de la suppression de la simulation')
         return
       }
 
       await fetchDashboardData()
     } catch (error) {
       console.error('Error deleting interview:', error)
-      alert('Failed to delete interview')
+      alert('Échec de la suppression de la simulation')
     } finally {
       setDeletingId(null)
     }
@@ -356,12 +356,12 @@ export default function DashboardPage() {
   const completedCount = sessions.filter((s) => s.status === 'completed').length
 
   const achievements = [
-    { id: 'first', label: 'First Interview', icon: '🎯', earned: completedCount >= 1 },
-    { id: 'score7', label: 'Score 7+', icon: '⭐', earned: sessions.some((s) => Number(s.overall_score) >= 7) },
-    { id: 'streak3', label: '3-Day Streak', icon: '🔥', earned: stats.streakDays >= 3 },
-    { id: 'five', label: '5 Sessions', icon: '🏅', earned: completedCount >= 5 },
-    { id: 'ten', label: '10 Sessions', icon: '🏆', earned: completedCount >= 10 },
-    { id: 'perfect', label: 'Perfect 10', icon: '💎', earned: sessions.some((s) => Number(s.overall_score) >= 10) },
+    { id: 'first', label: 'Première simulation', icon: '🎯', earned: completedCount >= 1 },
+    { id: 'score7', label: 'Note 7+', icon: '⭐', earned: sessions.some((s) => Number(s.overall_score) >= 7) },
+    { id: 'streak3', label: 'Série de 3 jours', icon: '🔥', earned: stats.streakDays >= 3 },
+    { id: 'five', label: '5 sessions', icon: '🏅', earned: completedCount >= 5 },
+    { id: 'ten', label: '10 sessions', icon: '🏆', earned: completedCount >= 10 },
+    { id: 'perfect', label: '10 parfait', icon: '💎', earned: sessions.some((s) => Number(s.overall_score) >= 10) },
   ]
 
   const recommendedCoaches = realCoaches.slice(0, 3)
@@ -373,12 +373,12 @@ export default function DashboardPage() {
   const statusLabel = (() => {
     if (!profile?.current_status) return null
     const labels: Record<string, string> = {
-      student: '🎓 Student',
-      employed: '👨\u200d💼 Employed',
-      unemployed: '🔍 Job Seeking',
-      'career-change': '🔄 Career Change',
-      'fresh-graduate': '💼 Fresh Graduate',
-      other: '🌍 Other',
+      student: '🎓 Étudiant',
+      employed: '👨\u200d💼 En poste',
+      unemployed: '🔍 En recherche d\'emploi',
+      'career-change': '🔄 Reconversion',
+      'fresh-graduate': '💼 Jeune diplômé',
+      other: '🌍 Autre',
     }
     const base = labels[profile.current_status] || profile.current_status
     return profile.status_detail ? `${base} — ${profile.status_detail}` : base
@@ -405,16 +405,16 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <Sparkles className="w-7 h-7 text-purple-400" />
-              <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Interview Coach</span>
+              <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Jurya</span>
             </Link>
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-3">
               <CreditBalanceButton />
               <NotificationBell />
-              {!isCoach && <Link href="/bookings"><Button variant="outline" className="text-sm gap-2"><Calendar className="w-4 h-4" />My Bookings</Button></Link>}
-              {!isCoach && <Link href="/coaches"><Button variant="outline" className="text-sm gap-2">Find a Coach</Button></Link>}
-              {isCoach && <Link href="/coach/dashboard"><Button variant="outline" className="text-sm gap-2">Coach Dashboard</Button></Link>}
+              {!isCoach && <Link href="/bookings"><Button variant="outline" className="text-sm gap-2"><Calendar className="w-4 h-4" />Mes réservations</Button></Link>}
+              {!isCoach && <Link href="/coaches"><Button variant="outline" className="text-sm gap-2">Trouver un membre de jury</Button></Link>}
+              {isCoach && <Link href="/coach/dashboard"><Button variant="outline" className="text-sm gap-2">Espace jury</Button></Link>}
 
               {/* Profile dropdown */}
               <div className="relative" ref={profileRef}>
@@ -437,22 +437,22 @@ export default function DashboardPage() {
                     <div className="py-1">
                       <Link href="/profile" onClick={() => setProfileOpen(false)}>
                         <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2 transition-colors">
-                          <User className="w-4 h-4" /> My Profile
+                          <User className="w-4 h-4" /> Mon profil
                         </button>
                       </Link>
                       <Link href="/settings" onClick={() => setProfileOpen(false)}>
                         <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2 transition-colors">
-                          <Settings className="w-4 h-4" /> Settings
+                          <Settings className="w-4 h-4" /> Paramètres
                         </button>
                       </Link>
                       <Link href="/credits" onClick={() => setProfileOpen(false)}>
                         <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2 transition-colors">
-                          <Wallet className="w-4 h-4" /> My Credits
+                          <Wallet className="w-4 h-4" /> Mes crédits
                         </button>
                       </Link>
                       <Link href="/pricing" onClick={() => setProfileOpen(false)}>
                         <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2 transition-colors">
-                          <CreditCard className="w-4 h-4" /> Pro Plan
+                          <CreditCard className="w-4 h-4" /> Offre Pro
                         </button>
                       </Link>
                       <div className="my-1 border-t border-white/10"></div>
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                         onClick={() => { setProfileOpen(false); signOut() }}
                         className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
                       >
-                        <LogOut className="w-4 h-4" /> Logout
+                        <LogOut className="w-4 h-4" /> Déconnexion
                       </button>
                     </div>
                   </div>
@@ -483,15 +483,15 @@ export default function DashboardPage() {
           {/* Mobile menu */}
           {menuOpen && (
             <div className="md:hidden mt-4 pb-2 border-t border-white/10 pt-4 space-y-2">
-              {!isCoach && <Link href="/coaches" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start">Find a Coach</Button></Link>}
-              {!isCoach && <Link href="/bookings" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><Calendar className="w-4 h-4 mr-2" /> My Bookings</Button></Link>}
-              {isCoach && <Link href="/coach/dashboard" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start">Coach Dashboard</Button></Link>}
-              <Link href="/profile" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><User className="w-4 h-4 mr-2" /> My Profile</Button></Link>
-              <Link href="/settings" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><Settings className="w-4 h-4 mr-2" /> Settings</Button></Link>
-              <Link href="/credits" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><Wallet className="w-4 h-4 mr-2" /> My Credits</Button></Link>
-              <Link href="/pricing" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><CreditCard className="w-4 h-4 mr-2" /> Pro Plan</Button></Link>
+              {!isCoach && <Link href="/coaches" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start">Trouver un membre de jury</Button></Link>}
+              {!isCoach && <Link href="/bookings" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><Calendar className="w-4 h-4 mr-2" /> Mes réservations</Button></Link>}
+              {isCoach && <Link href="/coach/dashboard" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start">Espace jury</Button></Link>}
+              <Link href="/profile" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><User className="w-4 h-4 mr-2" /> Mon profil</Button></Link>
+              <Link href="/settings" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><Settings className="w-4 h-4 mr-2" /> Paramètres</Button></Link>
+              <Link href="/credits" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><Wallet className="w-4 h-4 mr-2" /> Mes crédits</Button></Link>
+              <Link href="/pricing" onClick={() => setMenuOpen(false)}><Button variant="outline" fullWidth className="justify-start"><CreditCard className="w-4 h-4 mr-2" /> Offre Pro</Button></Link>
               <div className="border-t border-white/10 my-2"></div>
-              <Button variant="outline" fullWidth onClick={signOut} className="justify-start text-red-400"><LogOut className="w-4 h-4 mr-2" /> Logout</Button>
+              <Button variant="outline" fullWidth onClick={signOut} className="justify-start text-red-400"><LogOut className="w-4 h-4 mr-2" /> Déconnexion</Button>
             </div>
           )}
         </div>
@@ -502,30 +502,30 @@ export default function DashboardPage() {
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-1">
-              Welcome back,{' '}
-              <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">{displayName}</span>! 👋
+              Bon retour,{' '}
+              <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">{displayName}</span> ! 👋
             </h1>
             {statusLabel && (
               <p className="text-sm text-purple-400 mb-1">{statusLabel}</p>
             )}
             {!isCoach && (
               <p className="text-gray-400">
-                You have used <span className="text-white font-semibold">{profile.interviews_used_this_month}</span> of{' '}
+                Vous avez utilisé <span className="text-white font-semibold">{profile.interviews_used_this_month}</span> sur{' '}
                 <span className="text-white font-semibold">
                   {profile.interviews_limit === 999999 || profile.interviews_limit >= 999 
-                    ? 'Unlimited' 
+                    ? 'Illimité' 
                     : profile.interviews_limit}
-                </span> interviews this month{profile.interviews_limit === 999999 || profile.interviews_limit >= 999 ? ' ✨' : ''}.
+                </span> simulations ce mois-ci{profile.interviews_limit === 999999 || profile.interviews_limit >= 999 ? ' ✨' : ''}.
               </p>
             )}
             {isCoach && (
-              <p className="text-gray-400">Manage your sessions and clients from your <Link href="/coach/dashboard" className="text-purple-400 hover:underline">Coach Dashboard</Link>.</p>
+              <p className="text-gray-400">Gérez vos sessions et vos candidats depuis votre <Link href="/coach/dashboard" className="text-purple-400 hover:underline">Espace jury</Link>.</p>
             )}
           </div>
           <div className="flex flex-wrap gap-3">
-            {!isCoach && <Link href="/coaches"><Button variant="outline" className="gap-2">Find a Coach</Button></Link>}
-            {!isCoach && <Link href="/interview/setup"><Button variant="primary" className="gap-2"><Plus className="w-4 h-4" /> New Interview</Button></Link>}
-            {isCoach && <Link href="/coach/dashboard"><Button variant="primary" className="gap-2"><ArrowRight className="w-4 h-4" /> Go to Coach Dashboard</Button></Link>}
+            {!isCoach && <Link href="/coaches"><Button variant="outline" className="gap-2">Trouver un membre de jury</Button></Link>}
+            {!isCoach && <Link href="/interview/setup"><Button variant="primary" className="gap-2"><Plus className="w-4 h-4" /> Nouvelle simulation</Button></Link>}
+            {isCoach && <Link href="/coach/dashboard"><Button variant="primary" className="gap-2"><ArrowRight className="w-4 h-4" /> Aller à l'Espace jury</Button></Link>}
           </div>
         </div>
 
@@ -537,10 +537,10 @@ export default function DashboardPage() {
             </div>
           )) : (
             <>
-              <StatCard label="Total Interviews Done" value={String(stats.totalInterviews)} icon={<Calendar className="w-5 h-5 text-purple-400" />} accent="bg-purple-500/20" />
-              <StatCard label="Average Score" value={`${stats.avgScore}/10`} icon={<TrendingUp className="w-5 h-5 text-blue-400" />} accent="bg-blue-500/20" />
-              <StatCard label="This Month" value={String(stats.interviewsThisMonth)} icon={<Award className="w-5 h-5 text-green-400" />} accent="bg-green-500/20" />
-              <StatCard label="Streak 🔥" value={`${stats.streakDays} days`} icon={<Flame className="w-5 h-5 text-orange-400" />} accent="bg-orange-500/20" />
+              <StatCard label="Simulations réalisées" value={String(stats.totalInterviews)} icon={<Calendar className="w-5 h-5 text-purple-400" />} accent="bg-purple-500/20" />
+              <StatCard label="Note moyenne" value={`${stats.avgScore}/10`} icon={<TrendingUp className="w-5 h-5 text-blue-400" />} accent="bg-blue-500/20" />
+              <StatCard label="Ce mois-ci" value={String(stats.interviewsThisMonth)} icon={<Award className="w-5 h-5 text-green-400" />} accent="bg-green-500/20" />
+              <StatCard label="Série 🔥" value={`${stats.streakDays} jours`} icon={<Flame className="w-5 h-5 text-orange-400" />} accent="bg-orange-500/20" />
             </>
           )}
         </div>
@@ -551,7 +551,7 @@ export default function DashboardPage() {
             {/* PROGRESS CHART */}
             <DarkCard>
               <div className="flex items-center justify-between mb-4">
-                <div><h2 className="text-xl font-bold">Progress Overview</h2><p className="text-gray-400 text-sm">Your interview scores over time</p></div>
+                <div><h2 className="text-xl font-bold">Aperçu de votre progression</h2><p className="text-gray-400 text-sm">Vos notes de simulation au fil du temps</p></div>
               </div>
               {chartData.length > 0 ? (
                 <div className="h-64">
@@ -583,9 +583,9 @@ export default function DashboardPage() {
                     </ResponsiveContainer>
                   </div>
                   <div className="relative z-10 text-center px-4">
-                    <p className="text-gray-300 font-semibold mb-1">Complete a few interviews to unlock your score trend chart.</p>
-                    <p className="text-gray-500 text-sm mb-4">Start your first interview to see your progress! 🚀</p>
-                    <Link href="/interview/setup"><Button variant="primary" className="gap-2"><Plus className="w-4 h-4" /> Start Interview</Button></Link>
+                    <p className="text-gray-300 font-semibold mb-1">Complétez quelques simulations pour débloquer votre graphique de progression.</p>
+                    <p className="text-gray-500 text-sm mb-4">Lancez votre première simulation pour voir votre progression ! 🚀</p>
+                    <Link href="/interview/setup"><Button variant="primary" className="gap-2"><Plus className="w-4 h-4" /> Lancer une simulation</Button></Link>
                   </div>
                 </div>
               )}
@@ -594,12 +594,12 @@ export default function DashboardPage() {
             {/* COACH HUB */}
             <DarkCard>
               <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div><h2 className="text-xl font-bold">Coach Hub</h2><p className="text-gray-400 text-sm">Manage your coaching sessions</p></div>
+                <div><h2 className="text-xl font-bold">Espace membres de jury</h2><p className="text-gray-400 text-sm">Gérez vos sessions de coaching</p></div>
                 <div className="flex gap-2">
                   {(['upcoming', 'my-coaches'] as const).map((tab) => (
                     <button key={tab} onClick={() => setActiveCoachTab(tab)}
                       className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${activeCoachTab === tab ? 'bg-purple-600 text-white' : 'border border-white/10 text-gray-300 hover:border-purple-500/40'}`}>
-                      {tab === 'upcoming' ? 'Upcoming Sessions' : 'My Coaches'}
+                      {tab === 'upcoming' ? 'Sessions à venir' : 'Mes membres de jury'}
                     </button>
                   ))}
                 </div>
@@ -607,15 +607,15 @@ export default function DashboardPage() {
               {activeCoachTab === 'upcoming' ? (
                 upcomingBookings.length === 0 ? (
                   <div className="py-10 text-center">
-                    <p className="text-gray-300 font-semibold mb-2">No upcoming sessions.</p>
-                    <p className="text-gray-500 text-sm mb-4">Find a coach to book your first session!</p>
-                    <Link href="/coaches"><Button variant="primary">Find a Coach</Button></Link>
+                    <p className="text-gray-300 font-semibold mb-2">Aucune session à venir.</p>
+                    <p className="text-gray-500 text-sm mb-4">Trouvez un membre de jury pour votre première session !</p>
+                    <Link href="/coaches"><Button variant="primary">Trouver un membre de jury</Button></Link>
                   </div>
                 ) : (
                   <div className="grid gap-3 md:grid-cols-2">
                     {upcomingBookings.map((booking) => {
-                      const coachName = booking.coach?.full_name || 'Coach'
-                      const statusLabel = booking.status === 'confirmed' ? '🟢 Upcoming' : booking.status === 'completed' ? '✅ Completed' : '⏳ Pending'
+                      const coachName = booking.coach?.full_name || 'Membre de jury'
+                      const statusLabel = booking.status === 'confirmed' ? '🟢 À venir' : booking.status === 'completed' ? '✅ Terminée' : '⏳ En attente'
                       const sessionTime = booking.scheduled_at ? new Date(booking.scheduled_at) : null
                       const isJoinable = sessionTime && Math.abs(sessionTime.getTime() - Date.now()) < 10 * 60 * 1000
                       return (
@@ -630,7 +630,7 @@ export default function DashboardPage() {
                           {booking.notes && <p className="text-sm text-gray-400 mb-2 line-clamp-1">{booking.notes}</p>}
                           <div className="flex items-center justify-between text-sm text-gray-400">
                             <span>{sessionTime ? format(sessionTime, 'MMM d, HH:mm') : 'TBD'} • {booking.duration_minutes} min</span>
-                            {isJoinable && <Button variant="primary" className="text-xs px-2 py-1">Join Session</Button>}
+                            {isJoinable && <Button variant="primary" className="text-xs px-2 py-1">Rejoindre la session</Button>}
                           </div>
                         </div>
                       )
@@ -639,16 +639,16 @@ export default function DashboardPage() {
                 )
               ) : (
                 myCoaches.length === 0 ? (
-                  <div className="py-10 text-center"><p className="text-gray-500 text-sm">No coaches yet. Book a session to get started!</p></div>
+                  <div className="py-10 text-center"><p className="text-gray-500 text-sm">Aucun membre de jury pour l'instant. Réservez une session pour commencer !</p></div>
                 ) : (
                   <div className="grid gap-3 md:grid-cols-2">
                     {myCoaches.map((booking) => {
-                      const coachName = booking.coach?.full_name || 'Coach'
+                      const coachName = booking.coach?.full_name || 'Membre de jury'
                       return (
                         <div key={booking.id} className="rounded-xl border border-white/10 p-4 hover:border-purple-500/30 transition-colors" style={{ background: '#0a0f1e' }}>
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-sm font-bold shrink-0">{coachName.charAt(0).toUpperCase()}</div>
-                            <div><p className="font-semibold">{coachName}</p><p className="text-xs text-gray-400">{booking.status === 'completed' ? '✅ Completed' : '🟢 Active'}</p></div>
+                            <div><p className="font-semibold">{coachName}</p><p className="text-xs text-gray-400">{booking.status === 'completed' ? '✅ Terminée' : '🟢 Actif'}</p></div>
                           </div>
                         </div>
                       )
@@ -661,22 +661,22 @@ export default function DashboardPage() {
             {/* RECENT SESSIONS */}
             <DarkCard>
               <div className="flex items-center justify-between mb-4">
-                <div><h2 className="text-xl font-bold">Recent Sessions</h2><p className="text-gray-400 text-sm">Track your latest practice sessions</p></div>
+                <div><h2 className="text-xl font-bold">Sessions récentes</h2><p className="text-gray-400 text-sm">Suivez vos dernières simulations</p></div>
               </div>
               {sessions.length === 0 ? (
                 <div className="text-center py-12">
                   <Target className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No interviews yet!</h3>
-                  <p className="text-gray-400 mb-6">Begin practicing now and unlock AI-powered feedback.</p>
-                  <Link href="/interview/setup"><Button variant="primary" className="gap-2"><Plus className="w-4 h-4" /> Start Your First Interview</Button></Link>
+                  <h3 className="text-xl font-semibold mb-2">Aucune simulation pour l'instant !</h3>
+                  <p className="text-gray-400 mb-6">Commencez à vous entraîner dès maintenant et débloquez le feedback IA.</p>
+                  <Link href="/interview/setup"><Button variant="primary" className="gap-2"><Plus className="w-4 h-4" /> Lancez votre première simulation</Button></Link>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[580px] text-sm">
                     <thead>
                       <tr className="border-b border-white/10 text-left text-gray-400">
-                        <th className="py-3 pr-4">Date</th><th className="py-3 pr-4">Role</th><th className="py-3 pr-4">Level</th>
-                        <th className="py-3 pr-4">Score</th><th className="py-3 pr-4">Type</th><th className="py-3 text-right">Action</th>
+                        <th className="py-3 pr-4">Date</th><th className="py-3 pr-4">Concours</th><th className="py-3 pr-4">Niveau</th>
+                        <th className="py-3 pr-4">Note</th><th className="py-3 pr-4">Type</th><th className="py-3 text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -690,10 +690,10 @@ export default function DashboardPage() {
                           <td className="py-3 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <Button variant="danger" className="px-3 py-1.5 text-xs gap-1" onClick={() => handleDeleteInterview(session.id)} loading={deletingId === session.id}>
-                                <Trash2 className="w-3 h-3" /> Delete
+                                <Trash2 className="w-3 h-3" /> Supprimer
                               </Button>
                               <Link href={session.status === 'completed' ? `/interview/summary/${session.id}` : `/interview/${session.id}`}>
-                                <Button variant="outline" className="px-3 py-1.5 text-xs gap-1">{session.status === 'completed' ? 'View' : 'Continue'} <ArrowRight className="w-3 h-3" /></Button>
+                                <Button variant="outline" className="px-3 py-1.5 text-xs gap-1">{session.status === 'completed' ? 'Voir' : 'Continuer'} <ArrowRight className="w-3 h-3" /></Button>
                               </Link>
                             </div>
                           </td>
@@ -709,10 +709,10 @@ export default function DashboardPage() {
             <DarkCard>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold">Remote Job Opportunities</h2>
-                  <p className="text-gray-400 text-sm">Live remote listings matched to your target role</p>
+                  <h2 className="text-xl font-bold">Prochaines sessions de concours</h2>
+                  <p className="text-gray-400 text-sm">Sessions correspondant à votre concours cible</p>
                 </div>
-                <Link href="/jobs" className="text-purple-400 text-sm hover:text-purple-300 transition-colors whitespace-nowrap">Browse All →</Link>
+                <Link href="/jobs" className="text-purple-400 text-sm hover:text-purple-300 transition-colors whitespace-nowrap">Voir tout →</Link>
               </div>
               <JobOffers targetRole={profile?.target_job_role || profile?.target_job_field || ''} limit={4} />
             </DarkCard>
@@ -720,14 +720,14 @@ export default function DashboardPage() {
             {/* RECOMMENDED COACHES */}
             <DarkCard>
               <div className="flex items-center justify-between mb-4">
-                <div><h2 className="text-xl font-bold">Recommended Coaches for You</h2><p className="text-gray-400 text-sm">Based on your interview history and role</p></div>
-                <Link href="/coaches" className="text-purple-400 text-sm hover:text-purple-300 transition-colors whitespace-nowrap">See All →</Link>
+                <div><h2 className="text-xl font-bold">Membres de jury recommandés</h2><p className="text-gray-400 text-sm">Basé sur vos simulations et votre concours</p></div>
+                <Link href="/coaches" className="text-purple-400 text-sm hover:text-purple-300 transition-colors whitespace-nowrap">Voir tout →</Link>
               </div>
               <div className="grid gap-4 md:grid-cols-3">
                 {recommendedCoaches.length === 0 ? (
                   <div className="col-span-3 py-8 text-center text-gray-400 text-sm">
-                    <p className="mb-2">More coaches coming soon! 🌟</p>
-                    <Link href="/coaches" className="text-purple-400 hover:underline">Browse available coaches →</Link>
+                    <p className="mb-2">Plus de membres de jury bientôt ! 🌟</p>
+                    <Link href="/coaches" className="text-purple-400 hover:underline">Parcourir les membres de jury disponibles →</Link>
                   </div>
                 ) : recommendedCoaches.map((coach) => {
                   const name = coach.full_name || 'Coach'
@@ -750,12 +750,12 @@ export default function DashboardPage() {
                       )}
                       <div className="flex-1">
                         <p className="font-semibold truncate">{name}</p>
-                        <p className="text-xs text-gray-400 mb-2 line-clamp-1">{coach.coach_profiles?.title || 'Interview Coach'}</p>
+                        <p className="text-xs text-gray-400 mb-2 line-clamp-1">{coach.coach_profiles?.title || 'Jurya'}</p>
                         <div className="flex flex-wrap items-center gap-1 text-xs mb-2">
                           {specs.length > 0 ? (
                             specs.slice(0, 2).map((s: string) => <span key={s} className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">{s}</span>)
                           ) : (
-                            <span className="text-gray-500 text-[10px]">General Coaching</span>
+                            <span className="text-gray-500 text-[10px]">Coaching général</span>
                           )}
                         </div>
                         {creditsPerHour > 0 && (
@@ -765,7 +765,7 @@ export default function DashboardPage() {
                           </div>
                         )}
                       </div>
-                      <Link href={`/coaches/${coach.id}`}><Button variant="outline" fullWidth className="text-xs">View Profile</Button></Link>
+                      <Link href={`/coaches/${coach.id}`}><Button variant="outline" fullWidth className="text-xs">Voir le profil</Button></Link>
                     </div>
                   )
                 })}
@@ -774,13 +774,13 @@ export default function DashboardPage() {
 
             {/* ACHIEVEMENTS */}
             <DarkCard>
-              <div className="mb-4"><h2 className="text-xl font-bold">Your Achievements</h2><p className="text-gray-400 text-sm">Badges earned from your interview sessions</p></div>
+              <div className="mb-4"><h2 className="text-xl font-bold">Vos réussites</h2><p className="text-gray-400 text-sm">Badges obtenus lors de vos simulations</p></div>
               {completedCount === 0 ? (
-                <p className="text-gray-400 text-sm py-4">0 badges earned yet → Complete your first interview to start earning! 🏅</p>
+                <p className="text-gray-400 text-sm py-4">0 badge obtenu → Complétez votre première simulation pour commencer ! 🏅</p>
               ) : (
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                   {achievements.map((ach) => (
-                    <div key={ach.id} title={ach.earned ? 'Earned!' : 'Not yet earned'}
+                    <div key={ach.id} title={ach.earned ? 'Obtenu !' : 'Pas encore obtenu'}
                       className={`flex flex-col items-center gap-1 rounded-xl p-3 border transition-all ${ach.earned ? 'border-purple-500/40 bg-purple-500/10' : 'border-white/5 bg-white/5 opacity-40 grayscale'}`}>
                       <span className="text-2xl">{ach.icon}</span>
                       <span className="text-[11px] text-center text-gray-300 leading-tight">{ach.label}</span>
@@ -795,39 +795,39 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {/* QUICK START */}
             <DarkCard>
-              <h2 className="text-xl font-bold mb-1">Quick Start</h2>
-              <p className="text-gray-400 text-sm mb-4">Jump into a fresh interview tailored to your role.</p>
+              <h2 className="text-xl font-bold mb-1">Démarrage rapide</h2>
+              <p className="text-gray-400 text-sm mb-4">Lancez-vous dans une simulation adaptée à votre concours.</p>
               {lastSession?.job_role && (
-                <p className="text-xs text-gray-500 mb-3">Last practiced: <span className="text-purple-400 font-semibold">{lastSession.job_role}</span></p>
+                <p className="text-xs text-gray-500 mb-3">Dernière simulation : <span className="text-purple-400 font-semibold">{lastSession.job_role}</span></p>
               )}
               {canStartInterview ? (
-                <Link href="/interview/setup"><Button variant="primary" fullWidth className="gap-2"><Plus className="w-4 h-4" /> New Interview Setup</Button></Link>
+                <Link href="/interview/setup"><Button variant="primary" fullWidth className="gap-2"><Plus className="w-4 h-4" /> Nouvelle simulation</Button></Link>
               ) : (
-                <Link href="/pricing"><Button variant="primary" fullWidth>Upgrade to Continue</Button></Link>
+                <Link href="/pricing"><Button variant="primary" fullWidth>Passer à l'offre Pro</Button></Link>
               )}
               {incompleteSession && (
                 <Link href={`/interview/${incompleteSession.id}`}>
-                  <Button variant="outline" fullWidth className="mt-2 gap-2 text-sm"><ArrowRight className="w-3 h-3" /> Continue where you left off</Button>
+                  <Button variant="outline" fullWidth className="mt-2 gap-2 text-sm"><ArrowRight className="w-3 h-3" /> Reprendre là où vous en étiez</Button>
                 </Link>
               )}
             </DarkCard>
 
             {/* COACH METRICS */}
             <DarkCard>
-              <h2 className="text-xl font-bold mb-1">Coach Metrics</h2>
-              <p className="text-xs text-gray-500 mb-4">Based on your last session</p>
+              <h2 className="text-xl font-bold mb-1">Indicateurs de performance</h2>
+              <p className="text-xs text-gray-500 mb-4">Basé sur votre dernière session</p>
               <div className="space-y-4">
                 <div>
-                  <div className="flex items-center justify-between text-sm mb-1"><span className="text-gray-300">Confidence</span><span className="text-green-400 font-semibold">{coachMetrics.confidence}%</span></div>
+                  <div className="flex items-center justify-between text-sm mb-1"><span className="text-gray-300">Confiance</span><span className="text-green-400 font-semibold">{coachMetrics.confidence}%</span></div>
                   <div className="h-2 rounded-full bg-white/10 overflow-hidden"><div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-500" style={{ width: `${coachMetrics.confidence}%` }} /></div>
                 </div>
                 <div>
-                  <div className="flex items-center justify-between text-sm mb-1"><span className="text-gray-300">Clarity</span><span className="text-blue-400 font-semibold">{coachMetrics.clarity}%</span></div>
+                  <div className="flex items-center justify-between text-sm mb-1"><span className="text-gray-300">Clarté</span><span className="text-blue-400 font-semibold">{coachMetrics.clarity}%</span></div>
                   <div className="h-2 rounded-full bg-white/10 overflow-hidden"><div className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-500" style={{ width: `${coachMetrics.clarity}%` }} /></div>
                 </div>
                 {coachMetrics.lastSessionScores.length > 1 && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Last {coachMetrics.lastSessionScores.length} answer scores</p>
+                    <p className="text-xs text-gray-500 mb-1">Notes des {coachMetrics.lastSessionScores.length} dernières réponses</p>
                     <div className="h-12">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={coachMetrics.lastSessionScores.map((s, i) => ({ i, s }))}>
@@ -838,9 +838,9 @@ export default function DashboardPage() {
                   </div>
                 )}
                 <div className="rounded-xl border border-white/10 p-3 space-y-1" style={{ background: '#0a0f1e' }}>
-                  <p className="text-sm text-gray-300">Filler words/answer: <span className="text-yellow-300 font-semibold">{coachMetrics.fillerWords}</span></p>
+                  <p className="text-sm text-gray-300">Mots de remplissage/réponse : <span className="text-yellow-300 font-semibold">{coachMetrics.fillerWords}</span></p>
                   <p className="text-sm text-gray-300 flex items-center gap-1">
-                    Trend: {trendLabel(coachMetrics.improvement)}{' '}
+                    Tendance : {trendLabel(coachMetrics.improvement)}{' '}
                     <span className={`font-semibold ml-1 ${coachMetrics.improvement >= 0 ? 'text-green-400' : 'text-red-400'}`}>{coachMetrics.improvement >= 0 ? '+' : ''}{coachMetrics.improvement} pts</span>
                   </p>
                 </div>
@@ -849,11 +849,11 @@ export default function DashboardPage() {
 
             {/* DAILY TIP */}
             <DarkCard>
-              <h2 className="text-xl font-bold mb-4">Daily Tip</h2>
+              <h2 className="text-xl font-bold mb-4">Conseil du jour</h2>
               <div className="rounded-xl border border-white/10 p-4" style={{ background: '#0a0f1e' }}>
                 <span className="inline-block text-xs font-semibold text-purple-400 border border-purple-500/30 rounded-full px-2 py-0.5 mb-2">{currentTip.category}</span>
                 <p className="text-sm text-gray-300 leading-relaxed">{currentTip.tip}</p>
-                <button onClick={advanceTip} className="mt-3 text-xs text-purple-400 hover:text-purple-300 transition-colors">Next Tip →</button>
+                <button onClick={advanceTip} className="mt-3 text-xs text-purple-400 hover:text-purple-300 transition-colors">Conseil suivant →</button>
               </div>
             </DarkCard>
           </div>

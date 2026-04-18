@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -10,16 +10,16 @@ import { supabase } from '@/lib/supabase'
 function friendlyError(msg: string): string {
   const m = msg.toLowerCase()
   if (m.includes('invalid login credentials') || m.includes('invalid credentials'))
-    return 'Incorrect email or password. Please double-check and try again.'
+    return 'E-mail ou mot de passe incorrect. Veuillez vérifier et réessayer.'
   if (m.includes('email not confirmed'))
-    return 'Your email address is not verified yet. Check your inbox for a confirmation link.'
+    return 'Votre adresse e-mail n\'est pas encore vérifiée. Vérifiez votre boîte de réception.'
   if (m.includes('too many requests') || m.includes('rate limit'))
-    return 'Too many login attempts. Please wait a few minutes and try again.'
+    return 'Trop de tentatives de connexion. Veuillez patienter quelques minutes.'
   if (m.includes('user not found') || m.includes('no user found'))
-    return 'No account found with this email. Did you mean to sign up?'
+    return 'Aucun compte trouvé avec cet e-mail. Vouliez-vous vous inscrire ?'
   if (m.includes('network') || m.includes('fetch'))
-    return 'Network error. Please check your connection and try again.'
-  return msg || 'An unexpected error occurred. Please try again.'
+    return 'Erreur réseau. Vérifiez votre connexion et réessayez.'
+  return msg || 'Une erreur inattendue s\'est produite. Veuillez réessayer.'
 }
 
 export default function CoachLoginPage() {
@@ -35,12 +35,12 @@ export default function CoachLoginPage() {
     setError('')
 
     if (!email.includes('@')) {
-      setError('Please enter a valid email address.')
+      setError('Veuillez entrer une adresse e-mail valide.')
       return
     }
 
     if (!password.trim()) {
-      setError('Password is required.')
+      setError('Le mot de passe est requis.')
       return
     }
 
@@ -69,28 +69,28 @@ export default function CoachLoginPage() {
       <div className="relative z-10 mx-auto max-w-md">
         <Link href="/login" className="mb-6 inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white">
           <ArrowLeft className="h-4 w-4" />
-          Back to account types
+          Retour aux types de compte
         </Link>
 
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
           <Sparkles className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+          <span className="text-2xl font-bold gradient-text">Jurya</span>
         </Link>
 
         <Card>
           <div className="mb-3 flex items-center justify-center">
-            <Badge>Coach portal</Badge>
+            <Badge>Espace jury</Badge>
           </div>
-          <h1 className="mb-2 text-3xl font-bold text-center">Coach login</h1>
-          <p className="mb-6 text-center text-gray-400">Manage sessions, clients, and your earnings.</p>
+          <h1 className="mb-2 text-3xl font-bold text-center">Connexion jury</h1>
+          <p className="mb-6 text-center text-gray-400">Gérez vos sessions, vos candidats et vos revenus.</p>
 
           {error && <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="coach@example.com" required />
+            <Input label="E-mail" type="email" value={email} onChange={setEmail} placeholder="jury@exemple.com" required />
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Password</label>
+              <label className="mb-2 block text-sm font-medium text-foreground">Mot de passe</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -106,17 +106,17 @@ export default function CoachLoginPage() {
             </div>
 
             <div className="flex items-center justify-end">
-              <Link href="/forgot-password" className="text-xs text-gray-400 hover:text-primary transition-colors">Forgot password?</Link>
+              <Link href="/forgot-password" className="text-xs text-gray-400 hover:text-primary transition-colors">Mot de passe oublié ?</Link>
             </div>
-            <Button type="submit" variant="primary" fullWidth loading={loading}>Enter coach dashboard</Button>
+            <Button type="submit" variant="primary" fullWidth loading={loading}>Accéder à l'éspace jury</Button>
           </form>
 
           <button onClick={handleGoogle} className="mt-4 w-full rounded-lg border border-border px-4 py-3 text-sm font-medium text-white hover:bg-white/5">
-            Continue with Google
+            Continuer avec Google
           </button>
 
           <p className="mt-6 text-center text-sm text-gray-400">
-            New here? <Link href="/signup/coach" className="text-primary hover:underline">Create coach profile</Link>
+            Nouveau ici ? <Link href="/signup/coach" className="text-primary hover:underline">Créer un profil jury</Link>
           </p>
         </Card>
       </div>

@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "login": "Iniciar sesión",
     "getStarted": "Empezar",
@@ -46,7 +46,7 @@
   },
   "cta": {
     "title": "¿Listo para triunfar en tu próxima entrevista?",
-    "description": "Únete a miles de candidatos que han mejorado sus habilidades de entrevista con Interview Coach.",
+    "description": "Únete a miles de candidatos que han mejorado sus habilidades de entrevista con Jurya.",
     "button": "Comienza ahora"
   },
   "footer": {
@@ -56,6 +56,6 @@
     "legal": "Legal",
     "privacyPolicy": "Política de privacidad",
     "termsOfService": "Términos de servicio",
-    "copyright": "© 2026 Interview Coach. Todos los derechos reservados. Impulsado por Claude AI."
+    "copyright": "© 2026 Jurya. Todos los derechos reservados. Impulsado por Claude AI."
   }
 }

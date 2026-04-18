@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -29,12 +29,12 @@ export default function ResetPasswordPage() {
     setSuccess('')
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long.')
+      setError('Le mot de passe doit contenir au moins 6 caractères.')
       return
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.')
+      setError('Les mots de passe ne correspondent pas.')
       return
     }
 
@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
     if (error) {
       setError(error.message)
     } else {
-      setSuccess('Password updated successfully ✅ Redirecting to login...')
+      setSuccess('Mot de passe mis à jour avec succès ✅ Redirection vers la connexion...')
       setPassword('')
       setConfirmPassword('')
     }
@@ -58,16 +58,16 @@ export default function ResetPasswordPage() {
       <div className="relative z-10 w-full max-w-md">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <Sparkles className="w-8 h-8 text-primary" />
-          <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+          <span className="text-2xl font-bold gradient-text">Jurya</span>
         </Link>
         <Card>
-          <h1 className="text-3xl font-bold text-center mb-2">Reset Password</h1>
-          <p className="text-gray-400 text-center mb-6">Choose a new secure password.</p>
+          <h1 className="text-3xl font-bold text-center mb-2">Réinitialiser le mot de passe</h1>
+          <p className="text-gray-400 text-center mb-6">Choisissez un nouveau mot de passe sécurisé.</p>
           {success && <div className="mb-4 rounded-lg border border-green-500 bg-green-500/10 px-4 py-3 text-green-400">{success}</div>}
           {error && <div className="mb-4 rounded-lg border border-red-500 bg-red-500/10 px-4 py-3 text-red-400">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">New Password</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Nouveau mot de passe</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Confirm Password</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Confirmez le mot de passe</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
@@ -93,7 +93,7 @@ export default function ResetPasswordPage() {
                 required
               />
             </div>
-            <Button type="submit" variant="primary" fullWidth loading={loading}>Update Password</Button>
+            <Button type="submit" variant="primary" fullWidth loading={loading}>Mettre à jour le mot de passe</Button>
           </form>
         </Card>
       </div>

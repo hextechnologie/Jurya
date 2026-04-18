@@ -106,8 +106,8 @@ export default function CoachDetailPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>
   if (notFound || !coach) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-      <p className="text-xl font-semibold text-gray-300">Coach not found</p>
-      <Link href="/coaches"><Button variant="outline">Back to coaches</Button></Link>
+      <p className="text-xl font-semibold text-gray-300">Membre de jury introuvable</p>
+      <Link href="/coaches"><Button variant="outline">Retour aux membres de jury</Button></Link>
     </div>
   )
 
@@ -123,7 +123,7 @@ export default function CoachDetailPage() {
       <div className="mx-auto max-w-6xl space-y-6">
 
         <Link href="/coaches" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back to coaches
+          <ArrowLeft className="h-4 w-4" /> Retour aux membres de jury
         </Link>
 
         <Card className="border-primary/20 bg-card/80">
@@ -135,17 +135,17 @@ export default function CoachDetailPage() {
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h1 className="text-4xl font-bold">{name}</h1>
-                  <p className="mt-2 text-lg text-gray-300">{coach.coach_profiles?.title || 'Interview Coach'}</p>
+                  <p className="mt-2 text-lg text-gray-300">{coach.coach_profiles?.title || 'Jurya'}</p>
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-400">
                     {avgRating && <span className="text-yellow-300">⭐ {avgRating} ({coach.reviews.length} reviews)</span>}
-                    {coach.coach_profiles?.years_experience && <span>{coach.coach_profiles.years_experience} years experience</span>}
+                    {coach.coach_profiles?.years_experience && <span>{coach.coach_profiles.years_experience} ans d'expérience</span>}
                     {(coach.city || coach.country) && <span>{[coach.city, coach.country].filter(Boolean).join(', ')}</span>}
                   </div>
                 </div>
                 <div className="text-left md:text-right">
-                  <p className="text-sm text-gray-400">Session price</p>
+                    <p className="text-sm text-gray-400">Tarif de session</p>
                   <p className="text-3xl font-bold text-primary">
-                    {coach.coach_profiles?.price_per_hour ? `$${coach.coach_profiles.price_per_hour}/hr` : 'Contact'}
+                    {coach.coach_profiles?.price_per_hour ? `${coach.coach_profiles.price_per_hour} €/h` : 'Contact'}
                   </p>
                 </div>
               </div>
@@ -157,13 +157,13 @@ export default function CoachDetailPage() {
             </div>
 
             <Card className="h-fit border-primary/20 bg-background/50 sticky top-6">
-              <p className="mb-3 text-sm text-gray-400">Ready to practice with this coach?</p>
+              <p className="mb-3 text-sm text-gray-400">Prêt à vous entraîner avec ce membre de jury ?</p>
               <Link href={`/book/${coach.id}`}>
-                <Button variant="primary" fullWidth>Book a Session</Button>
+                <Button variant="primary" fullWidth>Réserver une session</Button>
               </Link>
               {coach.linkedin_url && (
                 <a href={coach.linkedin_url} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" fullWidth className="mt-3">View LinkedIn</Button>
+                  <Button variant="outline" fullWidth className="mt-3">Voir LinkedIn</Button>
                 </a>
               )}
             </Card>
@@ -174,7 +174,7 @@ export default function CoachDetailPage() {
           <div className="space-y-6">
             {(coach.professional_headline || coach.about_me || coach.coach_profiles?.bio) && (
               <Card>
-                <h2 className="mb-3 text-2xl font-bold">About</h2>
+                <h2 className="mb-3 text-2xl font-bold">À propos</h2>
                 {coach.professional_headline && <p className="text-primary font-medium mb-2">{coach.professional_headline}</p>}
                 <p className="text-gray-300 whitespace-pre-line">{coach.about_me || coach.coach_profiles?.bio}</p>
               </Card>
@@ -182,28 +182,28 @@ export default function CoachDetailPage() {
 
             {coach.experience_details && (
               <Card>
-                <h2 className="mb-3 text-2xl font-bold">Experience</h2>
+                <h2 className="mb-3 text-2xl font-bold">Expérience</h2>
                 <p className="text-gray-300 whitespace-pre-line">{coach.experience_details}</p>
               </Card>
             )}
 
             {coach.education_details && (
               <Card>
-                <h2 className="mb-3 text-2xl font-bold">Education</h2>
+                <h2 className="mb-3 text-2xl font-bold">Formation</h2>
                 <p className="text-gray-300 whitespace-pre-line">{coach.education_details}</p>
               </Card>
             )}
 
             {coach.projects_details && (
               <Card>
-                <h2 className="mb-3 text-2xl font-bold">Projects & Achievements</h2>
+                <h2 className="mb-3 text-2xl font-bold">Projets & Réalisations</h2>
                 <p className="text-gray-300 whitespace-pre-line">{coach.projects_details}</p>
               </Card>
             )}
 
             {((coach.skills ?? []).length > 0 || specs.length > 0) && (
               <Card>
-                <h2 className="mb-4 text-2xl font-bold">Skills</h2>
+                <h2 className="mb-4 text-2xl font-bold">Compétences</h2>
                 <div className="flex flex-wrap gap-2">
                   {([...(coach.skills ?? []), ...specs].filter((v, i, a) => !!v && a.indexOf(v) === i) as string[]).map((skill) => <Badge key={skill}>{skill}</Badge>)}
                 </div>
@@ -212,7 +212,7 @@ export default function CoachDetailPage() {
 
             {specs.length > 0 && (
               <Card>
-                <h2 className="mb-4 text-2xl font-bold">Specializations</h2>
+                <h2 className="mb-4 text-2xl font-bold">Spécialisations</h2>
                 <div className="flex flex-wrap gap-2">
                   {specs.map((spec) => <Badge key={spec}>{spec}</Badge>)}
                 </div>
@@ -221,7 +221,7 @@ export default function CoachDetailPage() {
 
             {coach.coach_profiles?.companies && coach.coach_profiles.companies.length > 0 && (
               <Card>
-                <h2 className="mb-4 text-2xl font-bold">Companies worked at</h2>
+                <h2 className="mb-4 text-2xl font-bold">Organismes</h2>
                 <div className="flex flex-wrap gap-2">
                   {coach.coach_profiles.companies.map((c) => <Badge key={c} variant="success">{c}</Badge>)}
                 </div>
@@ -229,15 +229,15 @@ export default function CoachDetailPage() {
             )}
 
             <Card>
-              <h2 className="mb-4 text-2xl font-bold">Reviews</h2>
+              <h2 className="mb-4 text-2xl font-bold">Avis</h2>
               {coach.reviews.length === 0 ? (
-                <p className="text-gray-400 text-sm">No reviews yet. Be the first to book a session!</p>
+                <p className="text-gray-400 text-sm">Aucun avis. Soyez le premier à réserver une session !</p>
               ) : (
                 <div className="space-y-4">
                   {coach.reviews.map((review) => (
                     <div key={review.id} className="rounded-xl border border-border bg-background/40 p-4">
                       <div className="mb-2 flex items-center justify-between">
-                        <p className="font-semibold">{review.candidate?.full_name || 'Candidate'}</p>
+                        <p className="font-semibold">{review.candidate?.full_name || 'Candidat'}</p>
                         <span className="text-yellow-300">⭐ {review.rating}</span>
                       </div>
                       {review.comment && <p className="text-gray-300 text-sm">{review.comment}</p>}
@@ -250,11 +250,11 @@ export default function CoachDetailPage() {
 
           <div className="space-y-6">
             <Card>
-              <h2 className="mb-4 text-xl font-bold">Quick info</h2>
+              <h2 className="mb-4 text-xl font-bold">Infos rapides</h2>
               <div className="space-y-2 text-sm text-gray-300">
-                {coach.coach_profiles?.years_experience && <p>Experience: <span className="text-white font-semibold">{coach.coach_profiles.years_experience} years</span></p>}
-                {coach.coach_profiles?.price_per_hour && <p>Rate: <span className="text-primary font-semibold">${coach.coach_profiles.price_per_hour}/hr</span></p>}
-                {coach.coach_profiles?.is_verified && <p>✅ Verified coach</p>}
+                {coach.coach_profiles?.years_experience && <p>Expérience : <span className="text-white font-semibold">{coach.coach_profiles.years_experience} ans</span></p>}
+                {coach.coach_profiles?.price_per_hour && <p>Tarif : <span className="text-primary font-semibold">{coach.coach_profiles.price_per_hour} €/h</span></p>}
+                {coach.coach_profiles?.is_verified && <p>✅ Membre de jury vérifié</p>}
               </div>
             </Card>
           </div>
@@ -263,7 +263,7 @@ export default function CoachDetailPage() {
 
       <div className="fixed inset-x-0 bottom-4 z-20 px-4 lg:hidden">
         <Link href={`/book/${coach.id}`}>
-          <Button variant="primary" fullWidth className="shadow-lg">Book a Session</Button>
+          <Button variant="primary" fullWidth className="shadow-lg">Réserver une session</Button>
         </Link>
       </div>
     </div>
