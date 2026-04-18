@@ -20,23 +20,23 @@ import {
 const CONCOURS_SPECIALTIES = [
   'ENA',
   'ENM',
-  'Agrégation',
+  'AgrÃ©gation',
   'CAPES',
   'IRA',
-  'Attaché territorial',
+  'AttachÃ© territorial',
   'Inspecteur des finances',
   'Commissaire de police',
   'Administrateur civil',
   'Douanes',
-  'Trésor public',
-  'Santé publique',
+  'TrÃ©sor public',
+  'SantÃ© publique',
 ] as const
 
 const SORT_OPTIONS = [
-  { value: 'recommended', label: 'Recommandé' },
+  { value: 'recommended', label: 'RecommandÃ©' },
   { value: 'price_asc', label: 'Prix croissant' },
-  { value: 'price_desc', label: 'Prix décroissant' },
-  { value: 'rating', label: 'Mieux noté' },
+  { value: 'price_desc', label: 'Prix dÃ©croissant' },
+  { value: 'rating', label: 'Mieux notÃ©' },
 ] as const
 
 /* -- types -------------------------------------------------- */
@@ -229,13 +229,13 @@ export default function CoachesPage() {
         <div className="relative mx-auto max-w-7xl px-6 py-16 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-sm text-purple-300">
             <Sparkles className="h-4 w-4" />
-            Coachs certifiés
+            Coachs certifiÃ©s
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            Trouvez le coach idéal pour votre oral
+            Trouvez le coach idÃ©al pour votre oral
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-400">
-            Des anciens membres de jury et coachs certifiés vous accompagnent dans la préparation de vos concours oraux.
+            Des anciens membres de jury et coachs certifiÃ©s vous accompagnent dans la prÃ©paration de vos concours oraux.
           </p>
         </div>
       </section>
@@ -248,7 +248,7 @@ export default function CoachesPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher par nom ou spécialité…"
+              placeholder="Rechercher par nom ou spÃ©cialitÃ©Â…"
               className="w-full bg-transparent text-sm text-white placeholder-gray-500 outline-none"
             />
             {search && (
@@ -302,13 +302,13 @@ export default function CoachesPage() {
                 Filtres
               </h2>
               <button onClick={resetFilters} className="text-xs text-purple-400 hover:text-purple-300">
-                Réinitialiser
+                RÃ©initialiser
               </button>
             </div>
 
             {/* Concours specialty */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-300">Spécialité concours</label>
+              <label className="mb-2 block text-sm font-medium text-gray-300">SpÃ©cialitÃ© concours</label>
               <div className="flex flex-wrap gap-2">
                 {CONCOURS_SPECIALTIES.map((spec) => (
                   <button
@@ -329,7 +329,7 @@ export default function CoachesPage() {
             {/* Price range */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-300">
-                Prix : {priceRange[0]}€ – {priceRange[1]}€
+                Prix : {priceRange[0]}Â€ Â– {priceRange[1]}Â€
               </label>
               <input
                 type="range"
@@ -379,17 +379,17 @@ export default function CoachesPage() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
-                <p className="mt-4">Chargement des coachs…</p>
+                <p className="mt-4">Chargement des coachsÂ…</p>
               </div>
             ) : filteredCoaches.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center text-gray-400">
-                <p className="text-lg font-semibold">Aucun coach trouvé</p>
+                <p className="text-lg font-semibold">Aucun coach trouvÃ©</p>
                 <p className="mt-1 text-sm">Essayez d&apos;ajuster vos filtres.</p>
                 <button
                   onClick={resetFilters}
                   className="mt-4 rounded-lg bg-purple-600/20 px-4 py-2 text-sm text-purple-300 hover:bg-purple-600/30"
                 >
-                  Réinitialiser les filtres
+                  RÃ©initialiser les filtres
                 </button>
               </div>
             ) : (
@@ -435,7 +435,7 @@ export default function CoachesPage() {
                           <h3 className="truncate text-lg font-bold">{name}</h3>
                           <p className="truncate text-sm text-gray-400">
                             {coach.coach_profiles?.title ||
-                              `Coach spécialisé ${specs[0] || 'concours'}`}
+                              `Coach spÃ©cialisÃ© ${specs[0] || 'concours'}`}
                           </p>
                           {rating > 0 && (
                             <div className="mt-1 flex items-center gap-2">
@@ -479,7 +479,7 @@ export default function CoachesPage() {
                         {responseTime != null && (
                           <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5" />
-                            Répond en ~{responseTime}h
+                            RÃ©pond en ~{responseTime}h
                           </span>
                         )}
                         {reviewCount > 0 && (
@@ -493,7 +493,7 @@ export default function CoachesPage() {
                       {/* Price + CTA */}
                       <div className="mt-4 flex items-center justify-between">
                         <p className="text-xl font-bold text-white">
-                          {price != null ? `${price}€/h` : 'Sur devis'}
+                          {price != null ? `${price}Â€/h` : 'Sur devis'}
                         </p>
                         <Link href={`/book/${coach.id}`}>
                           <Button variant="primary" className="!py-2 !px-5 !text-sm">
@@ -513,9 +513,9 @@ export default function CoachesPage() {
       {/* Devenir coach CTA */}
       <section className="border-t border-white/10">
         <div className="mx-auto max-w-4xl px-6 py-16 text-center">
-          <h2 className="text-3xl font-bold">Vous êtes ancien membre de jury&nbsp;?</h2>
+          <h2 className="text-3xl font-bold">Vous Ãªtes ancien membre de jury&nbsp;?</h2>
           <p className="mt-3 text-gray-400">
-            Rejoignez Jurya en tant que coach et aidez des candidats à réussir leurs oraux de concours.
+            Rejoignez Jurya en tant que coach et aidez des candidats Ã  rÃ©ussir leurs oraux de concours.
           </p>
           <Link href="/coaching/onboarding">
             <Button variant="primary" className="mt-6">
