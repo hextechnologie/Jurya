@@ -66,7 +66,7 @@ export default function ProfilePage() {
 
   async function loadConcours() {
     const { data } = await supabase.from('concours').select('id, intitulé').order('intitulé')
-    setAllConcours((data ?? []) as Concours[])
+    setAllConcours((data ?? []) as unknown as Concours[])
   }
 
   async function loadProfile() {

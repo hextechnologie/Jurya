@@ -114,7 +114,7 @@ export default function SimulationSessionPage() {
         .eq('id', sim.concours_id)
         .single()
 
-      if (conc) setConcours(conc)
+      if (conc) setConcours(conc as unknown as ConcoursData)
 
       // Reset timer with planned duration
       const totalSec = sim.planned_duration_seconds || 30 * 60

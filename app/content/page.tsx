@@ -100,8 +100,8 @@ export default function ContentPage() {
         .order('published_at', { ascending: false }),
       supabase.from('concours').select('id, intitulé').order('intitulé'),
     ])
-    setResources((resRes.data ?? []) as Resource[])
-    setAllConcours((conRes.data ?? []) as Concours[])
+    setResources((resRes.data ?? []) as unknown as Resource[])
+    setAllConcours((conRes.data ?? []) as unknown as Concours[])
     setLoading(false)
   }
 

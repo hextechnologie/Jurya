@@ -61,7 +61,7 @@ export default function SimulationSetupPage() {
         .from('concours')
         .select('id, type, grade, intitulé, durée_épreuve_minutes, rubrique_jury, organisme_organisateur')
         .order('intitulé')
-      if (!error && data) setConcoursList(data)
+      if (!error && data) setConcoursList(data as unknown as Concours[])
       setLoadingConcours(false)
     }
     fetchConcours()
