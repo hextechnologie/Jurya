@@ -4,41 +4,88 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 })
 
-export const SYSTEM_PROMPT = `You are a professional interview coach. Your role is to conduct realistic job interviews and provide constructive feedback.
+// --- Jurya: Jury simulation prompts ---
 
-Instructions:
-1. Ask ONE interview question at a time based on the job role and difficulty level
-2. After the user answers, provide structured feedback in this EXACT JSON format:
+export const EXAMINER_SYSTEM_PROMPT = `Vous êtes un membre expérimenté d'un jury de concours oral de la fonction publique française ou d'admission en grande école. Vous êtes sérieux, bienveillant mais rigoureux, et vous suivez strictement la grille d'évaluation (rubrique) du concours.
+
+Déroulement de l'épreuve :
+1. Phase 1 — « Exposé libre » (5 minutes) : le candidat présente son parcours, ses motivations et son projet professionnel. Vous écoutez sans interrompre.
+2. Phase 2 — « Questions du jury » (reste de la session) : vous posez des questions structurées selon la rubrique du concours. Les questions doivent évaluer :
+   - La connaissance de l'environnement professionnel et institutionnel
+   - La motivation et la cohérence du projet professionnel
+   - Les aptitudes à l'analyse et à la synthèse
+   - La capacité à communiquer et à gérer le stress
+
+Consignes :
+- Posez UNE question à la fois
+- Adaptez le niveau à la catégorie du concours (A, B, C)
+- Restez factuel et professionnel
+- Toujours répondre en français
+- Ne donnez PAS de feedback pendant l'épreuve — ce sera fait séparément`
+
+export const FEEDBACK_SYSTEM_PROMPT = `Vous êtes un évaluateur expert de concours oraux. Analysez la prestation du candidat et produisez un rapport d'évaluation structuré.
+
+Répondez UNIQUEMENT en JSON valide avec cette structure exacte :
 {
-  "score": <number 1-10>,
-  "strengths": ["strength 1", "strength 2"],
-  "weaknesses": ["weakness 1", "weakness 2"],
-  "improved_answer": "A better version of their answer with specific improvements"
+  "score": <nombre 1-5>,
+  "structure_exposé": {
+    "note": <nombre 1-5>,
+    "commentaire": "...",
+    "citations": ["extrait 1 du candidat", "..."]
+  },
+  "motivation_cohérence": {
+    "note": <nombre 1-5>,
+    "commentaire": "...",
+    "citations": ["..."]
+  },
+  "connaissance_environnement_professionnel": {
+    "note": <nombre 1-5>,
+    "commentaire": "...",
+    "citations": ["..."]
+  },
+  "communication_gestion_stress": {
+    "note": <nombre 1-5>,
+    "commentaire": "...",
+    "citations": ["..."]
+  },
+  "commentaire_général": "...",
+  "points_forts": ["...", "..."],
+  "axes_amélioration": ["...", "..."],
+  "citations_transcription": ["les citations les plus significatives"]
 }
 
-3. After providing feedback, ask the next relevant interview question
-4. Keep questions realistic and appropriate for the specified job role and level
-5. Be encouraging but honest in your feedback
-6. For junior level: Focus on fundamentals, attitude, and learning ability
-7. For mid level: Expect solid technical knowledge and some experience
-8. For senior level: Expect deep expertise, leadership, and strategic thinking
+Soyez précis, citez le candidat, et notez de façon réaliste (un 5/5 est exceptionnel).`
 
-Always maintain a professional, supportive tone.`
-
-export async function generateInterviewQuestion(
+export async function generateSimulationQuestion(
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>,
-  jobRole: string,
-  difficultyLevel: string,
+  concoursIntitulé: string,
+  concoursType: string,
+  rubriqueJury: Record<string, any>,
   questionNumber: number
 ): Promise<string> {
+  const rubriqueText = JSON.stringify(rubriqueJury, null, 2)
+
   const contextMessage = questionNumber === 1
-    ? `Start the interview for a ${difficultyLevel} ${jobRole} position. Ask the first question.`
+    ? `Début de l'épreuve orale pour le concours : ${concoursIntitulé} (${concoursType}). Invitez le candidat à faire son exposé libre de 5 minutes.`
+    : questionNumber === 2
+    ? `L'exposé libre est terminé. Passez aux questions du jury en suivant la rubrique d'évaluation.`
     : ''
+
+  const systemPrompt = `${EXAMINER_SYSTEM_PROMPT}
+
+Rubrique d'évaluation du concours :
+${rubriqueText}`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
-    system: SYSTEM_PROMPT,
+    system: [
+      {
+        type: 'text',
+        text: systemPrompt,
+        cache_control: { type: 'ephemeral' },
+      },
+    ],
     messages: [
       ...(contextMessage ? [{ role: 'user' as const, content: contextMessage }] : []),
       ...conversationHistory,
@@ -49,50 +96,90 @@ export async function generateInterviewQuestion(
   return content.type === 'text' ? content.text : ''
 }
 
-export async function generateFeedback(
-  question: string,
-  answer: string,
-  jobRole: string,
-  difficultyLevel: string
-): Promise<{
-  score: number
-  strengths: string[]
-  weaknesses: string[]
-  improved_answer: string
-  nextQuestion: string
-}> {
-  const prompt = `The candidate was asked: "${question}"
-Their answer: "${answer}"
+export async function generateRapportÉvaluation(
+  questions: Array<{ question: string; answer: string }>,
+  concoursIntitulé: string,
+  concoursType: string,
+  rubriqueJury: Record<string, any>
+): Promise<any> {
+  const rubriqueText = JSON.stringify(rubriqueJury, null, 2)
+  const transcription = questions
+    .map((q, i) => `Q${i + 1}: ${q.question}\nR${i + 1}: ${q.answer}`)
+    .join('\n\n')
 
-Job Role: ${jobRole}
-Level: ${difficultyLevel}
+  const prompt = `Concours : ${concoursIntitulé} (${concoursType})
 
-Provide detailed feedback in JSON format, then ask the next interview question.`
+Rubrique d'évaluation :
+${rubriqueText}
+
+Transcription de l'épreuve :
+${transcription}
+
+Produisez le rapport d'évaluation en JSON.`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 2048,
-    system: SYSTEM_PROMPT,
+    system: [
+      {
+        type: 'text',
+        text: FEEDBACK_SYSTEM_PROMPT,
+        cache_control: { type: 'ephemeral' },
+      },
+    ],
     messages: [
       { role: 'user', content: prompt },
     ],
   })
 
   const content = response.content[0]
-  const text = content.type === 'text' ? content.text : ''
+  const text = content.type === 'text' ? content.text : '{}'
 
-  // Extract JSON feedback and next question
-  const jsonMatch = text.match(/\{[\s\S]*?\}/)
-  const feedback = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-    score: 5,
-    strengths: ['Answer provided'],
-    weaknesses: ['Could be more detailed'],
-    improved_answer: 'Consider expanding your answer with specific examples.',
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  if (jsonMatch) {
+    try {
+      return JSON.parse(jsonMatch[0])
+    } catch {
+      return getDefaultRapport()
+    }
   }
-
-  // Extract next question (text after the JSON)
-  const nextQuestionMatch = text.split(/\}[\s\S]*?(?=\n|$)/)
-  const nextQuestion = nextQuestionMatch[1]?.trim() || 'Tell me about a challenging project you worked on.'
-
-  return { ...feedback, nextQuestion }
+  return getDefaultRapport()
 }
+
+export async function generateClassificationQuestion(
+  topic: string,
+  concoursType: string
+): Promise<string> {
+  const response = await anthropic.messages.create({
+    model: 'claude-haiku-4-5',
+    max_tokens: 512,
+    messages: [
+      {
+        role: 'user',
+        content: `Générez une question de jury pour un concours ${concoursType} sur le thème : "${topic}". La question doit être précise, en français, et adaptée au niveau du concours. Répondez uniquement avec la question, sans préambule.`,
+      },
+    ],
+  })
+
+  const content = response.content[0]
+  return content.type === 'text' ? content.text : ''
+}
+
+function getDefaultRapport() {
+  return {
+    score: 3,
+    structure_exposé: { note: 3, commentaire: 'Évaluation en cours de traitement.', citations: [] },
+    motivation_cohérence: { note: 3, commentaire: 'Évaluation en cours de traitement.', citations: [] },
+    connaissance_environnement_professionnel: { note: 3, commentaire: 'Évaluation en cours de traitement.', citations: [] },
+    communication_gestion_stress: { note: 3, commentaire: 'Évaluation en cours de traitement.', citations: [] },
+    commentaire_général: 'Le rapport d\'évaluation n\'a pas pu être généré correctement. Veuillez relancer la simulation.',
+    points_forts: ['Tentative de réponse'],
+    axes_amélioration: ['Approfondir la préparation'],
+    citations_transcription: [],
+  }
+}
+
+// Keep legacy exports for backward compatibility during migration
+export const SYSTEM_PROMPT = EXAMINER_SYSTEM_PROMPT
+export const generateInterviewQuestion = generateSimulationQuestion as any
+export const generateFeedback = generateRapportÉvaluation as any
