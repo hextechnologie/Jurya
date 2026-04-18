@@ -9,44 +9,44 @@ import { VideoModal } from '@/components/VideoModal'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 const demoMessages = [
-  { role: 'ai',    label: 'AI 🤖',      text: 'Tell me about a challenging project you led.' },
-  { role: 'user',  label: 'You',         text: 'I led a team of 5 to rebuild our payment system...' },
-  { role: 'ai',    label: 'AI 🤖',      text: 'Score: 7/10 — Good structure! Add more metrics.' },
-  { role: 'coach', label: 'Coach 👨‍💼', text: 'Great start! In real interviews, pause here and make eye contact.' },
+  { role: 'ai',    label: 'Jury 🎓',     text: 'Présentez votre parcours et vos motivations.' },
+  { role: 'user',  label: 'Vous',        text: 'Après 5 ans en collectivité, j\'ai souhaité évoluer vers...' },
+  { role: 'ai',    label: 'Jury 🎓',     text: 'Note : 4/5 — Exposé structuré, motivation claire.' },
+  { role: 'coach', label: 'Coach 👨‍💼', text: 'Bon début ! Pensez à citer le cadre réglementaire.' },
 ]
 
 const STATS = [
-  { icon: '🤖', value: 'AI-Powered', label: 'Practice 24/7' },
-  { icon: '👨‍💼', value: '50+',        label: 'Expert Coaches' },
-  { icon: '🌍', value: '10+',         label: 'Languages' },
-  { icon: '⭐', value: '4.9/5',       label: 'Average Rating' },
-  { icon: '💼', value: '500+',        label: 'Jobs Landed' },
+  { icon: '🎓', value: 'IA Jury',     label: 'Simulation 24/7' },
+  { icon: '👨‍💼', value: '50+',        label: 'Membres de jury' },
+  { icon: '📋', value: '5+',          label: 'Concours couverts' },
+  { icon: '⭐', value: '4.9/5',       label: 'Note moyenne' },
+  { icon: '🏆', value: '500+',        label: 'Candidats préparés' },
 ]
 
 const MOCK_COACHES = [
   {
-    name: 'Sarah Chen',
-    title: 'Ex-Google Tech Lead',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SarahChen&backgroundColor=b6e3f4',
-    tags: ['Tech', 'System Design', 'Behavioral'],
+    name: 'Marie Dupont',
+    title: 'Ancienne présidente de jury — Attaché territorial',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MarieDupont&backgroundColor=b6e3f4',
+    tags: ['Territorial', 'Catégorie A', 'Grand oral'],
     rating: 4.9,
     sessions: 142,
     price: 80,
   },
   {
-    name: 'Marcus Williams',
-    title: 'Ex-McKinsey Consultant',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MarcusWilliams&backgroundColor=c0aede',
-    tags: ['Consulting', 'Finance', 'Case Interviews'],
+    name: 'Philippe Martin',
+    title: 'Ancien jury IRA — Administrateur civil',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=PhilippeMartin&backgroundColor=c0aede',
+    tags: ['État', 'IRA', 'Mise en situation'],
     rating: 4.8,
     sessions: 98,
     price: 100,
   },
   {
-    name: 'Priya Sharma',
-    title: 'Ex-Amazon PM',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=PriyaSharma&backgroundColor=d1d4f9',
-    tags: ['Product', 'Behavioral', 'Leadership'],
+    name: 'Fatima Benali',
+    title: 'Avocate — Préparatrice CRFPA',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=FatimaBenali&backgroundColor=d1d4f9',
+    tags: ['CRFPA', 'Grand oral', 'Droit public'],
     rating: 5.0,
     sessions: 201,
     price: 90,
@@ -54,17 +54,17 @@ const MOCK_COACHES = [
 ]
 
 const AI_STEPS = [
-  { step: '1', title: 'Choose Your Role',      desc: 'Select your target job, industry, and level. The AI adapts everything to you.' },
-  { step: '2', title: 'Practice with AI',       desc: 'Answer realistic questions in real-time. The AI responds like a real interviewer.' },
-  { step: '3', title: 'Get Instant Feedback',   desc: 'See your score, confidence level, ideal answer, and what to improve after each question.' },
-  { step: '4', title: 'Improve & Repeat',       desc: 'Track scores over time and keep practising until you feel completely ready.' },
+  { step: '1', title: 'Choisissez votre concours', desc: 'Sélectionnez le concours, la catégorie et le type d\'épreuve. L\'IA s\'adapte à la rubrique du jury.' },
+  { step: '2', title: 'Simulez l\'oral',           desc: 'Répondez en temps réel à un jury IA qui pose des questions réalistes et structurées.' },
+  { step: '3', title: 'Recevez votre rapport',     desc: 'Consultez votre note /5 sur 4 axes, avec des citations de votre transcription.' },
+  { step: '4', title: 'Progressez et recommencez', desc: 'Suivez vos scores, identifiez vos points faibles et entraînez-vous jusqu\'à être prêt.' },
 ]
 
 const COACH_STEPS = [
-  { step: '1', title: 'Browse Coaches',       desc: 'Filter by industry, experience level, price, and rating. Read reviews from past candidates.' },
-  { step: '2', title: 'Book a Session',       desc: 'Choose a date, time, and session length that works for you. Pay securely online.' },
-  { step: '3', title: 'Live 1-on-1 Session', desc: 'Join a video call with your expert coach. Practice interview scenarios in real time.' },
-  { step: '4', title: 'Get Expert Feedback', desc: 'Receive a personalised report with actionable next steps and improvement areas.' },
+  { step: '1', title: 'Parcourez les membres de jury', desc: 'Filtrez par concours, spécialité, tarif et avis. Lisez les retours d\'anciens candidats.' },
+  { step: '2', title: 'Réservez une session',          desc: 'Choisissez une date, un créneau et une durée. Paiement sécurisé en ligne.' },
+  { step: '3', title: 'Session 1-à-1 en direct',       desc: 'Passez votre oral en visio avec un ancien membre de jury. Simulation en conditions réelles.' },
+  { step: '4', title: 'Recevez un feedback expert',     desc: 'Rapport personnalisé avec axes d\'amélioration concrets et prochaines étapes.' },
 ]
 
 export default function HomePage() {
@@ -107,13 +107,14 @@ export default function HomePage() {
           <nav className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">Interview Coach</span>
+              <span className="text-2xl font-bold gradient-text">Jurya</span>
             </div>
 
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/pricing"  className="text-sm text-gray-300 hover:text-primary transition-colors">Pricing</Link>
-              <Link href="/coaches"  className="text-sm text-gray-300 hover:text-primary transition-colors">Coaches</Link>
+              <Link href="/pricing"  className="text-sm text-gray-300 hover:text-primary transition-colors">Tarifs</Link>
+              <Link href="/coaches"  className="text-sm text-gray-300 hover:text-primary transition-colors">Membres de jury</Link>
+              <Link href="/fr/calendrier" className="text-sm text-gray-300 hover:text-primary transition-colors">Calendrier</Link>
               <Link href="/faq"      className="text-sm text-gray-300 hover:text-primary transition-colors">FAQ</Link>
               <Link href="/contact"  className="text-sm text-gray-300 hover:text-primary transition-colors">Contact</Link>
               <LanguageSwitcher />
@@ -124,7 +125,7 @@ export default function HomePage() {
               ) : (
                 <>
                   <Link href="/login">
-                    <Button variant="outline">Login</Button>
+                    <Button variant="outline">Connexion</Button>
                   </Link>
                   {/* Get Started dropdown */}
                   <div className="relative" ref={getStartedRef}>
@@ -132,22 +133,22 @@ export default function HomePage() {
                       onClick={() => setGetStartedOpen((v) => !v)}
                       className="flex items-center gap-1 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
                     >
-                      Get Started
+                      Commencer
                       <ChevronDown className={`w-4 h-4 transition-transform ${getStartedOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {getStartedOpen && (
                       <div className="absolute right-0 mt-2 w-52 rounded-xl border border-white/10 shadow-2xl overflow-hidden z-50" style={{ background: '#111827' }}>
                         <Link href="/signup/candidate" onClick={() => setGetStartedOpen(false)}>
                           <div className="px-4 py-3 hover:bg-white/5 transition-colors cursor-pointer">
-                            <p className="text-sm font-semibold text-white">🤖 Practice with AI</p>
-                            <p className="text-xs text-gray-400 mt-0.5">Start mock interviews free</p>
+                            <p className="text-sm font-semibold text-white">🎓 Simuler un oral</p>
+                            <p className="text-xs text-gray-400 mt-0.5">Entraînez-vous gratuitement</p>
                           </div>
                         </Link>
                         <div className="border-t border-white/10" />
                         <Link href="/signup/coach" onClick={() => setGetStartedOpen(false)}>
                           <div className="px-4 py-3 hover:bg-white/5 transition-colors cursor-pointer">
-                            <p className="text-sm font-semibold text-white">👨‍💼 Become a Coach</p>
-                            <p className="text-xs text-gray-400 mt-0.5">Earn from your expertise</p>
+                            <p className="text-sm font-semibold text-white">👨‍💼 Devenir membre de jury</p>
+                            <p className="text-xs text-gray-400 mt-0.5">Monétisez votre expertise</p>
                           </div>
                         </Link>
                       </div>
@@ -170,16 +171,17 @@ export default function HomePage() {
           {/* Mobile menu */}
           {mobileMenuOpen && (
             <div className="md:hidden mt-4 glass rounded-xl p-4 space-y-3">
-              <Link href="/pricing"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-              <Link href="/coaches"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Coaches</Link>
+              <Link href="/pricing"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Tarifs</Link>
+              <Link href="/coaches"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Membres de jury</Link>
+              <Link href="/fr/calendrier" className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Calendrier</Link>
               <Link href="/faq"      className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>FAQ</Link>
               <Link href="/contact"  className="block text-gray-300 hover:text-primary" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
               <div className="pt-2 flex flex-col gap-2">
                 <Link href="/signup/candidate" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="primary" fullWidth>🤖 Practice with AI</Button>
+                  <Button variant="primary" fullWidth>🎓 Simuler un oral</Button>
                 </Link>
                 <Link href="/signup/coach" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" fullWidth>👨‍💼 Become a Coach</Button>
+                  <Button variant="outline" fullWidth>👨‍💼 Devenir membre de jury</Button>
                 </Link>
               </div>
               <div className="pt-2"><LanguageSwitcher /></div>
@@ -194,26 +196,26 @@ export default function HomePage() {
             {/* Left: copy */}
             <div className="text-center lg:text-left">
               <h1 className="text-5xl lg:text-6xl font-bold mb-6 animate-fadeIn leading-tight">
-                Land your dream job with{' '}
-                <span className="gradient-text">AI Coaching + Real Expert Coaches</span>
+                Préparez vos concours oraux avec{' '}
+                <span className="gradient-text">un jury IA + des membres de jury experts</span>
               </h1>
               <p className="text-xl text-gray-400 mb-8 animate-fadeIn leading-relaxed">
-                Practice unlimited mock interviews with AI, then book a 1-on-1 session with a real interview coach. Get personalised feedback, improve faster, and walk into every interview with real confidence.
+                Simulez vos oraux de concours avec une IA qui joue le rôle du jury, puis réservez une session avec un ancien membre de jury. Feedback structuré, progression mesurée, préparation ciblée.
               </p>
 
               {/* CTA buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-fadeIn mb-5">
                 {user ? (
                   <Link href="/dashboard">
-                    <Button variant="primary" className="text-lg px-8 py-4 w-full sm:w-auto">Go to Dashboard</Button>
+                    <Button variant="primary" className="text-lg px-8 py-4 w-full sm:w-auto">Tableau de bord</Button>
                   </Link>
                 ) : (
                   <>
                     <Link href="/signup/candidate">
-                      <Button variant="primary" className="text-lg px-8 py-4 w-full sm:w-auto">Start Practicing Free</Button>
+                      <Button variant="primary" className="text-lg px-8 py-4 w-full sm:w-auto">Commencer gratuitement</Button>
                     </Link>
                     <Link href="/coaches">
-                      <Button variant="outline" className="text-lg px-8 py-4 w-full sm:w-auto">Find a Coach</Button>
+                      <Button variant="outline" className="text-lg px-8 py-4 w-full sm:w-auto">Trouver un membre de jury</Button>
                     </Link>
                   </>
                 )}
@@ -227,13 +229,13 @@ export default function HomePage() {
                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
                   <Play className="w-4 h-4" />
                 </div>
-                <span className="text-sm font-medium">Watch Demo</span>
+                <span className="text-sm font-medium">Voir la démo</span>
               </button>
 
               {/* Trust badges */}
               <div className="flex flex-col items-center lg:items-start gap-1">
-                <p className="text-sm text-gray-500">✨ Get 3 Free Mock Interviews · No Card Needed</p>
-                <p className="text-sm text-gray-500">👨‍💼 50+ Expert Coaches Available</p>
+                <p className="text-sm text-gray-500">✨ 3 simulations gratuites · Sans carte bancaire</p>
+                <p className="text-sm text-gray-500">👨‍💼 50+ membres de jury disponibles</p>
               </div>
             </div>
 
@@ -247,8 +249,8 @@ export default function HomePage() {
                     {/* Demo header */}
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <p className="text-sm font-semibold text-white">AI Practice + Coach Feedback</p>
-                        <p className="text-xs text-gray-400">Live mock interview preview</p>
+                        <p className="text-sm font-semibold text-white">Simulation jury IA + Feedback expert</p>
+                        <p className="text-xs text-gray-400">Aperçu de l’oral simulé</p>
                       </div>
                       <div className="flex gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-red-500/70" />
@@ -314,40 +316,40 @@ export default function HomePage() {
 
         {/* ══ WHY CHOOSE US ══ */}
         <section className="container mx-auto px-6 py-20">
-          <h2 className="text-4xl font-bold text-center mb-4">Why Choose Interview Coach</h2>
+          <h2 className="text-4xl font-bold text-center mb-4">Pourquoi choisir Jurya</h2>
           <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-            The only platform that combines unlimited AI practice with real human coaching — so you're always one step ahead.
+            La seule plateforme qui combine simulation IA illimitée avec du coaching par d’anciens membres de jury — pour arriver prêt le jour J.
           </p>
           <div className="grid md:grid-cols-3 gap-8">
 
             {/* AI Practice */}
             <div className="glass p-8 rounded-2xl animate-fadeIn">
-              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4 text-3xl">🤖</div>
-              <h3 className="text-xl font-bold mb-3">AI Mock Interviews 🤖</h3>
+              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4 text-3xl">🎓</div>
+              <h3 className="text-xl font-bold mb-3">Simulation IA du jury 🎓</h3>
               <p className="text-gray-400 mb-4">
-                Practice 24/7 with our AI that adapts to your role, experience level, and target company. Get instant scoring and detailed feedback on every answer.
+                Entraînez-vous 24/7 avec une IA qui adapte ses questions à votre concours, votre catégorie et la rubrique du jury. Feedback immédiat et structuré après chaque réponse.
               </p>
               <div className="space-y-2 text-sm text-gray-500">
-                <p>✓ STAR method structure analysis</p>
-                <p>✓ Confidence &amp; clarity scoring</p>
-                <p>✓ Filler word detection</p>
-                <p>✓ Unlimited practice sessions</p>
+                <p>✓ Analyse de la structure de l’exposé</p>
+                <p>✓ Évaluation motivation &amp; cohérence</p>
+                <p>✓ Détection des tics de langage</p>
+                <p>✓ Simulations illimitées</p>
               </div>
             </div>
 
             {/* Human Coaches */}
             <div className="glass p-8 rounded-2xl animate-fadeIn border border-primary/30 relative" style={{ animationDelay: '0.1s' }}>
-              <span className="absolute top-4 right-4 text-xs font-bold rounded-full bg-primary/20 border border-primary/30 px-2.5 py-0.5 text-primary">NEW</span>
+              <span className="absolute top-4 right-4 text-xs font-bold rounded-full bg-primary/20 border border-primary/30 px-2.5 py-0.5 text-primary">NOUVEAU</span>
               <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 text-3xl" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.2))', border: '1px solid rgba(16,185,129,0.3)' }}>👨‍💼</div>
-              <h3 className="text-xl font-bold mb-3">Real Expert Coaches 👨‍💼</h3>
+              <h3 className="text-xl font-bold mb-3">Membres de jury experts 👨‍💼</h3>
               <p className="text-gray-400 mb-4">
-                Book 1-on-1 sessions with experienced coaches from top companies. Get personalised advice, live feedback, and insider tips you can't get from AI.
+                Réservez des sessions 1-à-1 avec d’anciens membres de jury. Conseils personnalisés, feedback en direct et préparation ciblée impossible à obtenir avec l’IA seule.
               </p>
               <div className="space-y-2 text-sm text-gray-500">
-                <p>✓ Coaches from Google, Amazon, McKinsey</p>
-                <p>✓ Video &amp; audio sessions</p>
-                <p>✓ CV &amp; cover letter review</p>
-                <p>✓ Salary negotiation coaching</p>
+                <p>✓ Anciens membres de jury de concours</p>
+                <p>✓ Sessions vidéo en direct</p>
+                <p>✓ Correction du dossier RAEP</p>
+                <p>✓ Coaching sur la posture et la voix</p>
               </div>
             </div>
 
@@ -356,15 +358,15 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold mb-3">Track &amp; Improve 📈</h3>
+              <h3 className="text-xl font-bold mb-3">Suivez votre progression 📈</h3>
               <p className="text-gray-400 mb-4">
-                Monitor your progress across both AI sessions and coach feedback. See your scores improve over time with detailed analytics and personalised coaching plans.
+                Consultez vos progrès sur l’ensemble de vos simulations IA et sessions avec un membre de jury. Visualisez l’évolution de vos notes et identifiez vos axes d’amélioration.
               </p>
               <div className="space-y-2 text-sm text-gray-500">
-                <p>✓ AI + Coach combined analytics</p>
-                <p>✓ Score trend charts</p>
-                <p>✓ Personalised improvement plan</p>
-                <p>✓ Session history</p>
+                <p>✓ Analytique IA + jury combinée</p>
+                <p>✓ Graphiques de progression</p>
+                <p>✓ Plan de préparation personnalisé</p>
+                <p>✓ Historique des sessions</p>
               </div>
             </div>
           </div>
@@ -373,10 +375,10 @@ export default function HomePage() {
         {/* ══ HOW IT WORKS ══ */}
         <section className="container mx-auto px-6 py-20 bg-card/30 rounded-3xl">
           <div className="text-center mb-10">
-            <p className="text-primary text-sm font-semibold mb-2">HOW IT WORKS</p>
-            <h2 className="text-4xl font-bold mb-4">Two ways to get interview-ready</h2>
+            <p className="text-primary text-sm font-semibold mb-2">COMMENT ÇA MARCHE</p>
+            <h2 className="text-4xl font-bold mb-4">Deux façons de se préparer</h2>
             <p className="text-gray-400 max-w-2xl mx-auto mb-8">
-              Use AI practice, book a coach session, or combine both for the best results.
+              Utilisez la simulation IA, réservez une session avec un membre de jury, ou combinez les deux pour des résultats optimaux.
             </p>
             {/* Tab bar */}
             <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
@@ -384,14 +386,14 @@ export default function HomePage() {
                 onClick={() => setHowItWorksTab('ai')}
                 className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${howItWorksTab === 'ai' ? 'bg-primary text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
               >
-                🤖 AI Practice
+                🎓 Simulation IA
               </button>
               <button
                 onClick={() => setHowItWorksTab('coach')}
                 className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${howItWorksTab === 'coach' ? 'text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
                 style={howItWorksTab === 'coach' ? { background: '#059669' } : {}}
               >
-                👨‍💼 Coach Session
+                👨‍💼 Session avec un jury
               </button>
             </div>
           </div>
@@ -428,10 +430,10 @@ export default function HomePage() {
         {/* ══ MEET OUR COACHES ══ */}
         <section className="container mx-auto px-6 py-20">
           <div className="text-center mb-12">
-            <p className="text-primary text-sm font-semibold mb-2">EXPERT COACHES</p>
-            <h2 className="text-4xl font-bold mb-4">Learn From the Best 👨‍💼</h2>
+            <p className="text-primary text-sm font-semibold mb-2">MEMBRES DE JURY</p>
+            <h2 className="text-4xl font-bold mb-4">Préparez-vous avec les meilleurs 👨‍💼</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              Our coaches have helped candidates land roles at top companies worldwide.
+              Nos membres de jury ont accompagné des centaines de candidats vers la réussite.
             </p>
           </div>
 
@@ -453,10 +455,10 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-yellow-400">⭐ {coach.rating} <span className="text-gray-500">({coach.sessions} sessions)</span></span>
-                  <span className="text-purple-400 font-semibold">from ${coach.price}/sess</span>
+                  <span className="text-purple-400 font-semibold">à partir de {coach.price}€/sess</span>
                 </div>
                 <Link href="/coaches">
-                  <Button variant="outline" fullWidth className="text-sm">View Profile</Button>
+                  <Button variant="outline" fullWidth className="text-sm">Voir le profil</Button>
                 </Link>
               </div>
             ))}
@@ -464,7 +466,7 @@ export default function HomePage() {
 
           <div className="text-center">
             <Link href="/coaches">
-              <Button variant="primary" className="gap-2 px-8 py-3">Browse All Coaches →</Button>
+              <Button variant="primary" className="gap-2 px-8 py-3">Voir tous les membres de jury →</Button>
             </Link>
           </div>
         </section>
@@ -472,9 +474,9 @@ export default function HomePage() {
         {/* ══ TESTIMONIALS ══ */}
         <section className="container mx-auto px-6 py-20">
           <div className="text-center mb-12">
-            <p className="text-primary text-sm font-semibold mb-2">TESTIMONIALS</p>
-            <h2 className="text-4xl font-bold mb-4">Real People. Real Results.</h2>
-            <p className="text-gray-400">Join professionals who landed their dream roles with AI practice + expert coaching.</p>
+            <p className="text-primary text-sm font-semibold mb-2">TÉMOIGNAGES</p>
+            <h2 className="text-4xl font-bold mb-4">Des candidats. Des résultats.</h2>
+            <p className="text-gray-400">Rejoignez les candidats qui ont réussi leur concours grâce à la simulation IA + le coaching expert.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -482,14 +484,14 @@ export default function HomePage() {
             <div className="glass p-6 rounded-xl">
               <div className="flex mb-3">{[...Array(5)].map((_, i) => <span key={i} className="text-yellow-500">★</span>)}</div>
               <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                "The AI practice helped me nail the basics, then my coach session gave me the edge I needed. Got the Google offer! 🎉"
+                "La simulation IA m’a permis de travailler les bases, puis ma session avec un ancien jury m’a donné l’avantage. Admise rédactrice territoriale ! 🎉"
               </p>
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah" className="w-10 h-10 rounded-full bg-white" />
                 <div>
-                  <p className="font-semibold text-sm">Sarah Chen</p>
-                  <p className="text-xs text-gray-400">Software Engineer · Google</p>
+                  <p className="font-semibold text-sm">Amina K.</p>
+                  <p className="text-xs text-gray-400">Rédactrice territoriale</p>
                 </div>
               </div>
             </div>
@@ -498,14 +500,14 @@ export default function HomePage() {
             <div className="glass p-6 rounded-xl">
               <div className="flex mb-3">{[...Array(5)].map((_, i) => <span key={i} className="text-yellow-500">★</span>)}</div>
               <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                "My coach had worked at Amazon and knew exactly what they look for. 3 sessions later, I had the offer."
+                "Mon coach avait siégé dans un jury d’attaché et savait exactement ce qu’ils attendent. 3 sessions plus tard, j’avais mon concours."
               </p>
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica" alt="Jessica" className="w-10 h-10 rounded-full bg-white" />
                 <div>
-                  <p className="font-semibold text-sm">Jessica Williams</p>
-                  <p className="text-xs text-gray-400">Product Manager · Amazon</p>
+                  <p className="font-semibold text-sm">Youssef M.</p>
+                  <p className="text-xs text-gray-400">Attaché territorial</p>
                 </div>
               </div>
             </div>
@@ -514,14 +516,14 @@ export default function HomePage() {
             <div className="glass p-6 rounded-xl">
               <div className="flex mb-3">{[...Array(5)].map((_, i) => <span key={i} className="text-yellow-500">★</span>)}</div>
               <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                "I used the AI every day for 2 weeks, then booked one coach session the day before my interview. Perfect combo!"
+                "J’ai utilisé l’IA tous les jours pendant 2 semaines, puis j’ai réservé une session la veille de mon oral. Combo parfait !"
               </p>
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Raj" alt="Raj" className="w-10 h-10 rounded-full bg-white" />
                 <div>
-                  <p className="font-semibold text-sm">Raj Patel</p>
-                  <p className="text-xs text-gray-400">Senior Engineer · Stripe</p>
+                  <p className="font-semibold text-sm">Claire D.</p>
+                  <p className="text-xs text-gray-400">Admise IRA Nantes</p>
                 </div>
               </div>
             </div>
@@ -530,14 +532,14 @@ export default function HomePage() {
             <div className="glass p-6 rounded-xl border border-green-500/20">
               <div className="flex mb-3">{[...Array(5)].map((_, i) => <span key={i} className="text-yellow-500">★</span>)}</div>
               <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                "I've coached 50+ candidates through this platform. The AI pre-screens them so when they arrive, we can focus on the hard stuff."
+                "J’ai coaché 50+ candidats sur cette plateforme. L’IA les prépare en amont, donc en session on va droit à l’essentiel."
               </p>
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Michael" alt="Michael" className="w-10 h-10 rounded-full bg-white" />
                 <div>
-                  <p className="font-semibold text-sm">Michael Torres</p>
-                  <p className="text-xs text-gray-400">Career Coach · Ex-McKinsey</p>
+                  <p className="font-semibold text-sm">Marc L.</p>
+                  <p className="text-xs text-gray-400">Ancien président de jury · Catégorie A</p>
                 </div>
               </div>
             </div>
@@ -549,27 +551,27 @@ export default function HomePage() {
           <div className="glass p-12 rounded-3xl text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-primary opacity-10" />
             <div className="relative z-10">
-              <h2 className="text-4xl font-bold mb-4">Ready to Land Your Dream Job?</h2>
+              <h2 className="text-4xl font-bold mb-4">Prêt(e) à réussir votre concours ?</h2>
               <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-                Start with free AI practice, then supercharge your prep with a real expert coach.
+                Commencez par la simulation IA gratuite, puis boostez votre préparation avec un ancien membre de jury.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 {user ? (
                   <Link href="/interview/setup">
-                    <Button variant="primary" className="text-lg px-10 py-4">Start Practicing Now</Button>
+                    <Button variant="primary" className="text-lg px-10 py-4">Commencer la simulation</Button>
                   </Link>
                 ) : (
                   <>
                     <Link href="/signup/candidate">
-                      <Button variant="primary" className="text-lg px-10 py-4">Start Practicing Free</Button>
+                      <Button variant="primary" className="text-lg px-10 py-4">Commencer gratuitement</Button>
                     </Link>
                     <Link href="/coaches">
-                      <Button variant="outline" className="text-lg px-10 py-4">Find a Coach</Button>
+                      <Button variant="outline" className="text-lg px-10 py-4">Trouver un membre de jury</Button>
                     </Link>
                   </>
                 )}
               </div>
-              <p className="text-sm text-gray-500 mt-6">✨ Get 3 Free Mock Interviews · No Card Needed</p>
+              <p className="text-sm text-gray-500 mt-6">✨ 3 simulations gratuites · Sans carte bancaire</p>
             </div>
           </div>
         </section>
@@ -580,42 +582,42 @@ export default function HomePage() {
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="w-6 h-6 text-primary" />
-                <span className="text-lg font-bold gradient-text">Interview Coach</span>
+                <span className="text-lg font-bold gradient-text">Jurya</span>
               </div>
               <p className="text-gray-400 text-sm">
-                AI mock interviews + real expert coaches. Land your dream job faster.
+                Simulation d’oraux de concours par IA + coaching par d’anciens membres de jury.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
+              <h4 className="font-semibold mb-4">Produit</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/pricing"   className="hover:text-primary transition-colors">Pricing</Link></li>
-                <li><Link href="/coaches"   className="hover:text-primary transition-colors">Find a Coach</Link></li>
-                <li><Link href="/jobs"      className="hover:text-primary transition-colors">Browse Jobs</Link></li>
-                <li><Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
+                <li><Link href="/pricing"       className="hover:text-primary transition-colors">Tarifs</Link></li>
+                <li><Link href="/coaches"        className="hover:text-primary transition-colors">Membres de jury</Link></li>
+                <li><Link href="/fr/calendrier"  className="hover:text-primary transition-colors">Calendrier des concours</Link></li>
+                <li><Link href="/dashboard"      className="hover:text-primary transition-colors">Tableau de bord</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">For Coaches</h4>
+              <h4 className="font-semibold mb-4">Pour les jurys</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/signup/coach"    className="hover:text-primary transition-colors">Become a Coach</Link></li>
-                <li><Link href="/coach/dashboard" className="hover:text-primary transition-colors">Coach Dashboard</Link></li>
-                <li><Link href="/coach/earnings"  className="hover:text-primary transition-colors">Earnings &amp; Payouts</Link></li>
+                <li><Link href="/signup/coach"    className="hover:text-primary transition-colors">Devenir membre de jury</Link></li>
+                <li><Link href="/coach/dashboard" className="hover:text-primary transition-colors">Tableau de bord jury</Link></li>
+                <li><Link href="/coach/earnings"  className="hover:text-primary transition-colors">Revenus &amp; paiements</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">Assistance</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+                <li><Link href="/contact" className="hover:text-primary transition-colors">Nous contacter</Link></li>
                 <li><Link href="/faq"     className="hover:text-primary transition-colors">FAQ</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
+              <h4 className="font-semibold mb-4">Légal</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms"   className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                <li><Link href="/about"   className="hover:text-primary transition-colors">About</Link></li>
+                <li><Link href="/privacy" className="hover:text-primary transition-colors">Politique de confidentialité</Link></li>
+                <li><Link href="/terms"   className="hover:text-primary transition-colors">Conditions d’utilisation</Link></li>
+                <li><Link href="/about"   className="hover:text-primary transition-colors">À propos</Link></li>
               </ul>
             </div>
           </div>
@@ -625,7 +627,7 @@ export default function HomePage() {
             <a href="#" className="text-gray-400 hover:text-primary"><Instagram className="w-5 h-5" /></a>
           </div>
           <div className="text-center text-gray-400 text-sm pt-8 border-t border-border">
-            <p>&copy; 2026 Interview Coach. All rights reserved. Powered by Claude AI.</p>
+            <p>&copy; 2026 Jurya. Tous droits réservés. Propulsé par Claude AI.</p>
           </div>
         </footer>
       </div>

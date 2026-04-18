@@ -8,13 +8,13 @@
     "contact": "Contactez-nous"
   },
   "hero": {
-    "title": "Maîtrisez votre prochain entretien avec",
-    "titleHighlight": "le Coaching IA",
-    "description": "Pratiquez avec un intervieweur IA réaliste, recevez des retours personnalisés instantanés et préparez-vous avec des simulations d'entretien qui reflètent les vraies méthodes de recrutement.",
+    "title": "Maîtrisez votre oral de concours avec",
+    "titleHighlight": "la Simulation IA",
+    "description": "Entraînez-vous avec un jury IA réaliste, recevez un rapport d'évaluation structuré et préparez-vous avec des simulations qui reproduisent les conditions réelles du concours.",
     "startFree": "Commencer gratuitement",
     "viewPricing": "Voir les tarifs",
     "watchDemo": "Voir la démo",
-    "freeInterviews": "3 entretiens gratuits · Sans carte bancaire"
+    "freeInterviews": "3 simulations gratuites · Sans carte bancaire"
   },
   "stats": {
     "available": "24/7",
@@ -27,13 +27,13 @@
     "usersLabel": "Utilisateurs satisfaits"
   },
   "features": {
-    "title": "Tout ce dont vous avez besoin pour réussir votre entretien",
-    "aiInterviewer": "Intervieweur IA",
-    "aiInterviewerDesc": "Pratiquez avec notre IA avancée qui s'adapte à vos réponses et fournit des scénarios d'entretien réalistes.",
-    "instantFeedback": "Feedback détaillé instantané",
-    "instantFeedbackDesc": "Obtenez une analyse complète de vos réponses incluant les points forts, les axes d'amélioration et des suggestions spécifiques.",
+    "title": "Tout ce dont vous avez besoin pour réussir votre oral",
+    "aiInterviewer": "Jury IA",
+    "aiInterviewerDesc": "Entraînez-vous avec notre IA avancée qui adapte ses questions à votre concours et fournit des scénarios réalistes.",
+    "instantFeedback": "Rapport d'évaluation instantané",
+    "instantFeedbackDesc": "Obtenez une analyse complète de vos réponses sur 4 axes : structure, motivation, connaissance, communication.",
     "customizable": "Entièrement personnalisable",
-    "customizableDesc": "Adaptez les entretiens à votre secteur, rôle, niveau d'expérience et concentrez-vous sur vos points faibles.",
+    "customizableDesc": "Adaptez les simulations à votre concours, catégorie et rubrique du jury.",
     "multiLanguage": "Support multilingue",
     "multiLanguageDesc": "Pratiquez en plus de 10 langues : anglais, espagnol, français, allemand, arabe et plus encore.",
     "progressTracking": "Suivi de progression",
@@ -45,17 +45,17 @@
     "title": "Ce que disent nos utilisateurs"
   },
   "cta": {
-    "title": "Prêt à réussir votre prochain entretien ?",
-    "description": "Rejoignez des milliers de candidats qui ont amélioré leurs compétences d'entretien avec Interview Coach.",
+    "title": "Prêt(e) à réussir votre concours ?",
+    "description": "Rejoignez des centaines de candidats qui ont réussi leur oral grâce à Jurya.",
     "button": "Commencer maintenant"
   },
   "footer": {
-    "tagline": "Plateforme de pratique d'entretien propulsée par IA pour vous aider à décrocher le job de vos rêves avec confiance.",
+    "tagline": "Plateforme de préparation aux oraux de concours propulsée par IA.",
     "product": "Produit",
     "support": "Support",
     "legal": "Légal",
     "privacyPolicy": "Politique de confidentialité",
     "termsOfService": "Conditions d'utilisation",
-    "copyright": "© 2026 Interview Coach. Tous droits réservés. Propulsé par Claude AI."
+    "copyright": "© 2026 Jurya. Tous droits réservés. Propulsé par Claude AI."
   }
 }

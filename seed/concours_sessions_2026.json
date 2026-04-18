@@ -1,0 +1,57 @@
+[
+  {
+    "concours_id": "redacteur-territorial",
+    "year": 2026,
+    "country": "FR",
+    "inscription_open_date": null,
+    "inscription_close_date": null,
+    "épreuves_écrites_date": null,
+    "épreuves_orales_date": null,
+    "résultats_date": null,
+    "_note": "Dates 2026 non encore publiées par les CDG. Consulter https://www.fncdg.com pour les mises à jour. À confirmer."
+  },
+  {
+    "concours_id": "attache-territorial",
+    "year": 2026,
+    "country": "FR",
+    "inscription_open_date": null,
+    "inscription_close_date": null,
+    "épreuves_écrites_date": null,
+    "épreuves_orales_date": null,
+    "résultats_date": null,
+    "_note": "Dates 2026 non encore publiées par les CDG. Consulter https://www.fncdg.com pour les mises à jour. À confirmer."
+  },
+  {
+    "concours_id": "ira-externe",
+    "year": 2026,
+    "country": "FR",
+    "inscription_open_date": null,
+    "inscription_close_date": null,
+    "épreuves_écrites_date": null,
+    "épreuves_orales_date": null,
+    "résultats_date": null,
+    "_note": "Dates 2026 non encore publiées par la DGAFP. Consulter https://www.fonction-publique.gouv.fr pour les mises à jour. À confirmer."
+  },
+  {
+    "concours_id": "crfpa-grand-oral",
+    "year": 2026,
+    "country": "FR",
+    "inscription_open_date": null,
+    "inscription_close_date": null,
+    "épreuves_écrites_date": null,
+    "épreuves_orales_date": null,
+    "résultats_date": null,
+    "_note": "Le CRFPA a lieu chaque année en septembre (écrit) et novembre-décembre (oral). Dates 2026 à confirmer via https://www.cnb.avocat.fr."
+  },
+  {
+    "concours_id": "hec-oral-admission",
+    "year": 2026,
+    "country": "FR",
+    "inscription_open_date": null,
+    "inscription_close_date": null,
+    "épreuves_écrites_date": null,
+    "épreuves_orales_date": null,
+    "résultats_date": null,
+    "_note": "Les oraux HEC ont lieu traditionnellement en juin-juillet. Dates 2026 à confirmer via https://www.hec.fr. À confirmer."
+  }
+]

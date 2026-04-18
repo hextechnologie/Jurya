@@ -1,0 +1,103 @@
+[
+  {
+    "id": "redacteur-territorial",
+    "intitulé": "Rédacteur territorial",
+    "type": "territorial",
+    "grade": "B",
+    "organisme_organisateur": "CNFPT / CDG",
+    "coefficient_oral": 3,
+    "durée_épreuve_minutes": 20,
+    "rubrique_jury": {
+      "exposé_motivation": {
+        "durée_minutes": 5,
+        "description": "Exposé du candidat sur son parcours et sa motivation pour exercer les fonctions de rédacteur territorial."
+      },
+      "entretien_jury": {
+        "durée_minutes": 15,
+        "description": "Questions du jury portant sur les connaissances administratives, la culture territoriale, les missions du cadre d'emplois et la mise en situation professionnelle."
+      }
+    },
+    "country": "FR",
+    "description": "Concours externe et interne de rédacteur territorial. Cadre d'emplois de catégorie B de la filière administrative."
+  },
+  {
+    "id": "attache-territorial",
+    "intitulé": "Attaché territorial",
+    "type": "territorial",
+    "grade": "A",
+    "organisme_organisateur": "CNFPT / CDG",
+    "coefficient_oral": 4,
+    "durée_épreuve_minutes": 25,
+    "rubrique_jury": {
+      "exposé_parcours": {
+        "durée_minutes": 5,
+        "description": "Présentation par le candidat de son parcours, ses compétences et sa motivation."
+      },
+      "entretien_jury": {
+        "durée_minutes": 20,
+        "description": "Échange avec le jury sur les aptitudes du candidat à exercer les missions d'attaché, ses connaissances de l'environnement territorial, le management et la conduite de projets."
+      }
+    },
+    "country": "FR",
+    "description": "Concours externe et interne d'attaché territorial. Cadre d'emplois de catégorie A de la filière administrative."
+  },
+  {
+    "id": "ira-externe",
+    "intitulé": "IRA – Instituts Régionaux d'Administration (concours externe)",
+    "type": "état",
+    "grade": "A",
+    "organisme_organisateur": "DGAFP",
+    "coefficient_oral": 4,
+    "durée_épreuve_minutes": 25,
+    "rubrique_jury": {
+      "mise_en_situation_collective": {
+        "durée_minutes": null,
+        "description": "Épreuve collective de mise en situation : les candidats interagissent en groupe sur un cas pratique."
+      },
+      "entretien_individuel": {
+        "durée_minutes": 25,
+        "description": "Entretien de motivation et de mise en situation avec le jury portant sur le parcours, les compétences, la connaissance de l'administration et les qualités relationnelles."
+      }
+    },
+    "country": "FR",
+    "description": "Concours externe d'accès aux Instituts Régionaux d'Administration. Cinq IRA (Bastia, Lille, Lyon, Metz, Nantes)."
+  },
+  {
+    "id": "crfpa-grand-oral",
+    "intitulé": "CRFPA – Grand oral",
+    "type": "CRFPA",
+    "grade": null,
+    "organisme_organisateur": "CNB / Universités",
+    "coefficient_oral": 3,
+    "durée_épreuve_minutes": 45,
+    "rubrique_jury": {
+      "exposé": {
+        "durée_minutes": 15,
+        "description": "Exposé sur un sujet portant sur les libertés et droits fondamentaux, tiré au sort parmi deux sujets."
+      },
+      "entretien_jury": {
+        "durée_minutes": 30,
+        "description": "Discussion avec le jury sur l'exposé, puis échange sur le parcours, la motivation pour la profession d'avocat et la déontologie."
+      }
+    },
+    "country": "FR",
+    "description": "Examen d'accès au Centre Régional de Formation Professionnelle des Avocats. Le grand oral est l'épreuve orale d'admission."
+  },
+  {
+    "id": "hec-oral-admission",
+    "intitulé": "HEC Paris – Oral d'admission",
+    "type": "grande_école",
+    "grade": null,
+    "organisme_organisateur": "HEC Paris",
+    "coefficient_oral": 8,
+    "durée_épreuve_minutes": 30,
+    "rubrique_jury": {
+      "entretien_personnalité": {
+        "durée_minutes": 30,
+        "description": "Entretien de personnalité avec un jury de trois personnes. Le candidat présente son parcours, ses expériences, sa personnalité et sa motivation. Le jury évalue la maturité, l'ouverture d'esprit, la capacité d'analyse et les qualités humaines."
+      }
+    },
+    "country": "FR",
+    "description": "Oral d'admission au programme Grande École de HEC Paris. L'entretien de personnalité est l'épreuve déterminante de l'admission."
+  }
+]
