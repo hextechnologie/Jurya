@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "login": "Connexion",
+    "getStarted": "Commencer",
+    "dashboard": "Tableau de bord",
+    "pricing": "Tarifs",
+    "faq": "FAQ",
+    "contact": "Contactez-nous"
+  },
+  "hero": {
+    "title": "Maîtrisez votre prochain entretien avec",
+    "titleHighlight": "le Coaching IA",
+    "description": "Pratiquez avec un intervieweur IA réaliste, recevez des retours personnalisés instantanés et préparez-vous avec des simulations d'entretien qui reflètent les vraies méthodes de recrutement.",
+    "startFree": "Commencer gratuitement",
+    "viewPricing": "Voir les tarifs",
+    "watchDemo": "Voir la démo",
+    "freeInterviews": "3 entretiens gratuits · Sans carte bancaire"
+  },
+  "stats": {
+    "available": "24/7",
+    "availableLabel": "Toujours disponible",
+    "languages": "10+",
+    "languagesLabel": "Langues supportées",
+    "aiPowered": "Propulsé par IA",
+    "aiPoweredLabel": "Feedback intelligent",
+    "users": "1000+",
+    "usersLabel": "Utilisateurs satisfaits"
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin pour réussir votre entretien",
+    "aiInterviewer": "Intervieweur IA",
+    "aiInterviewerDesc": "Pratiquez avec notre IA avancée qui s'adapte à vos réponses et fournit des scénarios d'entretien réalistes.",
+    "instantFeedback": "Feedback détaillé instantané",
+    "instantFeedbackDesc": "Obtenez une analyse complète de vos réponses incluant les points forts, les axes d'amélioration et des suggestions spécifiques.",
+    "customizable": "Entièrement personnalisable",
+    "customizableDesc": "Adaptez les entretiens à votre secteur, rôle, niveau d'expérience et concentrez-vous sur vos points faibles.",
+    "multiLanguage": "Support multilingue",
+    "multiLanguageDesc": "Pratiquez en plus de 10 langues : anglais, espagnol, français, allemand, arabe et plus encore.",
+    "progressTracking": "Suivi de progression",
+    "progressTrackingDesc": "Suivez vos progrès au fil du temps avec des analyses détaillées et des métriques de performance.",
+    "unlimited": "Pratique illimitée",
+    "unlimitedDesc": "Pas de limite sur les sessions. Continuez à vous améliorer jusqu'à être 100% confiant."
+  },
+  "testimonials": {
+    "title": "Ce que disent nos utilisateurs"
+  },
+  "cta": {
+    "title": "Prêt à réussir votre prochain entretien ?",
+    "description": "Rejoignez des milliers de candidats qui ont amélioré leurs compétences d'entretien avec Interview Coach.",
+    "button": "Commencer maintenant"
+  },
+  "footer": {
+    "tagline": "Plateforme de pratique d'entretien propulsée par IA pour vous aider à décrocher le job de vos rêves avec confiance.",
+    "product": "Produit",
+    "support": "Support",
+    "legal": "Légal",
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation",
+    "copyright": "© 2026 Interview Coach. Tous droits réservés. Propulsé par Claude AI."
+  }
+}

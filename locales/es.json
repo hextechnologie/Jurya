@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "login": "Iniciar sesión",
+    "getStarted": "Empezar",
+    "dashboard": "Panel de control",
+    "pricing": "Precios",
+    "faq": "Preguntas frecuentes",
+    "contact": "Contáctanos"
+  },
+  "hero": {
+    "title": "Domina tu próxima entrevista con",
+    "titleHighlight": "Coaching IA",
+    "description": "Practica con un entrevistador IA realista, recibe retroalimentación personalizada al instante y prepárate con simulaciones de entrevista que reflejan cómo realmente contratan las empresas.",
+    "startFree": "Comienza gratis",
+    "viewPricing": "Ver precios",
+    "watchDemo": "Ver demostración",
+    "freeInterviews": "3 entrevistas gratis · Sin tarjeta necesaria"
+  },
+  "stats": {
+    "available": "24/7",
+    "availableLabel": "Siempre disponible",
+    "languages": "10+",
+    "languagesLabel": "Idiomas soportados",
+    "aiPowered": "Impulsado por IA",
+    "aiPoweredLabel": "Feedback inteligente",
+    "users": "1000+",
+    "usersLabel": "Usuarios satisfechos"
+  },
+  "features": {
+    "title": "Todo lo que necesitas para triunfar en tu entrevista",
+    "aiInterviewer": "Entrevistador IA",
+    "aiInterviewerDesc": "Practica con nuestra IA avanzada que se adapta a tus respuestas y proporciona escenarios de entrevista realistas.",
+    "instantFeedback": "Retroalimentación detallada instantánea",
+    "instantFeedbackDesc": "Obtén un análisis completo de tus respuestas incluyendo fortalezas, áreas de mejora y sugerencias específicas.",
+    "customizable": "Totalmente personalizable",
+    "customizableDesc": "Adapta las entrevistas a tu industria, rol, nivel de experiencia y enfócate en tus áreas débiles.",
+    "multiLanguage": "Soporte multiidioma",
+    "multiLanguageDesc": "Practica en más de 10 idiomas: inglés, español, francés, alemán, árabe y más.",
+    "progressTracking": "Seguimiento de progreso",
+    "progressTrackingDesc": "Monitorea tu mejora con el tiempo con análisis detallados y métricas de rendimiento.",
+    "unlimited": "Práctica ilimitada",
+    "unlimitedDesc": "Sin límites en las sesiones de práctica. Sigue mejorando hasta sentirte 100% seguro."
+  },
+  "testimonials": {
+    "title": "Lo que dicen nuestros usuarios"
+  },
+  "cta": {
+    "title": "¿Listo para triunfar en tu próxima entrevista?",
+    "description": "Únete a miles de candidatos que han mejorado sus habilidades de entrevista con Interview Coach.",
+    "button": "Comienza ahora"
+  },
+  "footer": {
+    "tagline": "Plataforma de práctica de entrevistas impulsada por IA para ayudarte a conseguir el trabajo de tus sueños con confianza.",
+    "product": "Producto",
+    "support": "Soporte",
+    "legal": "Legal",
+    "privacyPolicy": "Política de privacidad",
+    "termsOfService": "Términos de servicio",
+    "copyright": "© 2026 Interview Coach. Todos los derechos reservados. Impulsado por Claude AI."
+  }
+}

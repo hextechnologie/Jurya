@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "login": "Login",
+    "getStarted": "Get Started",
+    "dashboard": "Go to Dashboard",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "contact": "Contact Us"
+  },
+  "hero": {
+    "title": "Practice real interviews with",
+    "titleHighlight": "AI tailored to your job",
+    "description": "Upload your resume, paste the job description, and rehearse with a personal AI interview coach that adapts to your role, experience, and target company.",
+    "startFree": "Start Practicing Free",
+    "viewPricing": "View Pricing",
+    "watchDemo": "Watch Demo",
+    "freeInterviews": "Get 3 Free Mock Interviews · No Card Needed"
+  },
+  "stats": {
+    "available": "24/7",
+    "availableLabel": "Always Available",
+    "languages": "10+",
+    "languagesLabel": "Languages Supported",
+    "aiPowered": "AI Powered",
+    "aiPoweredLabel": "Smart Feedback",
+    "users": "1000+",
+    "usersLabel": "Happy Users"
+  },
+  "features": {
+    "title": "Everything You Need to Ace Your Interview",
+    "aiInterviewer": "AI-Powered Interviewer",
+    "aiInterviewerDesc": "Practice with our advanced AI that adapts to your responses and provides realistic interview scenarios.",
+    "instantFeedback": "Instant Detailed Feedback",
+    "instantFeedbackDesc": "Get comprehensive analysis on your answers including strengths, areas for improvement, and specific suggestions.",
+    "customizable": "Fully Customizable",
+    "customizableDesc": "Tailor interviews to your industry, role, experience level, and focus on your weak areas.",
+    "multiLanguage": "Multi-Language Support",
+    "multiLanguageDesc": "Practice interviews in over 10 languages including English, Spanish, French, German, Arabic, and more.",
+    "progressTracking": "Progress Tracking",
+    "progressTrackingDesc": "Monitor your improvement over time with detailed analytics and performance metrics.",
+    "unlimited": "Unlimited Practice",
+    "unlimitedDesc": "No limits on practice sessions. Keep improving until you feel 100% confident."
+  },
+  "testimonials": {
+    "title": "What Our Users Say"
+  },
+  "cta": {
+    "title": "Ready to Ace Your Next Interview?",
+    "description": "Join thousands of job seekers who have improved their interview skills with Interview Coach.",
+    "button": "Start Practicing Now"
+  },
+  "footer": {
+    "tagline": "AI-powered interview practice platform to help you land your dream job with confidence.",
+    "product": "Product",
+    "support": "Support",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "copyright": "© 2026 Interview Coach. All rights reserved. Powered by Claude AI."
+  }
+}
