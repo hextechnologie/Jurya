@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { Badge, Button, Card, LoadingSpinner } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { supabase } from '@/lib/supabase'
 
 type CoachDetail = {
@@ -119,7 +120,9 @@ export default function CoachDetailPage() {
     : null
 
   return (
-    <div className="min-h-screen bg-background px-6 py-8">
+    <div className="min-h-screen bg-background">
+      <CandidateNavbar />
+      <div className="px-6 py-8">
       <div className="mx-auto max-w-6xl space-y-6">
 
         <Link href="/coaches" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
@@ -265,6 +268,7 @@ export default function CoachDetailPage() {
         <Link href={`/book/${coach.id}`}>
           <Button variant="primary" fullWidth className="shadow-lg">Réserver une session</Button>
         </Link>
+      </div>
       </div>
     </div>
   )

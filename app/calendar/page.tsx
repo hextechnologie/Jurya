@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import { LoadingSpinner, Badge } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { Calendar, ChevronLeft, ChevronRight, Bell, BellOff, Filter } from 'lucide-react'
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, getDay,
@@ -200,6 +201,7 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <CandidateNavbar />
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react'
 import { supabase, getFirstName } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar,
 } from 'recharts'
-import { Calendar, Mic, BookOpen, TrendingUp, Clock, Target, Award, ChevronRight } from 'lucide-react'
+import { Calendar, Mic, BookOpen, TrendingUp, Clock, Target, Award, ChevronRight, CreditCard, User, CalendarCheck, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { LoadingSpinner, Badge } from '@/components/ui'
@@ -244,6 +245,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <CandidateNavbar />
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
 
         {/* ── Welcome Banner ── */}
@@ -253,15 +255,24 @@ export default function DashboardPage() {
               <h1 className="text-3xl font-bold">Bonjour {firstName} 👋</h1>
               <p className="text-gray-400 mt-2 italic">&ldquo;{quote}&rdquo;</p>
             </div>
-            {daysUntilConcours !== null && daysUntilConcours > 0 && (
-              <div className="flex items-center gap-3 bg-white/5 rounded-xl px-6 py-4 border border-white/10">
-                <Target className="w-8 h-8 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold text-primary">{daysUntilConcours}</p>
-                  <p className="text-xs text-gray-400">jours avant le concours</p>
+            <div className="flex items-center gap-3">
+              {daysUntilConcours !== null && daysUntilConcours > 0 && (
+                <div className="flex items-center gap-3 bg-white/5 rounded-xl px-6 py-4 border border-white/10">
+                  <Target className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-2xl font-bold text-primary">{daysUntilConcours}</p>
+                    <p className="text-xs text-gray-400">jours avant le concours</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+              <Link
+                href="/simulation/setup"
+                className="hidden md:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white rounded-xl px-6 py-4 font-semibold transition-colors"
+              >
+                <Mic className="w-5 h-5" />
+                Lancer une simulation
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -388,11 +399,27 @@ export default function DashboardPage() {
 
         {/* ── Recent Simulations ── */}
         <section className="glass rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Mic className="w-5 h-5 text-primary" /> Simulations récentes
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Mic className="w-5 h-5 text-primary" /> Simulations récentes
+            </h2>
+            {completedSims.length > 5 && (
+              <Link href="/simulation/setup" className="text-primary text-sm hover:underline flex items-center gap-1">
+                Voir tout <ChevronRight className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
           {completedSims.length === 0 ? (
-            <p className="text-gray-500">Aucune simulation terminée pour le moment.</p>
+            <div className="text-center py-8">
+              <Mic className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+              <p className="text-gray-400 mb-4">Aucune simulation terminée pour le moment.</p>
+              <Link
+                href="/simulation/setup"
+                className="inline-flex items-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
+              >
+                Lancer ma première simulation <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -433,11 +460,14 @@ export default function DashboardPage() {
         </section>
 
         {/* ── Quick Actions ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { href: '/simulation/setup', icon: Mic, title: 'Nouvelle simulation', desc: 'Entraînez-vous dans les conditions du concours', gradient: 'from-purple-600/20 to-blue-600/20' },
             { href: '/calendar', icon: Calendar, title: 'Voir le calendrier', desc: 'Dates et échéances des concours', gradient: 'from-blue-600/20 to-cyan-600/20' },
             { href: '/coaches', icon: BookOpen, title: 'Contacter un coach', desc: "Bénéficiez de l'expertise d'un ancien jury", gradient: 'from-emerald-600/20 to-teal-600/20' },
+            { href: '/profile', icon: User, title: 'Modifier mon profil', desc: 'Mettez à jour vos informations personnelles', gradient: 'from-amber-600/20 to-orange-600/20' },
+            { href: '/credits', icon: CreditCard, title: 'Mes crédits', desc: 'Gérez votre solde et achetez des crédits', gradient: 'from-pink-600/20 to-rose-600/20' },
+            { href: '/bookings', icon: CalendarCheck, title: 'Mes réservations', desc: 'Consultez vos séances planifiées', gradient: 'from-indigo-600/20 to-violet-600/20' },
           ].map((action, i) => (
             <Link key={i} href={action.href} className={`glass rounded-xl p-6 bg-gradient-to-br ${action.gradient} hover:scale-[1.02] transition-transform group`}>
               <action.icon className="w-8 h-8 text-primary mb-3" />

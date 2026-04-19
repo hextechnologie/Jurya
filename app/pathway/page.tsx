@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import { LoadingSpinner, Badge } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { Target, CheckCircle, Circle, ChevronDown, ChevronRight, BookOpen, Mic, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { differenceInDays, format } from 'date-fns'
@@ -198,6 +199,7 @@ export default function PathwayPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <CandidateNavbar />
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
 
         {/* Header */}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, MapPin, X } from 'lucide-react'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { Badge, Button, Card } from '@/components/ui'
 import { CancellationModal } from '@/components/CancellationModal'
 import { supabase } from '@/lib/supabase'
@@ -106,8 +107,9 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-white px-6 py-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen bg-background text-white">
+      <CandidateNavbar />
+      <div className="mx-auto max-w-5xl px-6 py-8">
         <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6">
           <ArrowLeft className="h-4 w-4" /> Retour au tableau de bord
         </Link>

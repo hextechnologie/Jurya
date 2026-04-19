@@ -8,6 +8,7 @@ import { ArrowLeft, Check, CreditCard, DollarSign, Loader2, TrendingUp, Sparkles
 import { Button, Card, LoadingSpinner } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
 import { getCreditPackages, getUserCredits, getCreditTransactions, getCreditBalanceColor } from '@/lib/credits'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import type { CreditPackage, CreditTransaction, UserCredits } from '@/lib/types/credits'
 
 export default function CreditsPage() {
@@ -157,6 +158,7 @@ export default function CreditsPage() {
 
   return (
     <div className="min-h-screen bg-background text-white">
+      <CandidateNavbar />
       {/* Header */}
       <header className="border-b border-white/10 bg-card/50 backdrop-blur">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">

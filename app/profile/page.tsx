@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { Button, Input, LoadingSpinner } from '@/components/ui'
-import { ArrowLeft, Save, CheckCircle, User, Bell, BookOpen, Trophy, GraduationCap } from 'lucide-react'
+import { ArrowLeft, Save, CheckCircle, User, Bell, BookOpen, Trophy, GraduationCap, Mail, Lock, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 /* ---------- types ---------- */
@@ -50,6 +51,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -127,6 +129,21 @@ export default function ProfilePage() {
 
   async function handleSave() {
     if (!user) return
+
+    // Validate required fields
+    const errors: Record<string, string> = {}
+    if (!firstName.trim()) errors.firstName = 'Le prénom est requis'
+    if (!lastName.trim()) errors.lastName = 'Le nom est requis'
+    if (firstName.trim().length > 0 && firstName.trim().length < 2) errors.firstName = 'Le prénom doit contenir au moins 2 caractères'
+    if (lastName.trim().length > 0 && lastName.trim().length < 2) errors.lastName = 'Le nom doit contenir au moins 2 caractères'
+    if (selectedConcours.length === 0) errors.concours = 'Sélectionnez au moins un concours'
+
+    setFieldErrors(errors)
+    if (Object.keys(errors).length > 0) {
+      setError('Veuillez corriger les erreurs ci-dessous')
+      return
+    }
+
     setSaving(true)
     setError('')
     setSaved(false)
@@ -219,6 +236,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <CandidateNavbar />
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
         {/* header */}
         <div className="flex items-center gap-4">
@@ -233,9 +251,38 @@ export default function ProfilePage() {
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl font-bold shrink-0">
             {initials}
           </div>
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-            <Input label="Prénom" value={firstName} onChange={setFirstName} placeholder="Votre prénom" />
-            <Input label="Nom" value={lastName} onChange={setLastName} placeholder="Votre nom" />
+          <div className="flex-1 space-y-4 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Input label="Prénom" value={firstName} onChange={setFirstName} placeholder="Votre prénom" />
+                {fieldErrors.firstName && (
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {fieldErrors.firstName}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Input label="Nom" value={lastName} onChange={setLastName} placeholder="Votre nom" />
+                {fieldErrors.lastName && (
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {fieldErrors.lastName}
+                  </p>
+                )}
+              </div>
+            </div>
+            {/* Email (read-only) */}
+            <div className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3 border border-white/10">
+              <Mail className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-300">{user?.email}</span>
+              <span className="ml-auto text-xs text-gray-500">Non modifiable</span>
+            </div>
+            {/* Password change link */}
+            <Link
+              href="/reset-password"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+            >
+              <Lock className="w-4 h-4" /> Modifier mon mot de passe
+            </Link>
           </div>
         </section>
 
@@ -264,6 +311,11 @@ export default function ProfilePage() {
               <p className="text-gray-500 text-sm">Aucun concours disponible.</p>
             )}
           </div>
+          {fieldErrors.concours && (
+            <p className="text-red-400 text-xs flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" /> {fieldErrors.concours}
+            </p>
+          )}
         </section>
 
         {/* ── 3. Session préparée ── */}

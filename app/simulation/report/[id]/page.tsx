@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import { useRouter, useParams } from 'next/navigation'
@@ -172,6 +173,7 @@ export default function SimulationReportPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <CandidateNavbar />
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-radial from-primary/15 via-background to-background" />
 

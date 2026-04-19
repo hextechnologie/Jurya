@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { supabase } from '@/lib/supabase'
 import {
   ArrowUpDown,
@@ -223,6 +224,7 @@ export default function CoachesPage() {
   /* -- render ---------------------------------------------- */
   return (
     <div className="min-h-screen bg-[#0a0a12] text-white">
+      <CandidateNavbar />
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-transparent to-blue-600/10" />

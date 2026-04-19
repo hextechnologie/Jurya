@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button, Card } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { Star } from 'lucide-react'
 
 export default function ReviewPage() {
@@ -34,7 +35,9 @@ export default function ReviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-6 py-10">
+    <div className="min-h-screen bg-background">
+      <CandidateNavbar />
+      <div className="px-6 py-10">
       <div className="mx-auto max-w-2xl">
         <Card>
           <h1 className="mb-2 text-3xl font-bold">Évaluez votre session</h1>
@@ -78,6 +81,7 @@ export default function ReviewPage() {
             </div>
           )}
         </Card>
+      </div>
       </div>
     </div>
   )

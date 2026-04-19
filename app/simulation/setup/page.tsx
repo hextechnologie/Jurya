@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -199,6 +200,7 @@ export default function SimulationSetupPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <CandidateNavbar />
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-radial from-primary/20 via-background to-background" />
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-secondary/10 blur-3xl rounded-full" />

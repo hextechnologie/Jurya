@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, CheckCircle2, CreditCard, Loader2, AlertCircle } from 'lucide-react'
 import { Badge, Button, Card } from '@/components/ui'
+import CandidateNavbar from '@/components/CandidateNavbar'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import { calculateSessionCreditsCost, getUserCredits } from '@/lib/credits'
@@ -180,8 +181,9 @@ export default function BookingPage() {
   const initials = coach.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
   return (
-    <div className="min-h-screen bg-background text-white px-6 py-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen bg-background text-white">
+      <CandidateNavbar />
+      <div className="mx-auto max-w-5xl px-6 py-8">
         <Link href="/coaches" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6">
           <ArrowLeft className="h-4 w-4" /> Retour aux membres de jury
         </Link>
