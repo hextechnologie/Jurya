@@ -51,7 +51,7 @@ export default function CandidateNavbar() {
     if (!user) return
     fetchCounts()
     const channel = supabase
-      .channel(`candidate-notif-${user.id}`)
+      .channel(`candidate-notif-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => fetchCounts())
       .subscribe()
     return () => { supabase.removeChannel(channel) }
@@ -199,7 +199,6 @@ export default function CandidateNavbar() {
 
           {/* Mobile hamburger */}
           <div className="md:hidden flex items-center gap-2">
-            <CreditBalanceButton />
             <button
               onClick={() => setMenuOpen((v) => !v)}
               className="p-2 rounded-lg border border-white/10 bg-white/5 text-gray-300"

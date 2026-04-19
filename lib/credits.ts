@@ -189,8 +189,10 @@ export function subscribeToCreditsUpdates(
   userId: string,
   callback: (credits: UserCredits) => void
 ) {
+  // Use a unique suffix to avoid channel name collision when multiple
+  // components subscribe for the same user (e.g. desktop + mobile renders)
   const channel = supabase
-    .channel(`credits:${userId}`)
+    .channel(`credits:${userId}:${Math.random().toString(36).slice(2)}`)
     .on(
       'postgres_changes',
       {
