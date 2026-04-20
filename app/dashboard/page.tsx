@@ -11,7 +11,7 @@ import {
 import { Calendar, Mic, BookOpen, TrendingUp, Clock, Target, Award, ChevronRight, CreditCard, User, CalendarCheck, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LoadingSpinner, Badge } from '@/components/ui'
+import { LoadingSpinner } from '@/components/ui'
 import { format, differenceInDays } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
@@ -20,17 +20,22 @@ type Simulation = {
   id: string
   created_at: string
   completed_at: string | null
-  overall_score: number | null
   actual_duration_seconds: number | null
   status: string
   concours: { intitulé: string } | null
 }
 
+type ReportData = {
+  axisScores?: Record<string, number>
+  overallLevel?: string
+  synthesePhrase?: string
+  impressionGlobale?: string
+  tags?: string[]
+}
+
 type SimReport = {
   simulation_id: string
-  overall_score: number
-  overall_verdict: string | null
-  axis_scores: Record<string, number>
+  report_data: ReportData | null
 }
 
 type Goal = {
@@ -138,7 +143,7 @@ export default function DashboardPage() {
       const ids = sims.map(s => s.id)
       const { data: reps } = await supabase
         .from('simulation_reports')
-        .select('simulation_id, overall_score, overall_verdict, axis_scores')
+        .select('simulation_id, report_data')
         .in('simulation_id', ids)
       setReports((reps ?? []) as SimReport[])
     }
@@ -165,9 +170,13 @@ export default function DashboardPage() {
 
   const reportMap = new Map(reports.map(r => [r.simulation_id, r]))
 
-  // avg score
-  const scores = reports.map(r => r.overall_score).filter(Boolean)
-  const avgScore = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length) : 0
+  // avg axis score (1-5 scale)
+  const axisAvgs: number[] = []
+  for (const rep of reports) {
+    const scores = Object.values(rep.report_data?.axisScores ?? {})
+    if (scores.length > 0) axisAvgs.push(scores.reduce((a, b) => a + b, 0) / scores.length)
+  }
+  const avgAxisScore = axisAvgs.length ? (axisAvgs.reduce((a, b) => a + b, 0) / axisAvgs.length) : 0
 
   // total training time (hours)
   const totalSeconds = completedSims.reduce((acc, s) => acc + (s.actual_duration_seconds ?? 0), 0)
@@ -181,21 +190,27 @@ export default function DashboardPage() {
     ? differenceInDays(new Date(nextGoal.target_date), new Date())
     : null
 
-  // chart data (last 10 completed with reports)
+  // chart data (last 10 completed with reports) — axis avg on 1-5 scale
   const chartData = completedSims
     .filter(s => reportMap.has(s.id))
     .slice(0, 10)
     .reverse()
-    .map(s => ({
-      date: format(new Date(s.completed_at || s.created_at), 'dd/MM', { locale: fr }),
-      score: reportMap.get(s.id)!.overall_score,
-    }))
+    .map(s => {
+      const rd = reportMap.get(s.id)!.report_data
+      const scores = Object.values(rd?.axisScores ?? {})
+      const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
+      return {
+        date: format(new Date(s.completed_at || s.created_at), 'dd/MM', { locale: fr }),
+        score: Math.round(avg * 10) / 10,
+      }
+    })
 
-  // radar data (average per axis)
+  // radar data (avg per axis across all sessions)
   const axisTotals: Record<string, { sum: number; count: number }> = {}
   for (const r of reports) {
-    if (r.axis_scores && typeof r.axis_scores === 'object') {
-      for (const [axis, val] of Object.entries(r.axis_scores)) {
+    const ax = r.report_data?.axisScores
+    if (ax && typeof ax === 'object') {
+      for (const [axis, val] of Object.entries(ax)) {
         if (typeof val === 'number') {
           if (!axisTotals[axis]) axisTotals[axis] = { sum: 0, count: 0 }
           axisTotals[axis].sum += val
@@ -209,12 +224,15 @@ export default function DashboardPage() {
     motivation: 'Motivation',
     connaissances: 'Connaissances',
     communication: 'Communication',
+    stress: 'Gestion du stress',
+    argumentation: 'Argumentation',
   }
   const radarData = Object.entries(axisLabels).map(([key, label]) => ({
     axis: label,
     score: axisTotals[key]
       ? Math.round((axisTotals[key].sum / axisTotals[key].count) * 10) / 10
       : 0,
+    threshold: 3,
   }))
 
   // prep progress
@@ -224,16 +242,6 @@ export default function DashboardPage() {
   const currentWeek = plan
     ? Math.max(1, Math.min(plan.total_weeks, Math.ceil(differenceInDays(new Date(), new Date(plan.start_date)) / 7) + 1))
     : null
-
-  // verdict badge helper
-  function verdictBadge(v: string | null | undefined) {
-    if (!v) return null
-    const map: Record<string, 'success' | 'warning' | 'danger' | 'default'> = {
-      excellent: 'success', 'très_bien': 'success', bien: 'success',
-      moyen: 'warning', insuffisant: 'danger', 'très_insuffisant': 'danger',
-    }
-    return <Badge variant={map[v] ?? 'default'}>{v.replace(/_/g, ' ')}</Badge>
-  }
 
   if (authLoading || loading) {
     return (
@@ -334,7 +342,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { icon: Mic, label: 'Simulations effectuées', value: totalSims, color: 'text-purple-400' },
-            { icon: TrendingUp, label: 'Score moyen', value: avgScore ? `${avgScore.toFixed(1)}/20` : '—', color: 'text-blue-400' },
+            { icon: TrendingUp, label: 'Niveau moyen (1-5)', value: avgAxisScore ? `${avgAxisScore.toFixed(1)}/5` : '—', color: 'text-blue-400' },
             { icon: Clock, label: "Temps d'entraînement", value: `${totalHours}h`, color: 'text-emerald-400' },
             { icon: Calendar, label: 'Jours avant concours', value: daysUntilConcours ?? '—', color: 'text-amber-400' },
           ].map((s, i) => (
@@ -427,27 +435,47 @@ export default function DashboardPage() {
                   <tr className="text-gray-400 border-b border-white/10">
                     <th className="text-left py-3 px-2">Date</th>
                     <th className="text-left py-3 px-2">Concours</th>
-                    <th className="text-center py-3 px-2">Score</th>
-                    <th className="text-center py-3 px-2">Verdict</th>
+                    <th className="text-center py-3 px-2">Niveau</th>
+                    <th className="text-left py-3 px-2 hidden md:table-cell">Impression</th>
                     <th className="text-right py-3 px-2" />
                   </tr>
                 </thead>
                 <tbody>
                   {completedSims.slice(0, 5).map(sim => {
-                    const rep = reportMap.get(sim.id)
+                    const rep = reportMap.get(sim.id)?.report_data
+                    const level = rep?.overallLevel
+                    const levelColor: Record<string, string> = {
+                      excellent: 'text-emerald-400', solide: 'text-emerald-400',
+                      correct: 'text-amber-400', 'à travailler': 'text-amber-400',
+                      lacunaire: 'text-red-400',
+                    }
                     return (
                       <tr key={sim.id} className="border-b border-white/5 hover:bg-white/5 transition">
-                        <td className="py-3 px-2">
-                          {format(new Date(sim.completed_at || sim.created_at), 'dd MMM yyyy', { locale: fr })}
+                        <td className="py-3 px-2 whitespace-nowrap">
+                          {format(new Date(sim.completed_at || sim.created_at), 'dd MMM', { locale: fr })}
                         </td>
-                        <td className="py-3 px-2">{sim.concours?.intitulé ?? '—'}</td>
-                        <td className="py-3 px-2 text-center font-semibold">
-                          {rep ? `${rep.overall_score}/20` : '—'}
+                        <td className="py-3 px-2 text-sm">{sim.concours?.intitulé ?? '—'}</td>
+                        <td className="py-3 px-2 text-center">
+                          {level ? (
+                            <span className={`text-xs font-medium capitalize ${levelColor[level] ?? 'text-gray-400'}`}>
+                              {level}
+                            </span>
+                          ) : '—'}
                         </td>
-                        <td className="py-3 px-2 text-center">{verdictBadge(rep?.overall_verdict)}</td>
+                        <td className="py-3 px-2 hidden md:table-cell">
+                          <p className="text-xs text-gray-500 truncate max-w-[240px]">
+                            {rep?.synthesePhrase ?? rep?.impressionGlobale?.slice(0, 80) ?? '—'}
+                          </p>
+                        </td>
                         <td className="py-3 px-2 text-right">
-                          <Link href={`/review/${sim.id}`} className="text-primary hover:underline text-xs">
-                            Détails
+                          <Link href={`/simulation/rapport/${sim.id}`} className="text-primary hover:underline text-xs">
+                            Voir le rapport
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
                           </Link>
                         </td>
                       </tr>

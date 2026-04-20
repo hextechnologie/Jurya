@@ -11,6 +11,7 @@ import {
   Shield, Volume2, AlertTriangle, ArrowRight,
 } from 'lucide-react'
 import Link from 'next/link'
+import { getRandomJury } from '@/lib/juries/voices'
 
 interface Concours {
   id: string
@@ -164,6 +165,7 @@ export default function SimulationSetupPage() {
         ?? user?.email?.split('@')[0]
         ?? ''
       ) as string,
+      juryMembers: getRandomJury(),
     }
 
     // Try to persist in DB; fall back to sessionStorage

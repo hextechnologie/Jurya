@@ -214,6 +214,7 @@ export function useJuryVoice() {
     voiceId?: string,
     fallbackPitch = 0.9,
     fallbackRate = 0.92,
+    voiceSettings?: { stability: number; similarity_boost: number; style: number; use_speaker_boost: boolean },
   ) => {
     // Stop any currently playing audio
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
@@ -229,7 +230,7 @@ export function useJuryVoice() {
         const res = await fetch('/api/simulation/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: clean, voiceId }),
+          body: JSON.stringify({ text: clean, voiceId, voiceSettings }),
         })
         if (res.ok) {
           const blob = await res.blob()

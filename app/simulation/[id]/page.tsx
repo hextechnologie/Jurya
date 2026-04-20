@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useSpeechRecognition, useJuryVoice, useSimulationTimer, useAudioLevel } from '@/lib/hooks/useVoice'
 import { SimulationPhase, SimulationTurn, getPhaseLabel, countFillerWords } from '@/lib/types/simulation'
-import { DEFAULT_JURY, getJuryMember, type SpeakerId, type JuryMemberConfig } from '@/lib/juries/voices'
+import { DEFAULT_JURY, getJuryMember, getRandomJury, type SpeakerId, type JuryMemberConfig } from '@/lib/juries/voices'
 import { LogOut, Clock, Loader2, CheckCircle2, Send, Mic, MicOff, PenLine } from 'lucide-react'
 
 /* ─── Types ─── */
@@ -19,6 +19,7 @@ interface SimConfig {
   sujet: string | null
   userId: string | null
   candidateName?: string
+  juryMembers?: JuryMemberConfig[]
 }
 
 /* ─── Helpers ─── */
@@ -290,8 +291,9 @@ export default function SimulationSessionPage() {
 
     const epreuveType = config.epreuveType ?? 'exposé_questions'
     if (epreuveType === 'exposé_questions') {
+      const presidentName = (config.juryMembers ?? DEFAULT_JURY).find(m => m.id === 'president')?.name ?? 'Mme Laurent'
       speakAsJury(
-        `Bienvenue. Je suis Mme Laurent, présidente de ce jury. Vous présentez votre candidature pour le concours "${config.concoursIntitulé}". Vous avez quelques minutes pour votre exposé libre. Je vous en prie.`,
+        `Bienvenue. Je suis ${presidentName}, présidente de ce jury. Vous présentez votre candidature pour le concours "${config.concoursIntitulé}". Vous avez quelques minutes pour votre exposé libre. Je vous en prie.`,
         'president'
       )
     } else {
@@ -355,7 +357,8 @@ export default function SimulationSessionPage() {
   }
 
   const speakAsJury = useCallback(async (text: string, speakerId: SpeakerId) => {
-    const member = getJuryMember(speakerId)
+    const jury = configRef.current?.juryMembers ?? DEFAULT_JURY
+    const member = getJuryMember(speakerId, jury)
     setCurrentSpeakerId(speakerId)
     setJuryMessage(text)
     const juryTurn: SimulationTurn = {
@@ -367,7 +370,7 @@ export default function SimulationSessionPage() {
     }
     setTurns(prev => [...prev, juryTurn])
     turnIndexRef.current += 1
-    await juryVoice.speak(text, member.elevenlabsVoiceId, member.fallbackPitch, member.fallbackRate)
+    await juryVoice.speak(text, member.elevenlabsVoiceId, member.fallbackPitch, member.fallbackRate, member.voiceSettings)
   }, [juryVoice])
 
   const fetchJuryQuestion = useCallback(async (targetPhase: SimulationPhase) => {
@@ -393,6 +396,9 @@ export default function SimulationSessionPage() {
           candidateName: cfg.candidateName ?? '',
           lastSpeaker: currentSpeakerId,
           sujet: cfg.sujet,
+          juryMembers: (cfg.juryMembers ?? DEFAULT_JURY).map(m => ({
+            id: m.id, name: m.name, roleLabel: m.roleLabel, gender: m.gender,
+          })),
         }),
       })
       if (!res.ok) throw new Error('API error')
@@ -538,6 +544,7 @@ export default function SimulationSessionPage() {
   const concoursSlug = getConcoursSlug(config.concoursId)
   const candidateName = config.candidateName ?? 'Candidat(e)'
   const hasInput = !!(speech.transcript.trim() || textInput.trim())
+  const juryConfig = config.juryMembers ?? DEFAULT_JURY
 
   return (
     <div className="h-screen bg-[#0F1629] flex flex-col overflow-hidden select-none text-white">
@@ -599,7 +606,7 @@ export default function SimulationSessionPage() {
 
         {/* Jury tiles grid */}
         <div className="grid grid-cols-3 gap-3 max-w-3xl mx-auto w-full">
-          {DEFAULT_JURY.map((member) => (
+          {juryConfig.map((member) => (
             <JuryTile
               key={member.id}
               member={member}
@@ -627,7 +634,7 @@ export default function SimulationSessionPage() {
             ) : juryMessage ? (
               <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3">
                 <p className="text-xs text-[#818CF8] font-medium mb-1">
-                  {getJuryMember(currentSpeakerId).name} · {getJuryMember(currentSpeakerId).roleLabel}
+                  {getJuryMember(currentSpeakerId, juryConfig).name} · {getJuryMember(currentSpeakerId, juryConfig).roleLabel}
                 </p>
                 <p className="text-sm text-gray-200 leading-relaxed">{juryMessage}</p>
               </div>
