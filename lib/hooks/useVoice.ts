@@ -191,22 +191,24 @@ export function useJuryVoice() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const blobUrlRef = useRef<string | null>(null)
 
-  const speakFallback = useCallback((clean: string, pitch = 0.9, rate = 0.92) => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(clean)
-    utterance.lang = 'fr-FR'
-    utterance.rate = rate
-    utterance.pitch = pitch
-    // Pick best available French voice
-    const voices = window.speechSynthesis.getVoices()
-    const frVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google'))
-      ?? voices.find(v => v.lang.startsWith('fr'))
-    if (frVoice) utterance.voice = frVoice
-    utterance.onstart = () => setIsSpeaking(true)
-    utterance.onend = () => setIsSpeaking(false)
-    utterance.onerror = () => setIsSpeaking(false)
-    window.speechSynthesis.speak(utterance)
+  const speakFallback = useCallback((clean: string, pitch = 0.9, rate = 0.92): Promise<void> => {
+    return new Promise<void>((resolve) => {
+      if (typeof window === 'undefined' || !window.speechSynthesis) { resolve(); return }
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(clean)
+      utterance.lang = 'fr-FR'
+      utterance.rate = rate
+      utterance.pitch = pitch
+      // Pick best available French voice
+      const voices = window.speechSynthesis.getVoices()
+      const frVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google'))
+        ?? voices.find(v => v.lang.startsWith('fr'))
+      if (frVoice) utterance.voice = frVoice
+      utterance.onstart = () => setIsSpeaking(true)
+      utterance.onend = () => { setIsSpeaking(false); resolve() }
+      utterance.onerror = () => { setIsSpeaking(false); resolve() }
+      window.speechSynthesis.speak(utterance)
+    })
   }, [])
 
   const speak = useCallback(async (
@@ -215,7 +217,7 @@ export function useJuryVoice() {
     fallbackPitch = 0.9,
     fallbackRate = 0.92,
     voiceSettings?: { stability: number; similarity_boost: number; style: number; use_speaker_boost: boolean },
-  ) => {
+  ): Promise<void> => {
     // Stop any currently playing audio
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
     if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null }
@@ -239,21 +241,27 @@ export function useJuryVoice() {
           const audio = new Audio(url)
           audioRef.current = audio
           setIsSpeaking(true)
-          audio.play().catch(() => speakFallback(clean, fallbackPitch, fallbackRate))
-          audio.onended = () => {
-            setIsSpeaking(false)
-            if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null }
-          }
-          audio.onerror = () => {
-            setIsSpeaking(false)
-            speakFallback(clean, fallbackPitch, fallbackRate)
-          }
-          return
+          return new Promise<void>((resolve) => {
+            const cleanup = () => {
+              setIsSpeaking(false)
+              if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null }
+              audioRef.current = null
+            }
+            audio.onended = () => { cleanup(); resolve() }
+            audio.onerror = () => {
+              cleanup()
+              speakFallback(clean, fallbackPitch, fallbackRate).then(resolve)
+            }
+            audio.play().catch(() => {
+              cleanup()
+              speakFallback(clean, fallbackPitch, fallbackRate).then(resolve)
+            })
+          })
         }
       } catch { /* fall through to Web Speech API */ }
     }
 
-    speakFallback(clean, fallbackPitch, fallbackRate)
+    return speakFallback(clean, fallbackPitch, fallbackRate)
   }, [speakFallback])
 
   const stop = useCallback(() => {

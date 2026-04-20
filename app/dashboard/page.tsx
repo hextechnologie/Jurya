@@ -1,28 +1,36 @@
 ﻿'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { supabase, getFirstName } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import CandidateNavbar from '@/components/CandidateNavbar'
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar,
-} from 'recharts'
-import { Calendar, Mic, BookOpen, TrendingUp, Clock, Target, Award, ChevronRight, CreditCard, User, CalendarCheck, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LoadingSpinner } from '@/components/ui'
-import { format, differenceInDays } from 'date-fns'
+import {
+  RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+} from 'recharts'
+import {
+  Mic, TrendingUp, ChevronRight, Clock, Target,
+  CheckCircle2, Circle, Calendar, BookOpen, Zap, AlertTriangle,
+  RotateCcw, ArrowRight, Users,
+} from 'lucide-react'
+import { format, differenceInDays, formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-/* ---------- types ---------- */
+/* ── Types ── */
+type SimulationConfig = {
+  concoursIntitulé?: string
+  durationMinutes?: number
+}
+
 type Simulation = {
   id: string
   created_at: string
   completed_at: string | null
   actual_duration_seconds: number | null
-  status: string
-  concours: { intitulé: string } | null
+  status: 'in_progress' | 'completed' | string
+  simulation_config: SimulationConfig | null
 }
 
 type ReportData = {
@@ -30,62 +38,650 @@ type ReportData = {
   overallLevel?: string
   synthesePhrase?: string
   impressionGlobale?: string
-  tags?: string[]
+  sessionMeta?: { concoursIntitulé?: string; durationMinutes?: number }
 }
 
-type SimReport = {
-  simulation_id: string
-  report_data: ReportData | null
-}
+type SimReport = { simulation_id: string; report_data: ReportData | null; created_at: string }
 
 type Goal = {
   id: string
-  concours_id: string
   target_date: string | null
   status: string
-  concours: { intitulé: string } | null
-}
-
-type Plan = {
-  id: string
-  start_date: string
-  end_date: string
-  total_weeks: number
-  status: string
-}
-
-type Milestone = {
-  id: string
-  plan_id: string
-  week_number: number
-  title_fr: string
-  completed_at: string | null
+  concours?: { intitulé?: string } | null
 }
 
 type Booking = {
   id: string
   scheduled_at: string | null
   status: string
-  coach: { full_name: string | null } | null
+  coach?: { full_name?: string | null } | null
 }
 
-const MOTIVATIONAL_QUOTES = [
-  "Le succès, c'est aller d'échec en échec sans perdre son enthousiasme.",
-  "La préparation d'aujourd'hui détermine la réussite de demain.",
-  'Chaque simulation vous rapproche un peu plus de l\'admission.',
-  'Le travail paie toujours. Continuez !',
-  'Votre meilleur investissement, c\'est vous-même.',
-]
+type DashboardState = 'new' | 'active' | 'exam_imminent'
 
+const AXIS_LABELS: Record<string, string> = {
+  structure: 'Structure',
+  motivation: 'Motivation',
+  connaissances: 'Connaissances',
+  communication: 'Communication',
+  stress: 'Gestion du stress',
+  argumentation: 'Argumentation',
+}
+
+const AXIS_COLORS: Record<string, string> = {
+  structure: '#818CF8',
+  motivation: '#34D399',
+  connaissances: '#F59E0B',
+  communication: '#60A5FA',
+  stress: '#F472B6',
+  argumentation: '#A78BFA',
+}
+
+/* ── Shared card ── */
+function DCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-2xl p-5 bg-slate-900/50 border border-white/8 ${className}`}>
+      {children}
+    </div>
+  )
+}
+
+function SectionTitle({ children, icon: Icon }: { children: React.ReactNode; icon: React.ComponentType<{ className?: string }> }) {
+  return (
+    <h2 className="text-base font-medium text-white flex items-center gap-2 mb-4">
+      <Icon className="w-4 h-4 text-indigo-400" />{children}
+    </h2>
+  )
+}
+
+/* ── Common header (all states) ── */
+function DashboardHeader({ firstName, credits, used, limit }: { firstName: string; credits: number; used: number; limit: number }) {
+  return (
+    <div className="flex items-center justify-between">
+      <h1 className="text-2xl font-medium text-white">Bonjour {firstName}.</h1>
+      <div className="flex items-center gap-3">
+        <Link href="/credits" className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
+          <Zap className="w-4 h-4 text-indigo-300" />
+          <span className={credits > 0 ? 'text-indigo-300' : 'text-slate-400'}>
+            {credits > 0 ? `${credits} crédits` : 'Obtenir des crédits'}
+          </span>
+        </Link>
+        <Link
+          href="/simulation/setup"
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl px-4 py-2 transition-colors"
+        >
+          <Mic className="w-4 h-4" />
+          Lancer une simulation
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+/* ── Last simulation card ── */
+function LastSimulationCard({ sim, report }: { sim: Simulation; report: ReportData | null }) {
+  const concoursName = report?.sessionMeta?.concoursIntitulé ?? sim.simulation_config?.concoursIntitulé ?? '—'
+  const duration = report?.sessionMeta?.durationMinutes ?? sim.simulation_config?.durationMinutes
+  const dateStr = sim.completed_at
+    ? format(new Date(sim.completed_at), 'dd MMM yyyy', { locale: fr })
+    : format(new Date(sim.created_at), 'dd MMM yyyy', { locale: fr })
+
+  const level = report?.overallLevel
+  const levelColor: Record<string, string> = {
+    excellent: 'text-emerald-400', solide: 'text-emerald-400',
+    correct: 'text-amber-400', 'à travailler': 'text-amber-400', lacunaire: 'text-red-400',
+  }
+
+  const topAxes = report?.axisScores
+    ? (Object.entries(report.axisScores) as [string, number][])
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+    : []
+
+  return (
+    <DCard>
+      <SectionTitle icon={Mic}>Dernière simulation</SectionTitle>
+      <p className="text-xs text-gray-500 mb-3">{dateStr} · {concoursName}{duration ? ` · ${duration} min` : ''}</p>
+      {report?.synthesePhrase && (
+        <p className="text-sm text-gray-300 leading-relaxed mb-4 border-l-2 border-indigo-500/40 pl-3">{report.synthesePhrase}</p>
+      )}
+      {topAxes.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {topAxes.map(([axis, score]) => {
+            const color = score >= 4 ? 'text-emerald-400 bg-emerald-400/10' : score >= 3 ? 'text-amber-400 bg-amber-400/10' : 'text-red-400 bg-red-400/10'
+            const lvl = score >= 4 ? 'solide' : score >= 3 ? 'correct' : 'à travailler'
+            return (
+              <span key={axis} className={`text-xs px-2 py-1 rounded-lg font-medium ${color}`}>
+                {AXIS_LABELS[axis] ?? axis} : {lvl}
+              </span>
+            )
+          })}
+        </div>
+      )}
+      {level && <p className={`text-sm font-medium mb-4 capitalize ${levelColor[level] ?? 'text-gray-400'}`}>Niveau global : {level}</p>}
+      <div className="flex gap-2">
+        <Link href={`/simulation/rapport/${sim.id}`} className="flex-1 text-center py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors">
+          Voir le rapport complet
+        </Link>
+        <Link href="/simulation/setup" className="flex-1 text-center py-2 rounded-xl border border-white/10 hover:bg-white/5 text-gray-300 text-sm transition-colors">
+          Refaire une simulation
+        </Link>
+      </div>
+    </DCard>
+  )
+}
+
+/* ── Score evolution chart ── */
+function ScoreEvolutionChart({ sims, reportMap }: { sims: Simulation[]; reportMap: Map<string, ReportData> }) {
+  const simsWithReports = sims.filter(s => s.status === 'completed' && reportMap.has(s.id))
+    .slice(-10).reverse()
+
+  if (simsWithReports.length < 2) {
+    return (
+      <DCard>
+        <SectionTitle icon={TrendingUp}>Évolution des scores</SectionTitle>
+        <div className="flex flex-col items-center justify-center py-8 gap-3">
+          <p className="text-sm text-gray-500 text-center">Faites une deuxième simulation pour voir votre progression apparaître ici.</p>
+          <Link href="/simulation/setup" className="flex items-center gap-1 text-indigo-400 text-sm hover:underline">
+            Lancer une simulation <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </DCard>
+    )
+  }
+
+  const chartData = simsWithReports.map((s, idx) => {
+    const rd = reportMap.get(s.id)!
+    const base: Record<string, number | string> = {
+      name: `S${idx + 1}`,
+      date: format(new Date(s.completed_at || s.created_at), 'dd/MM', { locale: fr }),
+    }
+    if (rd?.axisScores) {
+      Object.entries(rd.axisScores).forEach(([k, v]) => { base[k] = v })
+    }
+    return base
+  })
+
+  return (
+    <DCard>
+      <SectionTitle icon={TrendingUp}>Évolution des scores</SectionTitle>
+      <ResponsiveContainer width="100%" height={240}>
+        <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+          <XAxis dataKey="date" stroke="#4b5563" fontSize={11} />
+          <YAxis domain={[1, 5]} stroke="#4b5563" fontSize={11} ticks={[1, 2, 3, 4, 5]} />
+          <Tooltip
+            contentStyle={{ background: '#1e2a45', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+            labelStyle={{ color: '#9ca3af', fontSize: 12 }}
+            itemStyle={{ fontSize: 12 }}
+          />
+          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+          {Object.keys(AXIS_LABELS).map(axis => (
+            <Line key={axis} type="monotone" dataKey={axis} stroke={AXIS_COLORS[axis]} strokeWidth={2}
+              name={AXIS_LABELS[axis]} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </DCard>
+  )
+}
+
+/* ── Competency radar ── */
+function CompetencyRadar({ reports }: { reports: ReportData[] }) {
+  const last3 = reports.slice(-3)
+  const axisTotals: Record<string, { sum: number; count: number }> = {}
+  for (const r of last3) {
+    const ax = r?.axisScores
+    if (ax) Object.entries(ax).forEach(([k, v]) => {
+      if (!axisTotals[k]) axisTotals[k] = { sum: 0, count: 0 }
+      axisTotals[k].sum += v; axisTotals[k].count += 1
+    })
+  }
+  const radarData = Object.entries(AXIS_LABELS).map(([key, label]) => ({
+    axis: label,
+    score: axisTotals[key] ? Math.round((axisTotals[key].sum / axisTotals[key].count) * 10) / 10 : 0,
+    seuil: 3,
+  }))
+
+  const sorted = [...Object.entries(axisTotals)].sort((a, b) => (b[1].sum / b[1].count) - (a[1].sum / a[1].count))
+  const best = sorted[0] ? AXIS_LABELS[sorted[0][0]] : null
+  const worst = sorted[sorted.length - 1] ? AXIS_LABELS[sorted[sorted.length - 1][0]] : null
+
+  return (
+    <DCard>
+      <SectionTitle icon={Target}>Radar des compétences</SectionTitle>
+      <p className="text-xs text-gray-500 mb-3">Moyenne des {last3.length} dernière{last3.length > 1 ? 's' : ''} session{last3.length > 1 ? 's' : ''}</p>
+      <ResponsiveContainer width="100%" height={220}>
+        <RadarChart data={radarData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
+          <PolarGrid stroke="rgba(255,255,255,0.07)" />
+          <PolarAngleAxis dataKey="axis" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+          <Radar dataKey="seuil" stroke="rgba(156,163,175,0.35)" fill="rgba(156,163,175,0.05)" strokeDasharray="4 4" strokeWidth={1.5} />
+          <Radar dataKey="score" stroke="#818CF8" fill="#818CF8" fillOpacity={0.25} strokeWidth={2} />
+        </RadarChart>
+      </ResponsiveContainer>
+      {best && worst && (
+        <p className="text-xs text-gray-500 text-center mt-1">
+          Axe le plus solide : <span className="text-emerald-400">{best}</span> · Axe prioritaire : <span className="text-amber-400">{worst}</span>
+        </p>
+      )}
+    </DCard>
+  )
+}
+
+/* ── Credits widget ── */
+function CreditsWidget({ used, limit }: { used: number; limit: number }) {
+  const available = Math.max(0, limit - used)
+  return (
+    <DCard>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-white">{available} crédits disponibles</p>
+          <p className="text-xs text-gray-500 mt-0.5">{used}/{limit} utilisés ce mois</p>
+        </div>
+        <Link href="/credits" className="text-xs text-indigo-400 hover:underline">Gérer</Link>
+      </div>
+      <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${Math.min(100, (available / limit) * 100)}%` }} />
+      </div>
+    </DCard>
+  )
+}
+
+/* ── Recommended actions ── */
+function RecommendedActions({ sims, reports, bookings }: { sims: Simulation[]; reports: ReportData[]; bookings: Booking[] }) {
+  const actions: Array<{ icon: React.ComponentType<{ className?: string }>; text: string; href: string }> = []
+
+  // Weak axis
+  const axisTotals: Record<string, { sum: number; count: number }> = {}
+  for (const r of reports.slice(-3)) {
+    const ax = r?.axisScores
+    if (ax) Object.entries(ax).forEach(([k, v]) => {
+      if (!axisTotals[k]) axisTotals[k] = { sum: 0, count: 0 }
+      axisTotals[k].sum += v; axisTotals[k].count += 1
+    })
+  }
+  const weakest = Object.entries(axisTotals).sort((a, b) => (a[1].sum / a[1].count) - (b[1].sum / b[1].count))[0]
+  if (weakest && (weakest[1].sum / weakest[1].count) < 3) {
+    actions.push({ icon: AlertTriangle, text: `Travaillez ${AXIS_LABELS[weakest[0]] ?? weakest[0]} — votre axe le plus faible`, href: '/simulation/setup' })
+  }
+
+  // Inactive
+  const lastSim = sims.find(s => s.status === 'completed')
+  if (lastSim) {
+    const days = differenceInDays(new Date(), new Date(lastSim.completed_at ?? lastSim.created_at))
+    if (days >= 7) {
+      actions.push({ icon: RotateCcw, text: `Reprenez votre rythme — dernière session il y a ${days} jours`, href: '/simulation/setup' })
+    }
+  }
+
+  // No coach
+  const completedCount = sims.filter(s => s.status === 'completed').length
+  if (completedCount >= 3 && bookings.length === 0) {
+    actions.push({ icon: Users, text: 'Testez une session avec un ancien juré', href: '/coaches' })
+  }
+
+  if (actions.length === 0) return null
+
+  return (
+    <DCard>
+      <SectionTitle icon={Target}>Actions recommandées</SectionTitle>
+      <div className="space-y-2">
+        {actions.map((a, i) => (
+          <Link key={i} href={a.href} className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-white/5 transition-colors group">
+            <a.icon className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span className="text-sm text-gray-300 flex-1">{a.text}</span>
+            <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
+          </Link>
+        ))}
+      </div>
+    </DCard>
+  )
+}
+
+/* ── Coach session widget ── */
+function CoachWidget({ booking }: { booking: Booking | null }) {
+  if (booking) {
+    const dateStr = booking.scheduled_at
+      ? format(new Date(booking.scheduled_at), "dd MMM 'à' HH:mm", { locale: fr })
+      : 'Date à confirmer'
+    const countdown = booking.scheduled_at
+      ? formatDistanceToNow(new Date(booking.scheduled_at), { locale: fr, addSuffix: true })
+      : ''
+    return (
+      <DCard>
+        <SectionTitle icon={Calendar}>Prochaine séance coach</SectionTitle>
+        <p className="font-medium text-white text-sm">{booking.coach?.full_name ?? 'Coach'}</p>
+        <p className="text-xs text-gray-500 mt-0.5">{dateStr}</p>
+        {countdown && <p className="text-xs text-indigo-400 mt-1">{countdown}</p>}
+        <Link href="/bookings" className="mt-3 block text-xs text-indigo-400 hover:underline">Voir les détails</Link>
+      </DCard>
+    )
+  }
+
+  return (
+    <DCard>
+      <SectionTitle icon={BookOpen}>Besoin d&apos;un expert ?</SectionTitle>
+      <p className="text-sm text-gray-400 mb-3">Réservez une session avec un ancien juré pour approfondir vos points faibles.</p>
+      <Link href="/coaches" className="block text-center py-2 rounded-xl border border-white/10 hover:bg-white/5 text-gray-300 text-sm transition-colors">
+        Parcourir les coachs
+      </Link>
+    </DCard>
+  )
+}
+
+/* ── State: NEW ── */
+function StateNew({ firstName }: { firstName: string }) {
+  const [checked, setChecked] = useState<Record<number, boolean>>(() => {
+    if (typeof window === 'undefined') return {}
+    try { return JSON.parse(localStorage.getItem('jurya_onboarding') ?? '{}') } catch { return {} }
+  })
+
+  const toggle = (i: number) => {
+    const next = { ...checked, [i]: !checked[i] }
+    setChecked(next)
+    localStorage.setItem('jurya_onboarding', JSON.stringify(next))
+  }
+
+  const steps = [
+    { label: 'Choisir votre concours cible', href: '/simulation/setup', desc: 'Sélectionnez le concours que vous préparez' },
+    { label: 'Indiquer votre date d\'oral (recommandé)', href: '/profile', desc: 'Active le mode préparation intensive quand la date approche' },
+    { label: 'Lancer votre première simulation', href: '/simulation/setup', desc: 'Moins de 15 minutes pour un premier diagnostic' },
+  ]
+
+  return (
+    <div className="max-w-xl mx-auto space-y-6">
+      {/* Onboarding */}
+      <DCard>
+        <h2 className="text-lg font-medium text-white mb-1">Commencez votre préparation</h2>
+        <p className="text-sm text-gray-400 mb-5">Votre première simulation prend moins de 15 minutes et vous donne un premier diagnostic complet.</p>
+        <div className="space-y-3">
+          {steps.map((s, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <button onClick={() => toggle(i)} className="mt-0.5 shrink-0">
+                {checked[i]
+                  ? <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  : <Circle className="w-5 h-5 text-gray-600" />
+                }
+              </button>
+              <div className="flex-1">
+                <p className={`text-sm font-medium ${checked[i] ? 'text-gray-500 line-through' : 'text-white'}`}>{s.label}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{s.desc}</p>
+              </div>
+              {i === 2 && (
+                <Link href={checked[0] ? s.href : '#'}
+                  className={`text-sm px-4 py-1.5 rounded-xl font-medium transition-colors ${checked[0] ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
+                  Commencer
+                </Link>
+              )}
+              {i !== 2 && (
+                <Link href={s.href} className="text-xs text-indigo-400 hover:underline self-center">Configurer</Link>
+              )}
+            </div>
+          ))}
+        </div>
+      </DCard>
+
+      {/* Why simulate */}
+      <DCard className="bg-slate-900/30">
+        <h3 className="text-sm font-medium text-white mb-3">Pourquoi simuler votre oral ?</h3>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { title: 'Un jury IA réaliste', desc: 'Trois jurés distincts, questions adaptées à votre concours, conditions de pression réelles.' },
+            { title: 'Un rapport immédiat', desc: 'Points forts, axes de travail, extraits de vos réponses, plan d\'action personnalisé.' },
+            { title: 'Une progression mesurable', desc: 'Chaque simulation nourrit votre radar de compétences. Voyez vos progrès, session après session.' },
+          ].map((item, i) => (
+            <div key={i} className="border-l-2 border-indigo-500/30 pl-3">
+              <p className="text-xs font-medium text-white mb-1">{item.title}</p>
+              <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </DCard>
+    </div>
+  )
+}
+
+/* ── State: ACTIVE ── */
+function StateActive({ sims, reports, reportMap, bookings }: {
+  sims: Simulation[]; reports: ReportData[]; reportMap: Map<string, ReportData>; bookings: Booking[]
+}) {
+  const lastCompletedSim = sims.find(s => s.status === 'completed')
+  const lastReport = lastCompletedSim ? reportMap.get(lastCompletedSim.id) ?? null : null
+  const inProgressSims = sims.filter(s => s.status === 'in_progress')
+
+  return (
+    <div className="grid lg:grid-cols-3 gap-5">
+      {/* Main column (2/3) */}
+      <div className="lg:col-span-2 space-y-5">
+        {/* In-progress sessions */}
+        {inProgressSims.length > 0 && (
+          <DCard>
+            <SectionTitle icon={Mic}>Sessions en cours</SectionTitle>
+            <div className="space-y-2">
+              {inProgressSims.map(sim => (
+                <div key={sim.id} className="flex items-center justify-between py-2 px-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                  <div>
+                    <p className="text-sm text-white">{sim.simulation_config?.concoursIntitulé ?? 'Simulation'}</p>
+                    <p className="text-xs text-gray-500">{format(new Date(sim.created_at), 'dd MMM', { locale: fr })}</p>
+                  </div>
+                  <Link href={`/simulation/${sim.id}`} className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
+                    Continuer
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </DCard>
+        )}
+
+        {lastCompletedSim && <LastSimulationCard sim={lastCompletedSim} report={lastReport} />}
+
+        <ScoreEvolutionChart sims={sims} reportMap={reportMap} />
+
+        {reports.length > 0 && <CompetencyRadar reports={reports} />}
+
+        {/* Recent simulations table */}
+        {sims.length > 1 && (
+          <DCard>
+            <SectionTitle icon={Clock}>Simulations récentes</SectionTitle>
+            <div className="space-y-1">
+              {sims.slice(0, 6).map(sim => {
+                const rep = reportMap.get(sim.id)
+                const level = rep?.overallLevel
+                const lvlColor: Record<string, string> = {
+                  excellent: 'text-emerald-400', solide: 'text-emerald-400',
+                  correct: 'text-amber-400', 'à travailler': 'text-amber-400', lacunaire: 'text-red-400',
+                }
+                const isInProgress = sim.status === 'in_progress'
+                return (
+                  <div key={sim.id} className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-white/5 transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-xs text-gray-500 whitespace-nowrap shrink-0">
+                        {format(new Date(sim.completed_at ?? sim.created_at), 'dd MMM', { locale: fr })}
+                      </span>
+                      <span className="text-sm text-gray-300 truncate">
+                        {sim.simulation_config?.concoursIntitulé ?? '—'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {isInProgress
+                        ? <span className="text-xs text-indigo-400">En cours</span>
+                        : level
+                          ? <span className={`text-xs font-medium capitalize ${lvlColor[level] ?? 'text-gray-400'}`}>{level}</span>
+                          : null
+                      }
+                      <Link
+                        href={isInProgress ? `/simulation/${sim.id}` : `/simulation/rapport/${sim.id}`}
+                        className="text-xs text-indigo-400 hover:underline"
+                      >
+                        {isInProgress ? 'Continuer' : 'Rapport'}
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </DCard>
+        )}
+      </div>
+
+      {/* Sidebar (1/3) */}
+      <div className="space-y-5">
+        <CoachWidget booking={bookings[0] ?? null} />
+        <RecommendedActions sims={sims} reports={reports} bookings={bookings} />
+        {/* Credits */}
+      </div>
+    </div>
+  )
+}
+
+/* ── State: EXAM IMMINENT ── */
+function StateExamImminent({ sims, reports, reportMap, bookings, examGoal }: {
+  sims: Simulation[]; reports: ReportData[]; reportMap: Map<string, ReportData>; bookings: Booking[]; examGoal: Goal
+}) {
+  const days = examGoal.target_date ? differenceInDays(new Date(examGoal.target_date), new Date()) : 0
+  const completedCount = sims.filter(s => s.status === 'completed').length
+  const targetCount = days <= 7 ? 7 : days <= 14 ? 7 : 10
+  const gaugePercent = Math.min(100, Math.round((completedCount / targetCount) * 100))
+
+  const plan = days <= 7
+    ? ['1 simulation par jour, focus sur vos points faibles', 'Session coach avant l\'épreuve si possible', 'Révisez votre plan d\'action de la dernière simulation']
+    : days <= 14
+      ? ['Une simulation tous les 2 jours', '1 session coach cette semaine', 'Travaillez les 2 axes les plus faibles']
+      : ['2-3 simulations par semaine', '2 sessions coach réparties sur la période', 'Variez les formats d\'épreuve']
+
+  const lastCompletedSim = sims.find(s => s.status === 'completed')
+  const lastReport = lastCompletedSim ? reportMap.get(lastCompletedSim.id) ?? null : null
+
+  const weakAxes = reports.slice(-5).reduce<Record<string, { sum: number; count: number }>>((acc, r) => {
+    if (r?.axisScores) Object.entries(r.axisScores).forEach(([k, v]) => {
+      if (!acc[k]) acc[k] = { sum: 0, count: 0 }
+      acc[k].sum += v; acc[k].count += 1
+    })
+    return acc
+  }, {})
+  const weakestAxes = Object.entries(weakAxes)
+    .map(([key, v]) => ({ key, avg: v.sum / v.count }))
+    .sort((a, b) => a.avg - b.avg)
+    .slice(0, 3)
+
+  const [checklist, setChecklist] = useState<Record<number, boolean>>(() => {
+    if (typeof window === 'undefined') return {}
+    try { return JSON.parse(localStorage.getItem('jurya_exam_checklist') ?? '{}') } catch { return {} }
+  })
+  const toggleCheck = (i: number) => {
+    const next = { ...checklist, [i]: !checklist[i] }
+    setChecklist(next)
+    localStorage.setItem('jurya_exam_checklist', JSON.stringify(next))
+  }
+  const checkItems = ['Vérifier la convocation', 'Préparer sa tenue', 'Repérer le lieu de l\'épreuve', 'Préparer le matériel autorisé', 'Imprimer le plan d\'action du dernier rapport']
+  const checkCount = Object.values(checklist).filter(Boolean).length
+
+  return (
+    <div className="space-y-5">
+      {/* Countdown header */}
+      <div className="rounded-2xl p-5 border border-amber-500/30 bg-amber-500/5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-medium text-white">Votre oral dans {days} jour{days > 1 ? 's' : ''}</h2>
+            {examGoal.target_date && (
+              <p className="text-sm text-amber-400/80 mt-1">
+                {format(new Date(examGoal.target_date), "dd MMMM yyyy", { locale: fr })}
+                {examGoal.concours?.intitulé ? ` · ${examGoal.concours.intitulé}` : ''}
+              </p>
+            )}
+          </div>
+          <Link href="/simulation/setup" className="shrink-0 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-sm font-medium px-4 py-2 rounded-xl transition-colors border border-amber-500/30">
+            Lancer une simulation
+          </Link>
+        </div>
+        <div className="mt-4">
+          <div className="flex justify-between text-xs text-gray-500 mb-1.5">
+            <span>Préparation : {completedCount}/{targetCount} simulations recommandées</span>
+            <span>{gaugePercent}%</span>
+          </div>
+          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${gaugePercent}%` }} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-5">
+        {/* Main column */}
+        <div className="lg:col-span-2 space-y-5">
+          {/* Training plan */}
+          <DCard>
+            <SectionTitle icon={Target}>Plan d&apos;entraînement recommandé</SectionTitle>
+            <div className="space-y-2">
+              {plan.map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5 py-1.5">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center shrink-0 mt-0.5 font-medium">{i + 1}</span>
+                  <p className="text-sm text-gray-300">{item}</p>
+                </div>
+              ))}
+            </div>
+            <Link href="/simulation/setup" className="mt-4 block text-center py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors">
+              Lancer une simulation maintenant
+            </Link>
+          </DCard>
+
+          {/* Weak axes */}
+          {weakestAxes.length > 0 && (
+            <DCard>
+              <SectionTitle icon={AlertTriangle}>Faiblesses à combler en priorité</SectionTitle>
+              <div className="space-y-3">
+                {weakestAxes.map(({ key, avg }) => (
+                  <div key={key} className="flex items-center justify-between py-2 px-3 bg-white/3 rounded-xl">
+                    <div>
+                      <p className="text-sm text-white font-medium">{AXIS_LABELS[key] ?? key}</p>
+                      <p className="text-xs text-gray-500">Niveau moyen : {avg.toFixed(1)}/5 sur les 5 dernières sessions</p>
+                    </div>
+                    <Link href="/simulation/setup" className="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+                      S&apos;entraîner
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </DCard>
+          )}
+
+          {lastCompletedSim && <LastSimulationCard sim={lastCompletedSim} report={lastReport} />}
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-5">
+          <CoachWidget booking={bookings[0] ?? null} />
+
+          {/* Day-J checklist */}
+          <DCard>
+            <SectionTitle icon={CheckCircle2}>Checklist jour J</SectionTitle>
+            <p className="text-xs text-gray-500 mb-3">{checkCount}/{checkItems.length} complété</p>
+            <div className="space-y-2">
+              {checkItems.map((item, i) => (
+                <button key={i} onClick={() => toggleCheck(i)} className="flex items-center gap-2.5 w-full text-left py-1.5 hover:opacity-80 transition-opacity">
+                  {checklist[i]
+                    ? <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    : <Circle className="w-4 h-4 text-gray-600 shrink-0" />
+                  }
+                  <span className={`text-sm ${checklist[i] ? 'text-gray-500 line-through' : 'text-gray-300'}`}>{item}</span>
+                </button>
+              ))}
+            </div>
+          </DCard>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ══ Main page ══ */
 export default function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
 
-  const [simulations, setSimulations] = useState<Simulation[]>([])
-  const [reports, setReports] = useState<SimReport[]>([])
+  const [sims, setSims] = useState<Simulation[]>([])
+  const [reports, setReports] = useState<ReportData[]>([])
+  const [reportMap, setReportMap] = useState<Map<string, ReportData>>(new Map())
   const [goals, setGoals] = useState<Goal[]>([])
-  const [plan, setPlan] = useState<Plan | null>(null)
-  const [milestones, setMilestones] = useState<Milestone[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -94,33 +690,22 @@ export default function DashboardPage() {
     if (!authLoading && profile?.user_type === 'coach') router.replace('/coach/dashboard')
   }, [user, authLoading, profile, router])
 
-  useEffect(() => {
-    if (user) fetchAll()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
-
-  async function fetchAll() {
+  const fetchAll = useCallback(async () => {
+    if (!user) return
     setLoading(true)
-    const uid = user!.id
+    const uid = user.id
 
-    const [simRes, goalRes, planRes, bookRes] = await Promise.all([
+    const [simRes, goalRes, bookRes] = await Promise.all([
       supabase
         .from('simulations')
-        .select('id, created_at, completed_at, actual_duration_seconds, status, concours:concours_id(intitulé)')
+        .select('id, created_at, completed_at, actual_duration_seconds, status, simulation_config')
         .eq('user_id', uid)
         .order('created_at', { ascending: false })
-        .limit(30),
+        .limit(20),
       supabase
         .from('user_concours_goals')
-        .select('id, concours_id, target_date, status, concours:concours_id(intitulé)')
+        .select('id, target_date, status, concours:concours_id(intitulé)')
         .eq('user_id', uid),
-      supabase
-        .from('preparation_plans')
-        .select('id, start_date, end_date, total_weeks, status')
-        .eq('user_id', uid)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1),
       supabase
         .from('bookings')
         .select('id, scheduled_at, status, coach:coach_id(full_name)')
@@ -130,410 +715,81 @@ export default function DashboardPage() {
         .limit(3),
     ])
 
-    const sims = (simRes.data ?? []) as unknown as Simulation[]
-    setSimulations(sims)
+    const simsData = (simRes.data ?? []) as unknown as Simulation[]
+    setSims(simsData)
     setGoals((goalRes.data ?? []) as unknown as Goal[])
     setBookings((bookRes.data ?? []) as unknown as Booking[])
 
-    const activePlan = (planRes.data ?? [])[0] as Plan | undefined
-    setPlan(activePlan ?? null)
-
-    // fetch reports for loaded sims
-    if (sims.length > 0) {
-      const ids = sims.map(s => s.id)
+    if (simsData.length > 0) {
       const { data: reps } = await supabase
         .from('simulation_reports')
-        .select('simulation_id, report_data')
-        .in('simulation_id', ids)
-      setReports((reps ?? []) as SimReport[])
-    }
+        .select('simulation_id, report_data, created_at')
+        .in('simulation_id', simsData.map(s => s.id))
+        .order('created_at', { ascending: true })
 
-    // milestones
-    if (activePlan) {
-      const { data: ms } = await supabase
-        .from('preparation_milestones')
-        .select('id, plan_id, week_number, title_fr, completed_at')
-        .eq('plan_id', activePlan.id)
-        .order('week_number')
-      setMilestones((ms ?? []) as Milestone[])
+      const repList = (reps ?? []) as SimReport[]
+      const map = new Map(repList.map(r => [r.simulation_id, r.report_data as ReportData]))
+      setReportMap(map)
+      setReports(repList.map(r => r.report_data as ReportData).filter(Boolean))
     }
 
     setLoading(false)
-  }
+  }, [user])
 
-  /* ---------- derived data ---------- */
+  useEffect(() => { if (user) fetchAll() }, [user, fetchAll])
+
+  /* ── Derived ── */
   const firstName = getFirstName(profile?.full_name, user?.email)
-  const quote = MOTIVATIONAL_QUOTES[new Date().getDate() % MOTIVATIONAL_QUOTES.length]
+  const available = profile ? Math.max(0, profile.interviews_limit - profile.interviews_used_this_month) : 0
+  const completedCount = sims.filter(s => s.status === 'completed').length
 
-  const completedSims = simulations.filter(s => s.status === 'completed')
-  const allSims = simulations // for display in table (all statuses)
-  const totalSims = completedSims.length
-
-  const reportMap = new Map(reports.map(r => [r.simulation_id, r]))
-
-  // avg axis score (1-5 scale)
-  const axisAvgs: number[] = []
-  for (const rep of reports) {
-    const scores = Object.values(rep.report_data?.axisScores ?? {})
-    if (scores.length > 0) axisAvgs.push(scores.reduce((a, b) => a + b, 0) / scores.length)
-  }
-  const avgAxisScore = axisAvgs.length ? (axisAvgs.reduce((a, b) => a + b, 0) / axisAvgs.length) : 0
-
-  // total training time (hours)
-  const totalSeconds = completedSims.reduce((acc, s) => acc + (s.actual_duration_seconds ?? 0), 0)
-  const totalHours = Math.round((totalSeconds / 3600) * 10) / 10
-
-  // next concours countdown
-  const nextGoal = goals
-    .filter(g => g.target_date)
+  // Detect state
+  const examGoal = goals
+    .filter(g => g.target_date && differenceInDays(new Date(g.target_date), new Date()) >= 0 && differenceInDays(new Date(g.target_date), new Date()) <= 30)
     .sort((a, b) => new Date(a.target_date!).getTime() - new Date(b.target_date!).getTime())[0]
-  const daysUntilConcours = nextGoal?.target_date
-    ? differenceInDays(new Date(nextGoal.target_date), new Date())
-    : null
 
-  // chart data (last 10 completed with reports) — axis avg on 1-5 scale
-  const chartData = completedSims
-    .filter(s => reportMap.has(s.id))
-    .slice(0, 10)
-    .reverse()
-    .map(s => {
-      const rd = reportMap.get(s.id)!.report_data
-      const scores = Object.values(rd?.axisScores ?? {})
-      const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
-      return {
-        date: format(new Date(s.completed_at || s.created_at), 'dd/MM', { locale: fr }),
-        score: Math.round(avg * 10) / 10,
-      }
-    })
-
-  // radar data (avg per axis across all sessions)
-  const axisTotals: Record<string, { sum: number; count: number }> = {}
-  for (const r of reports) {
-    const ax = r.report_data?.axisScores
-    if (ax && typeof ax === 'object') {
-      for (const [axis, val] of Object.entries(ax)) {
-        if (typeof val === 'number') {
-          if (!axisTotals[axis]) axisTotals[axis] = { sum: 0, count: 0 }
-          axisTotals[axis].sum += val
-          axisTotals[axis].count += 1
-        }
-      }
-    }
-  }
-  const axisLabels: Record<string, string> = {
-    structure: 'Structure',
-    motivation: 'Motivation',
-    connaissances: 'Connaissances',
-    communication: 'Communication',
-    stress: 'Gestion du stress',
-    argumentation: 'Argumentation',
-  }
-  const radarData = Object.entries(axisLabels).map(([key, label]) => ({
-    axis: label,
-    score: axisTotals[key]
-      ? Math.round((axisTotals[key].sum / axisTotals[key].count) * 10) / 10
-      : 0,
-    threshold: 3,
-  }))
-
-  // prep progress
-  const completedMilestones = milestones.filter(m => m.completed_at).length
-  const totalMilestones = milestones.length
-  const prepPercent = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0
-  const currentWeek = plan
-    ? Math.max(1, Math.min(plan.total_weeks, Math.ceil(differenceInDays(new Date(), new Date(plan.start_date)) / 7) + 1))
-    : null
+  const state: DashboardState = examGoal ? 'exam_imminent' : completedCount === 0 ? 'new' : 'active'
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0F1629' }}>
+        <div className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: '#0F1629' }}>
       <CandidateNavbar />
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-7">
+        {/* Common header */}
+        <DashboardHeader
+          firstName={firstName}
+          credits={available}
+          used={profile?.interviews_used_this_month ?? 0}
+          limit={profile?.interviews_limit ?? 30}
+        />
 
-        {/* ── Welcome Banner ── */}
-        <section className="glass rounded-2xl p-8 bg-gradient-to-br from-primary/20 via-secondary/10 to-transparent">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Bonjour {firstName} 👋</h1>
-              <p className="text-gray-400 mt-2 italic">&ldquo;{quote}&rdquo;</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {daysUntilConcours !== null && daysUntilConcours > 0 && (
-                <div className="flex items-center gap-3 bg-white/5 rounded-xl px-6 py-4 border border-white/10">
-                  <Target className="w-8 h-8 text-primary" />
-                  <div>
-                    <p className="text-2xl font-bold text-primary">{daysUntilConcours}</p>
-                    <p className="text-xs text-gray-400">jours avant le concours</p>
-                  </div>
-                </div>
-              )}
-              <Link
-                href="/simulation/setup"
-                className="hidden md:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white rounded-xl px-6 py-4 font-semibold transition-colors"
-              >
-                <Mic className="w-5 h-5" />
-                Lancer une simulation
-              </Link>
-            </div>
+        {/* Exam date nudge for active users without a goal */}
+        {state === 'active' && goals.filter(g => g.target_date).length === 0 && (
+          <div className="flex items-center justify-between bg-white/3 border border-white/8 rounded-xl px-4 py-3">
+            <p className="text-sm text-gray-400">Renseignez votre date d&apos;oral pour activer le mode préparation intensive.</p>
+            <Link href="/profile" className="text-xs text-indigo-400 hover:underline shrink-0 ml-4">Ajouter →</Link>
           </div>
-        </section>
+        )}
 
-        {/* ── Charts Row ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Score evolution */}
-          <div className="lg:col-span-2 glass rounded-2xl p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" /> Évolution des scores
-            </h2>
-            {chartData.length > 1 ? (
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={chartData}>
-                  <defs>
-                    <linearGradient id="scoreLine" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#8b5cf6" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3a" />
-                  <XAxis dataKey="date" stroke="#666" fontSize={12} />
-                  <YAxis domain={[0, 20]} stroke="#666" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#1a1a24', border: '1px solid #2a2a3a', borderRadius: 8 }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Line type="monotone" dataKey="score" stroke="url(#scoreLine)" strokeWidth={3} dot={{ fill: '#8b5cf6', r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[260px] flex items-center justify-center text-gray-500">
-                <p>Complétez au moins 2 simulations pour voir votre progression.</p>
-              </div>
-            )}
-          </div>
+        {/* State-specific content */}
+        {state === 'new' && <StateNew firstName={firstName} />}
+        {state === 'active' && (
+          <StateActive sims={sims} reports={reports} reportMap={reportMap} bookings={bookings} />
+        )}
+        {state === 'exam_imminent' && examGoal && (
+          <StateExamImminent sims={sims} reports={reports} reportMap={reportMap} bookings={bookings} examGoal={examGoal} />
+        )}
 
-          {/* Radar */}
-          <div className="glass rounded-2xl p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" /> Radar des compétences
-            </h2>
-            {reports.length > 0 ? (
-              <ResponsiveContainer width="100%" height={260}>
-                <RadarChart data={radarData}>
-                  <PolarGrid stroke="#2a2a3a" />
-                  <PolarAngleAxis dataKey="axis" tick={{ fill: '#a78bfa', fontSize: 12 }} />
-                  <Radar dataKey="score" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.25} />
-                </RadarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[260px] flex items-center justify-center text-gray-500 text-sm text-center">
-                Pas encore de données.<br />Lancez une simulation !
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── Quick Stats ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Mic, label: 'Simulations effectuées', value: totalSims, color: 'text-purple-400' },
-            { icon: TrendingUp, label: 'Niveau moyen (1-5)', value: avgAxisScore ? `${avgAxisScore.toFixed(1)}/5` : '—', color: 'text-blue-400' },
-            { icon: Clock, label: "Temps d'entraînement", value: `${totalHours}h`, color: 'text-emerald-400' },
-            { icon: Calendar, label: 'Jours avant concours', value: daysUntilConcours ?? '—', color: 'text-amber-400' },
-          ].map((s, i) => (
-            <div key={i} className="glass rounded-xl p-5 flex flex-col items-center text-center gap-2">
-              <s.icon className={`w-7 h-7 ${s.color}`} />
-              <p className="text-2xl font-bold">{s.value}</p>
-              <p className="text-xs text-gray-400">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Upcoming Section ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary" /> À venir
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* next sim */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-gray-400 mb-1">Prochaine simulation</p>
-              <p className="font-medium">{plan && currentWeek ? `Semaine ${currentWeek} du plan` : 'Planifiez votre prochaine session'}</p>
-              <Link href="/simulation/setup" className="text-primary text-sm mt-2 inline-flex items-center gap-1 hover:underline">
-                Lancer <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-            {/* next coach session */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-gray-400 mb-1">Prochaine séance coach</p>
-              {bookings[0] ? (
-                <>
-                  <p className="font-medium">{bookings[0].coach?.full_name ?? 'Coach'}</p>
-                  <p className="text-sm text-gray-400">
-                    {bookings[0].scheduled_at
-                      ? format(new Date(bookings[0].scheduled_at), 'dd MMM yyyy à HH:mm', { locale: fr })
-                      : 'Date à confirmer'}
-                  </p>
-                </>
-              ) : (
-                <p className="text-gray-500 text-sm">Aucune séance planifiée</p>
-              )}
-              <Link href="/coaches" className="text-primary text-sm mt-2 inline-flex items-center gap-1 hover:underline">
-                Voir les coachs <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-            {/* next milestone */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-gray-400 mb-1">Prochain objectif</p>
-              {(() => {
-                const next = milestones.find(m => !m.completed_at)
-                return next ? (
-                  <p className="font-medium">Semaine {next.week_number}: {next.title_fr}</p>
-                ) : (
-                  <p className="text-gray-500 text-sm">{plan ? 'Tous les jalons complétés !' : 'Activez un plan de préparation'}</p>
-                )
-              })()}
-              <Link href="/pathway" className="text-primary text-sm mt-2 inline-flex items-center gap-1 hover:underline">
-                Voir le plan <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Recent Simulations ── */}
-        <section className="glass rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Mic className="w-5 h-5 text-primary" /> Simulations récentes
-            </h2>
-            {completedSims.length > 5 && (
-              <Link href="/simulation/setup" className="text-primary text-sm hover:underline flex items-center gap-1">
-                Voir tout <ChevronRight className="w-4 h-4" />
-              </Link>
-            )}
-          </div>
-          {completedSims.length === 0 ? (
-            <div className="text-center py-8">
-              <Mic className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400 mb-4">Aucune simulation terminée pour le moment.</p>
-              <Link
-                href="/simulation/setup"
-                className="inline-flex items-center gap-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
-              >
-                Lancer ma première simulation <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-gray-400 border-b border-white/10">
-                    <th className="text-left py-3 px-2">Date</th>
-                    <th className="text-left py-3 px-2">Concours</th>
-                    <th className="text-center py-3 px-2">Niveau</th>
-                    <th className="text-left py-3 px-2 hidden md:table-cell">Impression</th>
-                    <th className="text-right py-3 px-2" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {allSims.slice(0, 8).map(sim => {
-                    const rep = reportMap.get(sim.id)?.report_data
-                    const level = rep?.overallLevel
-                    const levelColor: Record<string, string> = {
-                      excellent: 'text-emerald-400', solide: 'text-emerald-400',
-                      correct: 'text-amber-400', 'à travailler': 'text-amber-400',
-                      lacunaire: 'text-red-400',
-                    }
-                    const isInProgress = sim.status === 'in_progress'
-                    return (
-                      <tr key={sim.id} className="border-b border-white/5 hover:bg-white/5 transition">
-                        <td className="py-3 px-2 whitespace-nowrap">
-                          {format(new Date(sim.completed_at || sim.created_at), 'dd MMM', { locale: fr })}
-                        </td>
-                        <td className="py-3 px-2 text-sm">{sim.concours?.intitulé ?? '—'}</td>
-                        <td className="py-3 px-2 text-center">
-                          {isInProgress ? (
-                            <span className="text-xs font-medium text-indigo-400">En cours</span>
-                          ) : level ? (
-                            <span className={`text-xs font-medium capitalize ${levelColor[level] ?? 'text-gray-400'}`}>{level}</span>
-                          ) : '—'}
-                        </td>
-                        <td className="py-3 px-2 hidden md:table-cell">
-                          <p className="text-xs text-gray-500 truncate max-w-[240px]">
-                            {isInProgress ? 'Simulation non terminée' : (rep?.synthesePhrase ?? rep?.impressionGlobale?.slice(0, 80) ?? '—')}
-                          </p>
-                        </td>
-                        <td className="py-3 px-2 text-right">
-                          {isInProgress ? (
-                            <Link href={`/simulation/${sim.id}`} className="text-indigo-400 hover:underline text-xs font-medium">
-                              Continuer
-                            </Link>
-                          ) : (
-                            <Link href={`/simulation/rapport/${sim.id}`} className="text-primary hover:underline text-xs">
-                              Voir le rapport
-                            </Link>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-
-        {/* ── Quick Actions ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            { href: '/simulation/setup', icon: Mic, title: 'Nouvelle simulation', desc: 'Entraînez-vous dans les conditions du concours', gradient: 'from-purple-600/20 to-blue-600/20' },
-            { href: '/calendar', icon: Calendar, title: 'Voir le calendrier', desc: 'Dates et échéances des concours', gradient: 'from-blue-600/20 to-cyan-600/20' },
-            { href: '/coaches', icon: BookOpen, title: 'Contacter un coach', desc: "Bénéficiez de l'expertise d'un ancien jury", gradient: 'from-emerald-600/20 to-teal-600/20' },
-            { href: '/profile', icon: User, title: 'Modifier mon profil', desc: 'Mettez à jour vos informations personnelles', gradient: 'from-amber-600/20 to-orange-600/20' },
-            { href: '/credits', icon: CreditCard, title: 'Mes crédits', desc: 'Gérez votre solde et achetez des crédits', gradient: 'from-pink-600/20 to-rose-600/20' },
-            { href: '/bookings', icon: CalendarCheck, title: 'Mes réservations', desc: 'Consultez vos séances planifiées', gradient: 'from-indigo-600/20 to-violet-600/20' },
-          ].map((action, i) => (
-            <Link key={i} href={action.href} className={`glass rounded-xl p-6 bg-gradient-to-br ${action.gradient} hover:scale-[1.02] transition-transform group`}>
-              <action.icon className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-semibold text-lg">{action.title}</h3>
-              <p className="text-gray-400 text-sm mt-1">{action.desc}</p>
-              <span className="text-primary text-sm mt-3 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                Commencer <ChevronRight className="w-4 h-4" />
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        {/* ── Prep Pathway Progress ── */}
-        {plan && (
-          <section className="glass rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" /> Plan de préparation
-              </h2>
-              <Link href="/pathway" className="text-primary text-sm hover:underline flex items-center gap-1">
-                Voir tout <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-            <div className="flex items-center gap-4 mb-2">
-              <p className="text-sm text-gray-400">
-                Semaine {currentWeek}/{plan.total_weeks} &middot; {completedMilestones}/{totalMilestones} jalons
-              </p>
-              <p className="text-sm font-semibold text-primary">{prepPercent}%</p>
-            </div>
-            <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500"
-                style={{ width: `${prepPercent}%` }}
-              />
-            </div>
-          </section>
+        {/* Credits widget at bottom for active/exam states */}
+        {(state === 'active' || state === 'exam_imminent') && profile && (
+          <CreditsWidget used={profile.interviews_used_this_month} limit={profile.interviews_limit} />
         )}
       </div>
     </div>

@@ -406,11 +406,11 @@ export default function SimulationSessionPage() {
       })
       if (!res.ok) throw new Error('API error')
       const data = await res.json()
-      // Rude detection: jury stops the session
+      // Rude detection: jury stops the session — wait for speech to finish, then end
       if (data.end_session) {
         const speakerId: SpeakerId = 'president'
         await speakAsJury(data.question, speakerId)
-        setTimeout(() => handleEnd(), 4000)
+        handleEnd()
         return
       }
       if (data.phase && data.phase !== phaseRef.current) {
