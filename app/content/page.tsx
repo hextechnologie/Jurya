@@ -260,17 +260,9 @@ export default function ContentPage() {
                 {filtered.map(resource => {
                   const Icon = KIND_ICONS[resource.kind] ?? BookOpen
                   const locked = resource.is_premium && !isPremiumUser
-                  const CardWrapper = locked ? 'div' : Link
-                  const cardProps = locked ? {} : { href: `/content/${resource.slug}` }
-                  return (
-                    <CardWrapper
-                      key={resource.id}
-                      {...(cardProps as Record<string, string>)}
-                      onClick={() => { if (!locked) trackView(resource.id) }}
-                      className={`glass rounded-xl overflow-hidden group transition hover:border-primary/50 block ${
-                        locked ? 'opacity-75' : 'cursor-pointer'
-                      }`}
-                    >
+
+                  const cardBody = (
+                    <>
                       {/* cover */}
                       {resource.cover_image_url ? (
                         <div className="h-36 bg-cover bg-center" style={{ backgroundImage: `url(${resource.cover_image_url})` }} />
@@ -279,7 +271,6 @@ export default function ContentPage() {
                           <Icon className="w-10 h-10 text-primary/50" />
                         </div>
                       )}
-
                       <div className="p-4 space-y-2">
                         {/* badges */}
                         <div className="flex items-center gap-2 flex-wrap">
@@ -295,17 +286,14 @@ export default function ContentPage() {
                             </span>
                           )}
                         </div>
-
                         {/* title */}
                         <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition">
                           {resource.title_fr}
                         </h3>
-
                         {/* excerpt */}
                         {resource.excerpt_fr && (
                           <p className="text-xs text-gray-400 line-clamp-2">{resource.excerpt_fr}</p>
                         )}
-
                         {/* meta */}
                         <div className="flex items-center gap-3 text-xs text-gray-500 pt-1">
                           <span className="flex items-center gap-1">
@@ -315,7 +303,6 @@ export default function ContentPage() {
                             <Eye className="w-3 h-3" /> {resource.view_count}
                           </span>
                         </div>
-
                         {/* premium lock */}
                         {locked && (
                           <Link
@@ -326,7 +313,24 @@ export default function ContentPage() {
                           </Link>
                         )}
                       </div>
-                    </CardWrapper>
+                    </>
+                  )
+
+                  const cardClass = `glass rounded-xl overflow-hidden group transition hover:border-primary/50 ${locked ? 'opacity-75' : 'cursor-pointer'}`
+
+                  return locked ? (
+                    <div key={resource.id} className={cardClass}>
+                      {cardBody}
+                    </div>
+                  ) : (
+                    <Link
+                      key={resource.id}
+                      href={`/content/${resource.slug}`}
+                      onClick={() => trackView(resource.id)}
+                      className={cardClass}
+                    >
+                      {cardBody}
+                    </Link>
                   )
                 })}
               </div>
