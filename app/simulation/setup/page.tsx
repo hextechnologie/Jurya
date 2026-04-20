@@ -158,6 +158,12 @@ export default function SimulationSetupPage() {
       durationMinutes: duration,
       sujet: sujet.trim() || null,
       userId: user?.id ?? null,
+      candidateName: (
+        user?.user_metadata?.full_name
+        ?? user?.user_metadata?.name
+        ?? user?.email?.split('@')[0]
+        ?? ''
+      ) as string,
     }
 
     // Try to persist in DB; fall back to sessionStorage

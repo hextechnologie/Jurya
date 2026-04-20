@@ -1,0 +1,74 @@
+import { NextRequest, NextResponse } from 'next/server'
+
+/** Strip markdown so TTS never reads asterisks, hashes, etc. */
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/gs, '$1')
+    .replace(/\*(.+?)\*/gs, '$1')
+    .replace(/__(.+?)__/gs, '$1')
+    .replace(/_(.+?)_/gs, '$1')
+    .replace(/#{1,6}\s+/gm, '')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .trim()
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { text, voiceId } = await req.json()
+
+    if (!text?.trim() || !voiceId) {
+      return NextResponse.json({ error: 'Missing params' }, { status: 400 })
+    }
+
+    const apiKey = process.env.ELEVENLABS_API_KEY
+    if (!apiKey) {
+      // 503 signals client to use Web Speech API fallback
+      return NextResponse.json({ error: 'ElevenLabs not configured' }, { status: 503 })
+    }
+
+    const clean = stripMarkdown(text)
+    if (!clean) return NextResponse.json({ error: 'Empty text' }, { status: 400 })
+
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': apiKey,
+          'Content-Type': 'application/json',
+          Accept: 'audio/mpeg',
+        },
+        body: JSON.stringify({
+          text: clean,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability: 0.45,
+            similarity_boost: 0.80,
+            style: 0.30,
+            use_speaker_boost: true,
+          },
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      const err = await response.text().catch(() => '')
+      console.error('ElevenLabs TTS upstream error:', response.status, err)
+      return NextResponse.json({ error: 'TTS upstream failed' }, { status: 502 })
+    }
+
+    const buf = await response.arrayBuffer()
+    return new NextResponse(buf, {
+      headers: {
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'no-store',
+      },
+    })
+  } catch (err) {
+    console.error('TTS route error:', err)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+  }
+}

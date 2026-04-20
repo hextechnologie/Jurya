@@ -3,23 +3,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import {
-  useSpeechRecognition,
-  useAudioRecorder,
-  useJuryVoice,
-  useSimulationTimer,
-} from '@/lib/hooks/useVoice'
-import {
-  SimulationPhase,
-  SimulationTurn,
-  getPhaseLabel,
-  countFillerWords,
-} from '@/lib/types/simulation'
-import {
-  Mic, MicOff, LogOut, Clock, Loader2, CheckCircle2, Send,
-} from 'lucide-react'
+import { useSpeechRecognition, useJuryVoice, useSimulationTimer, useAudioLevel } from '@/lib/hooks/useVoice'
+import { SimulationPhase, SimulationTurn, getPhaseLabel, countFillerWords } from '@/lib/types/simulation'
+import { DEFAULT_JURY, getJuryMember, type SpeakerId, type JuryMemberConfig } from '@/lib/juries/voices'
+import { LogOut, Clock, Loader2, CheckCircle2, Send, Mic, MicOff, PenLine } from 'lucide-react'
 
-/* ────────────── Types ────────────── */
+/* ─── Types ─── */
 interface SimConfig {
   concoursId: string
   concoursIntitulé: string
@@ -29,61 +18,203 @@ interface SimConfig {
   durationMinutes: number
   sujet: string | null
   userId: string | null
+  candidateName?: string
 }
 
-interface JuryMember { initials: string; role: string; full: string }
-const JURY: JuryMember[] = [
-  { initials: 'Mme P', role: 'Présidente', full: 'Présidente du jury' },
-  { initials: 'M. T', role: 'Technique', full: 'Membre technique' },
-  { initials: 'Mme R', role: 'RH', full: 'Chargée des ressources humaines' },
-]
+/* ─── Helpers ─── */
+function getConcoursSlug(concoursId: string): string {
+  return concoursId.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')
+}
 
-/* ────────────── Jury circle ────────────── */
-function JuryCircle({ member, active, thinking }: { member: JuryMember; active: boolean; thinking: boolean }) {
+/* ─── Jury Tile ─── */
+function JuryTile({
+  member,
+  isActiveSpeaker,
+  isThinking,
+  hasMicReaction,
+  concoursSlug,
+  dimmed,
+}: {
+  member: JuryMemberConfig
+  isActiveSpeaker: boolean
+  isThinking: boolean
+  hasMicReaction: boolean
+  concoursSlug: string
+  dimmed: boolean
+}) {
+  const [imgError, setImgError] = useState(false)
+  const photoSrc = `/juries/${concoursSlug}/${member.id}.jpg`
+
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 ${
-        active
-          ? 'bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/40'
-          : 'bg-card border-2 border-border'
-      }`}>
-        {active && !thinking && (
-          <>
-            <span className="absolute inset-0 rounded-full border-2 border-violet-400 animate-ping opacity-30" />
-            <span className="absolute -inset-2 rounded-full border border-violet-400/20 animate-pulse" />
-          </>
-        )}
-        {thinking && active && (
-          <div className="absolute -bottom-1 flex gap-0.5">
-            <span className="w-1.5 h-1.5 bg-violet-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1.5 h-1.5 bg-violet-300 rounded-full animate-bounce" style={{ animationDelay: '120ms' }} />
-            <span className="w-1.5 h-1.5 bg-violet-300 rounded-full animate-bounce" style={{ animationDelay: '240ms' }} />
+    <div
+      className="relative rounded-xl overflow-hidden transition-all duration-300 select-none"
+      style={{
+        aspectRatio: '4/3',
+        border: isActiveSpeaker ? '2px solid #818CF8' : '2px solid transparent',
+        boxShadow: isActiveSpeaker ? '0 0 24px rgba(129,140,248,0.35)' : 'none',
+        opacity: dimmed ? 0.68 : 1,
+      }}
+    >
+      {/* Photo or gradient placeholder */}
+      {!imgError ? (
+        <img
+          src={photoSrc}
+          alt={member.name}
+          className="w-full h-full object-cover"
+          style={{
+            animation: `breathe 8s ease-in-out infinite ${member.breathingDelay}s`,
+            transformOrigin: 'center',
+          }}
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div
+          className="w-full h-full flex items-center justify-center"
+          style={{
+            background: member.gender === 'female'
+              ? 'linear-gradient(135deg,#4c1d95 0%,#312e81 50%,#1e1b4b 100%)'
+              : 'linear-gradient(135deg,#1e3a5f 0%,#1e293b 50%,#0f172a 100%)',
+            animation: `breathe 8s ease-in-out infinite ${member.breathingDelay}s`,
+            transformOrigin: 'center',
+          }}
+        >
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-1">
+              <span className="text-white/80 text-xl font-bold select-none">
+                {member.name.split(' ').map((w: string) => w[0]).join('')}
+              </span>
+            </div>
           </div>
-        )}
-        <span className={`text-sm font-bold ${active ? 'text-white' : 'text-gray-400'}`}>{member.initials}</span>
+        </div>
+      )}
+
+      {/* Waveform bars when speaking */}
+      {isActiveSpeaker && !isThinking && (
+        <div className="absolute bottom-9 left-1/2 -translate-x-1/2 flex items-end gap-0.5">
+          {[0, 1, 2, 3, 4].map(i => (
+            <div
+              key={i}
+              className="w-1 bg-[#818CF8] rounded-full"
+              style={{
+                height: '16px',
+                transformOrigin: 'bottom',
+                animation: `waveBar 0.65s ease-in-out infinite ${i * 0.12}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Thinking dots */}
+      {isThinking && isActiveSpeaker && (
+        <div className="absolute bottom-9 left-1/2 -translate-x-1/2 flex gap-1">
+          {[0, 1, 2].map(i => (
+            <span
+              key={i}
+              className="w-2 h-2 bg-violet-400 rounded-full animate-bounce"
+              style={{ animationDelay: `${i * 120}ms` }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Mic icon top-right */}
+      <div className="absolute top-2 right-2">
+        <div className="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
+          <Mic className="w-3 h-3 text-white" />
+        </div>
       </div>
-      <div className="text-center">
-        <p className={`text-xs font-semibold ${active ? 'text-violet-300' : 'text-gray-500'}`}>{member.role}</p>
+
+      {/* Micro-reaction: note-taking icon */}
+      {hasMicReaction && (
+        <div className="absolute top-2 left-2 animate-bounce">
+          <PenLine className="w-4 h-4 text-white/80 drop-shadow" />
+        </div>
+      )}
+
+      {/* Name bar */}
+      <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5" style={{ background: 'rgba(0,0,0,0.62)' }}>
+        <p className="text-white font-medium" style={{ fontSize: '13px' }}>
+          {member.name} · {member.roleLabel}
+        </p>
       </div>
     </div>
   )
 }
 
-/* ────────────── Timer ────────────── */
+/* ─── Candidate Tile ─── */
+function CandidateTile({ isListening, audioLevel, candidateName }: {
+  isListening: boolean
+  audioLevel: number
+  candidateName: string
+}) {
+  return (
+    <div
+      className="relative rounded-lg overflow-hidden transition-all duration-200"
+      style={{
+        width: '140px',
+        aspectRatio: '4/3',
+        border: isListening ? '2px solid #6366f1' : '2px solid rgba(255,255,255,0.1)',
+        boxShadow: isListening ? '0 0 18px rgba(99,102,241,0.4)' : 'none',
+      }}
+    >
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+        {/* Waveform */}
+        <div className="flex items-end gap-0.5 h-8 mb-1">
+          {[0, 1, 2, 3, 4].map(i => {
+            const h = isListening
+              ? Math.max(4, (audioLevel / 100) * 26 * (0.6 + 0.4 * Math.sin(i * 1.3 + Date.now() / 200)))
+              : 4
+            return (
+              <div
+                key={i}
+                className="w-1 bg-indigo-400 rounded-full transition-all duration-100"
+                style={{ height: `${h}px` }}
+              />
+            )
+          })}
+        </div>
+        <Mic className={`w-3 h-3 mb-0.5 ${isListening ? 'text-indigo-400' : 'text-gray-600'}`} />
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1" style={{ background: 'rgba(0,0,0,0.62)' }}>
+        <p className="text-white truncate" style={{ fontSize: '11px' }}>{candidateName || 'Vous'}</p>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Timer ─── */
 function TimerBadge({ remaining, total }: { remaining: number; total: number }) {
   const pct = total > 0 ? remaining / total : 1
-  const color = pct < 0.1 ? 'text-red-400 animate-pulse' : pct < 0.25 ? 'text-amber-400' : 'text-foreground'
+  const color = pct < 0.1 ? 'text-red-400 animate-pulse' : pct < 0.25 ? 'text-amber-400' : 'text-gray-200'
   const mins = Math.floor(remaining / 60)
   const secs = remaining % 60
   return (
-    <div className={`font-mono text-2xl font-bold tabular-nums flex items-center gap-2 ${color}`}>
-      <Clock className="w-5 h-5" />
+    <span className={`font-mono text-xl font-bold tabular-nums flex items-center gap-1.5 ${color}`}>
+      <Clock className="w-4 h-4" />
       {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
-    </div>
+    </span>
   )
 }
 
-/* ────────────── Main page ────────────── */
+/* ─── Micro-reactions hook ─── */
+function useMicroReactions(currentSpeakerId: SpeakerId) {
+  const [reactions, setReactions] = useState<Partial<Record<SpeakerId, boolean>>>({})
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() < 0.28) {
+        const inactive = (['president', 'technique', 'rh'] as SpeakerId[]).filter(id => id !== currentSpeakerId)
+        const target = inactive[Math.floor(Math.random() * inactive.length)]
+        setReactions(prev => ({ ...prev, [target]: true }))
+        setTimeout(() => setReactions(prev => ({ ...prev, [target]: false })), 500)
+      }
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [currentSpeakerId])
+  return reactions
+}
+
+/* ─── Main Page ─── */
 export default function SimulationSessionPage() {
   const params = useParams()
   const router = useRouter()
@@ -96,22 +227,30 @@ export default function SimulationSessionPage() {
   const [phase, setPhase] = useState<SimulationPhase>('exposé_libre')
   const [phaseOverlay, setPhaseOverlay] = useState<string | null>(null)
   const [turns, setTurns] = useState<SimulationTurn[]>([])
-  const [juryMessage, setJuryMessage] = useState<string>('')
-  const [juryMessageVisible, setJuryMessageVisible] = useState(false)
-  const [activeJuryIdx, setActiveJuryIdx] = useState(0)
+  const [currentSpeakerId, setCurrentSpeakerId] = useState<SpeakerId>('president')
+  const [juryMessage, setJuryMessage] = useState('')
   const [isAiThinking, setIsAiThinking] = useState(false)
   const [textInput, setTextInput] = useState('')
   const [ending, setEnding] = useState(false)
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
 
-  const speech = useSpeechRecognition()
-  const recorder = useAudioRecorder()
-  const juryVoice = useJuryVoice()
-  const timer = useSimulationTimer((config?.durationMinutes ?? 30) * 60)
-
+  // Mic always-on flow
+  const [listenEnabled, setListenEnabled] = useState(false)
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastTranscriptRef = useRef('')
   const turnIndexRef = useRef(0)
   const turnsRef = useRef<SimulationTurn[]>([])
   turnsRef.current = turns
+  const configRef = useRef<SimConfig | null>(null)
+  configRef.current = config
+  const phaseRef = useRef<SimulationPhase>('exposé_libre')
+  phaseRef.current = phase
+
+  const speech = useSpeechRecognition()
+  const juryVoice = useJuryVoice()
+  const timer = useSimulationTimer((config?.durationMinutes ?? 30) * 60)
+  const { level: audioLevel, start: startAudioLevel, stop: stopAudioLevel } = useAudioLevel()
+  const reactions = useMicroReactions(currentSpeakerId)
 
   /* ── Load config ── */
   useEffect(() => {
@@ -119,7 +258,7 @@ export default function SimulationSessionPage() {
       try {
         const { data } = await supabase
           .from('simulations')
-          .select('simulation_config, planned_duration_seconds')
+          .select('simulation_config,planned_duration_seconds')
           .eq('id', simulationId)
           .single()
         if (data?.simulation_config) {
@@ -131,30 +270,29 @@ export default function SimulationSessionPage() {
         }
       } catch { /* fall through */ }
 
-      const cached = typeof window !== 'undefined'
-        ? sessionStorage.getItem(`sim_config_${simulationId}`)
-        : null
+      const cached = typeof window !== 'undefined' ? sessionStorage.getItem(`sim_config_${simulationId}`) : null
       if (cached) {
         setConfig(JSON.parse(cached))
         setLoading(false)
         return
       }
-
-      setError('Simulation introuvable. Vérifiez le lien ou recommencez.')
+      setError('Simulation introuvable. Veuillez relancer depuis la configuration.')
       setLoading(false)
     }
     loadConfig()
   }, [simulationId])
 
-  /* ── Start after config loaded ── */
+  /* ── Start timer + mic level + opening message ── */
   useEffect(() => {
     if (!config || loading) return
     timer.start()
+    startAudioLevel()
+
     const epreuveType = config.epreuveType ?? 'exposé_questions'
     if (epreuveType === 'exposé_questions') {
-      addJuryMessage(
-        `Bienvenue. Je suis Mme P, présidente de ce jury. Vous avez préparé le concours ${config.concoursIntitulé}. Vous disposez maintenant de quelques minutes pour votre exposé libre. À vous.`,
-        0
+      speakAsJury(
+        `Bienvenue. Je suis Mme Laurent, présidente de ce jury. Vous présentez votre candidature pour le concours "${config.concoursIntitulé}". Vous avez quelques minutes pour votre exposé libre. Je vous en prie.`,
+        'president'
       )
     } else {
       fetchJuryQuestion('questions_jury')
@@ -168,12 +306,47 @@ export default function SimulationSessionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer.isExpired])
 
-  /* ── Beforeunload ── */
+  /* ── Beforeunload warning ── */
   useEffect(() => {
     const h = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
     window.addEventListener('beforeunload', h)
     return () => window.removeEventListener('beforeunload', h)
   }, [])
+
+  /* ── Auto-manage mic based on jury speaking state ── */
+  useEffect(() => {
+    if (juryVoice.isSpeaking || isAiThinking) {
+      // Jury is talking → mic off
+      if (speech.isListening) speech.stop()
+      setListenEnabled(false)
+    } else if (config && !ending) {
+      // Jury finished → mic auto-on after short delay
+      setListenEnabled(true)
+      const t = setTimeout(() => {
+        if (!speech.isListening) speech.start()
+      }, 400)
+      return () => clearTimeout(t)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [juryVoice.isSpeaking, isAiThinking, config, ending])
+
+  /* ── VAD: auto-submit after silence ── */
+  useEffect(() => {
+    if (!listenEnabled) return
+    const currentText = speech.transcript + speech.interimTranscript
+    if (currentText === lastTranscriptRef.current) return
+    lastTranscriptRef.current = currentText
+
+    if (currentText.trim()) {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+      const silenceMs = phaseRef.current === 'exposé_libre' ? 5000 : 2500
+      silenceTimerRef.current = setTimeout(() => {
+        if (speech.transcript.trim()) submitAnswer(speech.transcript.trim())
+      }, silenceMs)
+    }
+    return () => { if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [speech.transcript, speech.interimTranscript, listenEnabled])
 
   /* ── Helpers ── */
   const triggerPhaseOverlay = (label: string) => {
@@ -181,26 +354,27 @@ export default function SimulationSessionPage() {
     setTimeout(() => setPhaseOverlay(null), 2500)
   }
 
-  const addJuryMessage = (text: string, juryIdx: number) => {
-    setActiveJuryIdx(juryIdx)
+  const speakAsJury = useCallback(async (text: string, speakerId: SpeakerId) => {
+    const member = getJuryMember(speakerId)
+    setCurrentSpeakerId(speakerId)
     setJuryMessage(text)
-    setJuryMessageVisible(true)
-    juryVoice.speak(text)
-    const t: SimulationTurn = {
+    const juryTurn: SimulationTurn = {
       turnIndex: turnIndexRef.current,
       role: 'jury',
       contentText: text,
-      phase: 'questions_jury',
+      phase: phaseRef.current,
       startedAt: new Date().toISOString(),
     }
-    setTurns(prev => [...prev, t])
+    setTurns(prev => [...prev, juryTurn])
     turnIndexRef.current += 1
-  }
+    await juryVoice.speak(text, member.elevenlabsVoiceId, member.fallbackPitch, member.fallbackRate)
+  }, [juryVoice])
 
   const fetchJuryQuestion = useCallback(async (targetPhase: SimulationPhase) => {
-    if (!config) return
+    if (!configRef.current) return
     setIsAiThinking(true)
     try {
+      const cfg = configRef.current
       const conversationHistory = turnsRef.current.map(t => ({
         role: t.role === 'jury' ? 'assistant' : 'user',
         content: t.contentText,
@@ -210,38 +384,43 @@ export default function SimulationSessionPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           simulationId,
-          concoursIntitulé: config.concoursIntitulé,
-          rubriqueJury: config.rubriqueJury,
+          concoursIntitulé: cfg.concoursIntitulé,
+          rubriqueJury: cfg.rubriqueJury,
           conversationHistory,
           phase: targetPhase,
           turnIndex: turnIndexRef.current,
-          difficulty: config.difficulty,
-          sujet: config.sujet,
+          difficulty: cfg.difficulty,
+          candidateName: cfg.candidateName ?? '',
+          lastSpeaker: currentSpeakerId,
+          sujet: cfg.sujet,
         }),
       })
       if (!res.ok) throw new Error('API error')
       const data = await res.json()
-      if (data.phase && data.phase !== phase) {
+      if (data.phase && data.phase !== phaseRef.current) {
         setPhase(data.phase as SimulationPhase)
         triggerPhaseOverlay(getPhaseLabel(data.phase as SimulationPhase))
       }
-      const nextJury = Math.floor(Math.random() * JURY.length)
-      addJuryMessage(data.question, nextJury)
+      const speakerId: SpeakerId = (['president', 'technique', 'rh'].includes(data.next_speaker)
+        ? data.next_speaker
+        : 'technique') as SpeakerId
+      await speakAsJury(data.question, speakerId)
     } catch (err) {
       console.error('Erreur question jury:', err)
     } finally {
       setIsAiThinking(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config, simulationId])
+  }, [simulationId, currentSpeakerId, speakAsJury])
 
   const submitAnswer = useCallback((text: string) => {
-    if (!text.trim()) return
+    if (!text.trim() || ending) return
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+    speech.stop()
     const t: SimulationTurn = {
       turnIndex: turnIndexRef.current,
       role: 'candidate',
       contentText: text.trim(),
-      phase,
+      phase: phaseRef.current,
       startedAt: new Date().toISOString(),
       endedAt: new Date().toISOString(),
       wordCount: text.trim().split(/\s+/).length,
@@ -251,73 +430,88 @@ export default function SimulationSessionPage() {
     turnIndexRef.current += 1
     speech.reset()
     setTextInput('')
-    setTimeout(() => fetchJuryQuestion('questions_jury'), 600)
-  }, [phase, speech, fetchJuryQuestion])
+    lastTranscriptRef.current = ''
+    setTimeout(() => fetchJuryQuestion('questions_jury'), 500)
+  }, [ending, speech, fetchJuryQuestion])
 
-  const finishExposé = () => {
-    if (speech.isListening) { speech.stop(); recorder.stop() }
+  const finishExposé = useCallback(() => {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
     const text = speech.transcript.trim() || textInput.trim()
-    if (text) submitAnswer(text)
+    speech.stop()
+    if (text) {
+      const t: SimulationTurn = {
+        turnIndex: turnIndexRef.current,
+        role: 'candidate',
+        contentText: text,
+        phase: 'exposé_libre',
+        startedAt: new Date().toISOString(),
+        endedAt: new Date().toISOString(),
+        wordCount: text.split(/\s+/).length,
+        fillerWordsCount: countFillerWords(text),
+      }
+      setTurns(prev => [...prev, t])
+      turnIndexRef.current += 1
+    }
+    speech.reset()
+    setTextInput('')
+    lastTranscriptRef.current = ''
     setPhase('questions_jury')
     triggerPhaseOverlay('Questions du jury')
-    setTimeout(() => fetchJuryQuestion('questions_jury'), 2600)
-  }
-
-  const toggleMic = () => {
-    if (speech.isListening) { speech.stop(); recorder.stop() }
-    else { speech.start(); recorder.start() }
-  }
-
-  const finishAnswer = () => {
-    const text = speech.transcript.trim() || textInput.trim()
-    if (!text) return
-    if (speech.isListening) { speech.stop(); recorder.stop() }
-    submitAnswer(text)
-  }
+    setTimeout(() => fetchJuryQuestion('questions_jury'), 2700)
+  }, [speech, textInput, fetchJuryQuestion])
 
   const handleEnd = useCallback(async () => {
     if (ending) return
     setEnding(true)
-    speech.stop(); recorder.stop(); timer.pause(); juryVoice.stop()
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+    speech.stop()
+    timer.pause()
+    juryVoice.stop()
+    stopAudioLevel()
 
-    if (turnsRef.current.length > 0) {
-      const rows = turnsRef.current.map(t => ({
-        simulation_id: simulationId,
-        turn_index: t.turnIndex,
-        role: t.role,
-        content_text: t.contentText,
-        phase: t.phase,
-        started_at: t.startedAt ?? new Date().toISOString(),
-        ended_at: t.endedAt ?? new Date().toISOString(),
-        word_count: t.wordCount ?? null,
-        filler_words_count: t.fillerWordsCount ?? null,
-        speaking_pace_wpm: t.speakingPaceWpm ?? null,
-      }))
-      try { await supabase.from('simulation_turns').insert(rows) } catch { /* ignore */ }
+    // Navigate immediately — don't make user wait
+    router.push(`/simulation/rapport/${simulationId}`)
+
+    // Do async work after navigation (fire and forget)
+    const snapshot = turnsRef.current
+    const cfg = configRef.current
+
+    if (snapshot.length > 0) {
+      supabase.from('simulation_turns').insert(
+        snapshot.map(t => ({
+          simulation_id: simulationId,
+          turn_index: t.turnIndex,
+          role: t.role,
+          content_text: t.contentText,
+          phase: t.phase,
+          started_at: t.startedAt ?? new Date().toISOString(),
+          ended_at: t.endedAt ?? new Date().toISOString(),
+          word_count: t.wordCount ?? null,
+          filler_words_count: t.fillerWordsCount ?? null,
+          speaking_pace_wpm: t.speakingPaceWpm ?? null,
+        }))
+      ).then(() => {}).catch(() => {})
     }
 
-    try {
-      const reportRes = await fetch('/api/simulation/report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          simulationId,
-          turns: turnsRef.current.map(t => ({ turnIndex: t.turnIndex, role: t.role, contentText: t.contentText, phase: t.phase })),
-          concoursIntitulé: config?.concoursIntitulé ?? '',
-          rubriqueJury: config?.rubriqueJury ?? {},
-          difficulty: config?.difficulty ?? 'standard',
-        }),
-      })
-      if (reportRes.ok) {
-        const reportData = await reportRes.json()
-        if (reportData.report && typeof window !== 'undefined') {
-          sessionStorage.setItem(`sim_report_${simulationId}`, JSON.stringify(reportData.report))
+    fetch('/api/simulation/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        simulationId,
+        turns: snapshot.map(t => ({ turnIndex: t.turnIndex, role: t.role, contentText: t.contentText, phase: t.phase })),
+        concoursIntitulé: cfg?.concoursIntitulé ?? '',
+        rubriqueJury: cfg?.rubriqueJury ?? {},
+        difficulty: cfg?.difficulty ?? 'standard',
+      }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.report && typeof window !== 'undefined') {
+          sessionStorage.setItem(`sim_report_${simulationId}`, JSON.stringify(data.report))
         }
-      }
-    } catch { /* ignore */ }
-
-    router.push(`/simulation/rapport/${simulationId}`)
-  }, [ending, speech, recorder, timer, juryVoice, simulationId, config, router])
+      })
+      .catch(() => {})
+  }, [ending, speech, timer, juryVoice, stopAudioLevel, router, simulationId])
 
   /* ── Loading / error ── */
   if (loading) {
@@ -341,34 +535,35 @@ export default function SimulationSessionPage() {
   }
 
   const totalSec = (config.durationMinutes ?? 30) * 60
-  const hasMic = speech.isSupported
+  const concoursSlug = getConcoursSlug(config.concoursId)
+  const candidateName = config.candidateName ?? 'Candidat(e)'
   const hasInput = !!(speech.transcript.trim() || textInput.trim())
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden select-none">
+    <div className="h-screen bg-[#0F1629] flex flex-col overflow-hidden select-none text-white">
 
       {/* ══ Phase overlay ══ */}
       {phaseOverlay && (
-        <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-[#0F1629]/90 backdrop-blur-sm flex items-center justify-center">
           <div className="text-center space-y-3">
             <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-3xl font-bold text-foreground">{phaseOverlay}</h2>
+            <h2 className="text-3xl font-bold">{phaseOverlay}</h2>
           </div>
         </div>
       )}
 
       {/* ══ Quit confirm ══ */}
       {showQuitConfirm && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass rounded-2xl p-6 max-w-sm w-full space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a2240] border border-white/10 rounded-2xl p-6 max-w-sm w-full space-y-4">
             <h3 className="text-lg font-bold">Quitter la simulation ?</h3>
-            <p className="text-sm text-gray-400">La simulation sera terminée et un rapport sera généré.</p>
+            <p className="text-sm text-gray-400">Le rapport sera généré avec les échanges effectués jusqu'ici.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowQuitConfirm(false)}
-                className="flex-1 py-2 rounded-lg border border-border text-sm hover:bg-card transition-colors"
+                className="flex-1 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/5 transition-colors"
               >
                 Continuer
               </button>
@@ -383,16 +578,16 @@ export default function SimulationSessionPage() {
         </div>
       )}
 
-      {/* ══ Zone haute ══ */}
-      <header className="shrink-0 h-[60px] border-b border-border bg-card/60 backdrop-blur-sm flex items-center px-4 gap-4">
+      {/* ══ Zone haute (60px) ══ */}
+      <header className="shrink-0 h-[60px] border-b border-white/10 bg-[#0d1526]/80 backdrop-blur-sm flex items-center px-4 gap-4">
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-500 truncate">{config.concoursIntitulé}</p>
-          <p className="text-xs font-medium text-primary">{getPhaseLabel(phase)}</p>
+          <p className="text-xs font-semibold text-[#818CF8]">{getPhaseLabel(phase)}</p>
         </div>
         <TimerBadge remaining={timer.remaining} total={totalSec} />
         <button
           onClick={() => setShowQuitConfirm(true)}
-          className="shrink-0 flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-400 transition-colors border border-border rounded-lg px-3 py-1.5"
+          className="shrink-0 flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-400 transition-colors border border-white/10 rounded-lg px-3 py-1.5 hover:border-red-500/30"
         >
           <LogOut className="w-3.5 h-3.5" />
           Quitter
@@ -400,68 +595,97 @@ export default function SimulationSessionPage() {
       </header>
 
       {/* ══ Zone centrale ══ */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-8 overflow-hidden">
-        {/* Jury circles */}
-        <div className="flex items-end justify-center gap-8 lg:gap-16 mb-8">
-          {JURY.map((member, i) => (
-            <JuryCircle
-              key={i}
+      <main className="flex-1 overflow-hidden flex flex-col px-4 py-4 gap-4">
+
+        {/* Jury tiles grid */}
+        <div className="grid grid-cols-3 gap-3 max-w-3xl mx-auto w-full">
+          {DEFAULT_JURY.map((member) => (
+            <JuryTile
+              key={member.id}
               member={member}
-              active={activeJuryIdx === i && (juryMessageVisible || isAiThinking)}
-              thinking={isAiThinking && activeJuryIdx === i}
+              isActiveSpeaker={currentSpeakerId === member.id && (juryVoice.isSpeaking || isAiThinking)}
+              isThinking={isAiThinking && currentSpeakerId === member.id}
+              hasMicReaction={!!reactions[member.id]}
+              concoursSlug={concoursSlug}
+              dimmed={
+                (juryVoice.isSpeaking || isAiThinking) &&
+                currentSpeakerId !== member.id
+              }
             />
           ))}
         </div>
 
-        {/* Jury speech bubble */}
-        <div className="w-full max-w-2xl">
-          {isAiThinking ? (
-            <div className="text-center space-y-2">
-              <Loader2 className="w-6 h-6 text-violet-400 animate-spin mx-auto" />
-              <p className="text-sm text-gray-500">Le jury réfléchit…</p>
-            </div>
-          ) : juryMessageVisible && juryMessage ? (
-            <div className="glass rounded-2xl px-6 py-4 border border-violet-500/20 text-center">
-              <p className="text-sm text-gray-400 mb-1 font-medium">{JURY[activeJuryIdx]?.full} :</p>
-              <p className="text-foreground leading-relaxed">{juryMessage}</p>
-            </div>
-          ) : null}
-        </div>
+        {/* Jury message + candidate tile row */}
+        <div className="flex-1 max-w-3xl mx-auto w-full flex gap-3 items-start">
+          {/* Jury speech area */}
+          <div className="flex-1">
+            {isAiThinking ? (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Loader2 className="w-4 h-4 animate-spin text-violet-400" />
+                Le jury réfléchit…
+              </div>
+            ) : juryMessage ? (
+              <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+                <p className="text-xs text-[#818CF8] font-medium mb-1">
+                  {getJuryMember(currentSpeakerId).name} · {getJuryMember(currentSpeakerId).roleLabel}
+                </p>
+                <p className="text-sm text-gray-200 leading-relaxed">{juryMessage}</p>
+              </div>
+            ) : null}
 
-        {/* Live transcript */}
-        {(speech.transcript || speech.interimTranscript) && speech.isListening && (
-          <div className="w-full max-w-2xl mt-4 px-4 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-            <p className="text-xs text-indigo-400 mb-1 font-medium">Vous parlez…</p>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              {speech.transcript}
-              <span className="text-gray-500 italic">{speech.interimTranscript}</span>
-            </p>
+            {/* Live transcript */}
+            {(speech.transcript || speech.interimTranscript) && (
+              <div className="mt-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-4 py-3">
+                <p className="text-xs text-indigo-400 font-medium mb-1">Vous parlez…</p>
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  {speech.transcript}
+                  <span className="text-gray-500 italic">{speech.interimTranscript}</span>
+                </p>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Candidate tile — fixed small tile */}
+          <div className="shrink-0">
+            <CandidateTile
+              isListening={speech.isListening}
+              audioLevel={audioLevel}
+              candidateName={candidateName}
+            />
+            <div className="mt-1 text-center">
+              <span className="text-xs text-gray-600">
+                {speech.isListening ? '🔴 Écoute' : juryVoice.isSpeaking ? '🟣 Jury' : '⬜ Attente'}
+              </span>
+            </div>
+          </div>
+        </div>
       </main>
 
       {/* ══ Zone basse ══ */}
-      <footer className="shrink-0 border-t border-border bg-card/60 backdrop-blur-sm px-4 py-4">
-        <div className="max-w-2xl mx-auto space-y-3">
+      <footer className="shrink-0 border-t border-white/10 bg-[#0d1526]/80 backdrop-blur-sm px-4 py-3">
+        <div className="max-w-3xl mx-auto space-y-2">
 
+          {/* Exposé control */}
           {phase === 'exposé_libre' && (
             <div className="text-center">
               <button
                 onClick={finishExposé}
-                disabled={isAiThinking}
-                className="text-sm text-primary hover:text-violet-300 underline underline-offset-4 transition-colors disabled:opacity-40"
+                disabled={isAiThinking || juryVoice.isSpeaking}
+                className="text-sm text-[#818CF8] hover:text-violet-300 underline underline-offset-4 transition-colors disabled:opacity-40"
               >
                 Terminer l'exposé → passer aux questions du jury
               </button>
             </div>
           )}
 
-          <div className="flex items-center justify-center gap-2 text-xs min-h-[20px]">
+          {/* Mic status indicator */}
+          <div className="flex items-center justify-center gap-2 text-xs min-h-[18px]">
             {juryVoice.isSpeaking ? (
               <span className="flex items-center gap-1.5 text-violet-400">
                 <span className="flex gap-0.5 items-end h-4">
                   {[0, 1, 2].map(i => (
-                    <span key={i} className="w-1 bg-violet-400 rounded-full animate-bounce" style={{ height: `${8 + i * 4}px`, animationDelay: `${i * 100}ms` }} />
+                    <span key={i} className="w-1 bg-violet-400 rounded-full animate-bounce"
+                      style={{ height: `${8 + i * 4}px`, animationDelay: `${i * 100}ms` }} />
                   ))}
                 </span>
                 Le jury parle…
@@ -471,44 +695,68 @@ export default function SimulationSessionPage() {
                 <span className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
                 Le jury vous écoute
               </span>
+            ) : isAiThinking ? (
+              <span className="text-gray-600">Le jury réfléchit…</span>
             ) : (
               <span className="text-gray-600">À vous de parler</span>
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Input + submit */}
+          <div className="flex items-center gap-2">
             <textarea
               value={textInput}
               onChange={e => setTextInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && hasInput) { e.preventDefault(); finishAnswer() } }}
-              placeholder={speech.isListening ? 'Reconnaissance vocale active…' : 'Tapez votre réponse…'}
-              rows={2}
-              disabled={isAiThinking || juryVoice.isSpeaking}
-              className="flex-1 bg-card border border-border rounded-xl px-4 py-2.5 text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-40 placeholder-gray-600"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey && hasInput) {
+                  e.preventDefault()
+                  const text = speech.transcript.trim() || textInput.trim()
+                  if (phase === 'exposé_libre') finishExposé()
+                  else submitAnswer(text)
+                }
+              }}
+              placeholder={speech.isListening ? 'Micro actif — parlez librement…' : 'Rédigez ou parlez…'}
+              rows={1}
+              disabled={isAiThinking || juryVoice.isSpeaking || ending}
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-40 placeholder-gray-600"
             />
 
-            {hasMic && (
+            {/* Manual mic toggle */}
+            {speech.isSupported && (
               <button
-                onClick={toggleMic}
-                disabled={isAiThinking || juryVoice.isSpeaking}
-                className={`relative w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-all disabled:opacity-40 ${
+                onClick={() => {
+                  if (speech.isListening) speech.stop()
+                  else { speech.reset(); speech.start() }
+                }}
+                disabled={isAiThinking || juryVoice.isSpeaking || ending}
+                className={`relative w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all disabled:opacity-40 ${
                   speech.isListening
-                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/40'
-                    : 'bg-card border border-border text-gray-400 hover:border-primary hover:text-primary'
+                    ? 'bg-red-500 shadow-lg shadow-red-500/40'
+                    : 'bg-white/10 border border-white/15 text-gray-400 hover:border-[#818CF8] hover:text-[#818CF8]'
                 }`}
               >
-                {speech.isListening && <span className="absolute inset-0 rounded-full border-2 border-red-400 animate-ping opacity-30" />}
-                {speech.isListening ? <MicOff className="w-5 h-5 relative z-10" /> : <Mic className="w-5 h-5 relative z-10" />}
+                {speech.isListening && (
+                  <span className="absolute inset-0 rounded-full border-2 border-red-400 animate-ping opacity-30" />
+                )}
+                {speech.isListening
+                  ? <MicOff className="w-4 h-4 text-white relative z-10" />
+                  : <Mic className="w-4 h-4 relative z-10" />
+                }
               </button>
             )}
 
             <button
-              onClick={finishAnswer}
-              disabled={isAiThinking || juryVoice.isSpeaking || !hasInput}
-              className="shrink-0 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={() => {
+                const text = speech.transcript.trim() || textInput.trim()
+                if (!text) return
+                if (phase === 'exposé_libre') finishExposé()
+                else submitAnswer(text)
+              }}
+              disabled={isAiThinking || juryVoice.isSpeaking || !hasInput || ending}
+              className="shrink-0 px-4 py-2.5 rounded-xl bg-[#818CF8] text-white text-sm font-medium hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">J'ai terminé</span>
+              <span className="hidden sm:inline">Valider</span>
             </button>
           </div>
 

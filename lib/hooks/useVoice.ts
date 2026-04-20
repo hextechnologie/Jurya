@@ -169,40 +169,144 @@ export function useAudioRecorder() {
   return { isRecording, audioBlob, duration, error, start, stop, reset }
 }
 
-// Hook: Text-to-Speech for jury voice
+/** Strip markdown so TTS never reads asterisks / hashes aloud */
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/gs, '$1')
+    .replace(/\*(.+?)\*/gs, '$1')
+    .replace(/__(.+?)__/gs, '$1')
+    .replace(/_(.+?)_/gs, '$1')
+    .replace(/#{1,6}\s+/gm, '')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .trim()
+}
+
+// Hook: Text-to-Speech — tries ElevenLabs first, falls back to Web Speech API
+// speak(text, voiceId?, fallbackPitch?, fallbackRate?) where voiceId is ElevenLabs voice ID
 export function useJuryVoice() {
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const blobUrlRef = useRef<string | null>(null)
 
-  const speak = useCallback((text: string) => {
+  const speakFallback = useCallback((clean: string, pitch = 0.9, rate = 0.92) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return
-
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel()
-
-    const utterance = new SpeechSynthesisUtterance(text)
+    const utterance = new SpeechSynthesisUtterance(clean)
     utterance.lang = 'fr-FR'
-    utterance.rate = 0.95  // Slightly slower for authority
-    utterance.pitch = 0.9  // Slightly lower for gravitas
-
-    // Try to use a French voice
+    utterance.rate = rate
+    utterance.pitch = pitch
+    // Pick best available French voice
     const voices = window.speechSynthesis.getVoices()
-    const frenchVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google'))
-      || voices.find(v => v.lang.startsWith('fr'))
-    if (frenchVoice) utterance.voice = frenchVoice
-
+    const frVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google'))
+      ?? voices.find(v => v.lang.startsWith('fr'))
+    if (frVoice) utterance.voice = frVoice
     utterance.onstart = () => setIsSpeaking(true)
     utterance.onend = () => setIsSpeaking(false)
     utterance.onerror = () => setIsSpeaking(false)
-
     window.speechSynthesis.speak(utterance)
   }, [])
 
+  const speak = useCallback(async (
+    text: string,
+    voiceId?: string,
+    fallbackPitch = 0.9,
+    fallbackRate = 0.92,
+  ) => {
+    // Stop any currently playing audio
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+    if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null }
+    window.speechSynthesis?.cancel()
+
+    const clean = stripMarkdown(text)
+    if (!clean) return
+
+    // Try ElevenLabs if voiceId provided
+    if (voiceId) {
+      try {
+        const res = await fetch('/api/simulation/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: clean, voiceId }),
+        })
+        if (res.ok) {
+          const blob = await res.blob()
+          const url = URL.createObjectURL(blob)
+          blobUrlRef.current = url
+          const audio = new Audio(url)
+          audioRef.current = audio
+          setIsSpeaking(true)
+          audio.play().catch(() => speakFallback(clean, fallbackPitch, fallbackRate))
+          audio.onended = () => {
+            setIsSpeaking(false)
+            if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null }
+          }
+          audio.onerror = () => {
+            setIsSpeaking(false)
+            speakFallback(clean, fallbackPitch, fallbackRate)
+          }
+          return
+        }
+      } catch { /* fall through to Web Speech API */ }
+    }
+
+    speakFallback(clean, fallbackPitch, fallbackRate)
+  }, [speakFallback])
+
   const stop = useCallback(() => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+    if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null }
     window.speechSynthesis?.cancel()
     setIsSpeaking(false)
   }, [])
 
+  useEffect(() => () => stop(), [stop])
+
   return { isSpeaking, speak, stop }
+}
+
+// Hook: Real-time microphone audio level (for candidate tile waveform)
+export function useAudioLevel() {
+  const [level, setLevel] = useState(0)
+  const streamRef = useRef<MediaStream | null>(null)
+  const ctxRef = useRef<AudioContext | null>(null)
+  const rafRef = useRef<number>(0)
+
+  const start = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      streamRef.current = stream
+      const ctx = new AudioContext()
+      ctxRef.current = ctx
+      const src = ctx.createMediaStreamSource(stream)
+      const analyser = ctx.createAnalyser()
+      analyser.fftSize = 128
+      src.connect(analyser)
+      const data = new Uint8Array(analyser.frequencyBinCount)
+      const tick = () => {
+        analyser.getByteFrequencyData(data)
+        const avg = data.reduce((s, v) => s + v, 0) / data.length
+        setLevel(Math.min(100, Math.round((avg / 80) * 100)))
+        rafRef.current = requestAnimationFrame(tick)
+      }
+      tick()
+    } catch { /* no mic */ }
+  }, [])
+
+  const stop = useCallback(() => {
+    cancelAnimationFrame(rafRef.current)
+    ctxRef.current?.close().catch(() => {})
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    ctxRef.current = null
+    setLevel(0)
+  }, [])
+
+  useEffect(() => () => stop(), [stop])
+
+  return { level, start, stop }
 }
 
 // Hook: Simulation timer (countdown)

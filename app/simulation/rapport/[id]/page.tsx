@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import CandidateNavbar from '@/components/CandidateNavbar'
 import Link from 'next/link'
 import {
@@ -70,20 +69,21 @@ export default function SimulationRapportPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function loadReport() {
-      // 1. Try sessionStorage (fastest — set by live session page)
+    let stopped = false
+
+    async function tryLoad(): Promise<boolean> {
+      // 1. Try sessionStorage (set by session page after generation)
       const cached = typeof window !== 'undefined'
         ? sessionStorage.getItem(`sim_report_${simulationId}`)
         : null
       if (cached) {
-        setReport(JSON.parse(cached))
-        setLoading(false)
-        return
+        if (!stopped) { setReport(JSON.parse(cached)); setLoading(false) }
+        return true
       }
 
       // 2. Try DB
       try {
-        const { data } = await supabase
+        const { supabase } = await import('@/lib/supabase')        const { data } = await supabase
           .from('simulation_reports')
           .select('report_data')
           .eq('simulation_id', simulationId)
@@ -91,16 +91,40 @@ export default function SimulationRapportPage() {
           .limit(1)
           .single()
         if (data?.report_data) {
-          setReport(data.report_data as QualReport)
-          setLoading(false)
+          if (!stopped) { setReport(data.report_data as QualReport); setLoading(false) }
+          return true
+        }
+      } catch { /* not ready yet */ }
+
+      return false
+    }
+
+    async function loadReport() {
+      const immediate = await tryLoad()
+      if (immediate) return
+
+      // Report not ready yet — session page is still generating it
+      // Poll every 2 seconds for up to 90 seconds
+      let attempts = 0
+      const poll = setInterval(async () => {
+        attempts++
+        const found = await tryLoad()
+        if (found || stopped) {
+          clearInterval(poll)
           return
         }
-      } catch { /* fall through */ }
-
-      setError('Rapport introuvable. Il se peut que la génération n\'ait pas abouti.')
-      setLoading(false)
+        if (attempts >= 45) {
+          clearInterval(poll)
+          if (!stopped) {
+            setError('La génération du rapport a pris trop de temps. Veuillez réessayer.')
+            setLoading(false)
+          }
+        }
+      }, 2000)
     }
+
     loadReport()
+    return () => { stopped = true }
   }, [simulationId])
 
   /* ── Loading ── */

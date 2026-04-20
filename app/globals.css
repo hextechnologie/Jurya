@@ -59,6 +59,24 @@
   }
 }
 
+/* Jury tile breathing animation — subtle scale pulse */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+
+/* TTS waveform bars — vertical bounce from bottom */
+@keyframes waveBar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+
+/* Micro-reaction: subtle nod */
+@keyframes nodGesture {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
