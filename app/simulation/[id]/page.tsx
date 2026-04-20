@@ -477,7 +477,7 @@ export default function SimulationSessionPage() {
     const cfg = configRef.current
 
     if (snapshot.length > 0) {
-      supabase.from('simulation_turns').insert(
+      Promise.resolve(supabase.from('simulation_turns').insert(
         snapshot.map(t => ({
           simulation_id: simulationId,
           turn_index: t.turnIndex,
@@ -490,7 +490,7 @@ export default function SimulationSessionPage() {
           filler_words_count: t.fillerWordsCount ?? null,
           speaking_pace_wpm: t.speakingPaceWpm ?? null,
         }))
-      ).then(() => {}).catch(() => {})
+      )).then(() => {}).catch(() => {})
     }
 
     fetch('/api/simulation/report', {
