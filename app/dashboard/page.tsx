@@ -372,7 +372,7 @@ function CoachWidget({ booking }: { booking: Booking | null }) {
 /* ── State: NEW ── */
 function StateNew({ firstName, completedSteps }: { firstName: string; completedSteps: boolean[] }) {
   const steps = [
-    { label: 'Choisir votre concours cible', href: '/simulation/setup', desc: 'Sélectionnez le concours que vous préparez' },
+    { label: 'Choisir votre concours cible', href: '/profile', desc: 'Sélectionnez le concours que vous préparez' },
     { label: "Indiquer votre date d'oral (recommandé)", href: '/profile', desc: 'Active le mode préparation intensive quand la date approche' },
     { label: 'Lancer votre première simulation', href: '/simulation/setup', desc: 'Moins de 15 minutes pour un premier diagnostic' },
   ]

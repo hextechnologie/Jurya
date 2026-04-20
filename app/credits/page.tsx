@@ -103,17 +103,9 @@ export default function CreditsPage() {
   // Only redirect if the user is definitively not authenticated
   if (!user) { router.push('/login'); return null }
 
-  // Profile may still be fetching after auth resolves — show spinner instead of redirecting
-  if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0F1629' }}>
-        <div className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
-  }
-
-  const available = Math.max(0, profile.interviews_limit - profile.interviews_used_this_month)
-  const currentTier = profile.subscription_tier
+  // If auth is done and user is logged in but profile is still null, use safe defaults
+  const available = profile ? Math.max(0, profile.interviews_limit - profile.interviews_used_this_month) : 0
+  const currentTier = profile?.subscription_tier ?? 'free'
 
   return (
     <div className="min-h-screen text-white" style={{ background: '#0F1629' }}>
@@ -132,7 +124,7 @@ export default function CreditsPage() {
           <div className="bg-slate-900/80 border border-white/8 rounded-2xl px-5 py-4 text-center min-w-[150px]">
             <div className="text-3xl font-bold text-indigo-400">{available}</div>
             <div className="text-xs text-gray-500 mt-1">crÃ©dits disponibles</div>
-            <div className="text-xs text-gray-600 mt-0.5">{profile.interviews_used_this_month}/{profile.interviews_limit} utilisÃ©s ce mois</div>
+            <div className="text-xs text-gray-600 mt-0.5">{profile?.interviews_used_this_month ?? 0}/{profile?.interviews_limit ?? 30} utilises ce mois</div>
           </div>
         </div>
 

@@ -73,9 +73,13 @@ export default function ProfilePage() {
     if (user && profile) {
       loadProfile()
       loadConcours()
+    } else if (user && !profile && !authLoading) {
+      // User authenticated but no profile yet — still load concours and stop the spinner
+      loadConcours()
+      setLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, profile])
+  }, [user, profile, authLoading])
 
   async function loadConcours() {
     const { data } = await supabase.from('concours').select('id, intitulé').order('intitulé')

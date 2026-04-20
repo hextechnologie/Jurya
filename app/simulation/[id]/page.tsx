@@ -420,10 +420,11 @@ export default function SimulationSessionPage() {
       const speakerId: SpeakerId = (['president', 'technique', 'rh'].includes(data.next_speaker)
         ? data.next_speaker
         : 'technique') as SpeakerId
+      // Stop the "thinking" spinner BEFORE speaking so the jury text bubble is visible during speech
+      setIsAiThinking(false)
       await speakAsJury(data.question, speakerId)
     } catch (err) {
       console.error('Erreur question jury:', err)
-    } finally {
       setIsAiThinking(false)
     }
   }, [simulationId, currentSpeakerId, speakAsJury])

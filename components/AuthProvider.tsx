@@ -24,23 +24,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   const fetchProfile = async (userId: string) => {
-    // Force fresh fetch by adding timestamp to bypass any caching
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
-    if (!error && data) {
-      console.log('✅ Profile fetched:', {
-        email: data.email,
-        tier: data.subscription_tier,
-        limit: data.interviews_limit,
-        used: data.interviews_used_this_month
-      })
+    if (data) {
       setProfile(data)
     } else if (error) {
       console.error('❌ Profile fetch error:', error)
+    } else {
+      // No profile row exists — create a minimal one (new user, trigger may not have fired)
+      const { data: created, error: createErr } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          subscription_tier: 'free',
+          interviews_limit: 30,
+          interviews_used_this_month: 0,
+        })
+        .select('*')
+        .single()
+      if (created) {
+        setProfile(created)
+      } else {
+        console.warn('Could not create profile:', createErr?.message)
+      }
     }
   }
 
