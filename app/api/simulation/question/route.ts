@@ -116,6 +116,8 @@ export async function POST(req: NextRequest) {
     ]
     const jury: JuryMember[] = Array.isArray(juryMembers) && juryMembers.length === 3 ? juryMembers : defaultJury
 
+    const rubriqueText = rubriqueJury ? JSON.stringify(rubriqueJury, null, 2) : '{}'
+
     // Detect rude/inappropriate language in last candidate turn
     const RUDE_PATTERNS = /putain|merde|con\b|conne\b|idiot|crétin|nul|incompétent|vous êtes nul|c'est nul|je m'en fous|laissez-moi|vous me faites chier|allez vous faire/i
     const lastCandidateTurn = [...(conversationHistory ?? [])].reverse().find((t: { role: string; content: string }) => t.role === 'user')
