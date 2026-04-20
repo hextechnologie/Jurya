@@ -370,54 +370,44 @@ function CoachWidget({ booking }: { booking: Booking | null }) {
 }
 
 /* ── State: NEW ── */
-function StateNew({ firstName }: { firstName: string }) {
-  const [checked, setChecked] = useState<Record<number, boolean>>(() => {
-    if (typeof window === 'undefined') return {}
-    try { return JSON.parse(localStorage.getItem('jurya_onboarding') ?? '{}') } catch { return {} }
-  })
-
-  const toggle = (i: number) => {
-    const next = { ...checked, [i]: !checked[i] }
-    setChecked(next)
-    localStorage.setItem('jurya_onboarding', JSON.stringify(next))
-  }
-
+function StateNew({ firstName, completedSteps }: { firstName: string; completedSteps: boolean[] }) {
   const steps = [
     { label: 'Choisir votre concours cible', href: '/simulation/setup', desc: 'Sélectionnez le concours que vous préparez' },
-    { label: 'Indiquer votre date d\'oral (recommandé)', href: '/profile', desc: 'Active le mode préparation intensive quand la date approche' },
+    { label: "Indiquer votre date d'oral (recommandé)", href: '/profile', desc: 'Active le mode préparation intensive quand la date approche' },
     { label: 'Lancer votre première simulation', href: '/simulation/setup', desc: 'Moins de 15 minutes pour un premier diagnostic' },
   ]
 
   return (
-    <div className="max-w-xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Onboarding */}
       <DCard>
         <h2 className="text-lg font-medium text-white mb-1">Commencez votre préparation</h2>
         <p className="text-sm text-gray-400 mb-5">Votre première simulation prend moins de 15 minutes et vous donne un premier diagnostic complet.</p>
         <div className="space-y-3">
-          {steps.map((s, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <button onClick={() => toggle(i)} className="mt-0.5 shrink-0">
-                {checked[i]
-                  ? <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  : <Circle className="w-5 h-5 text-gray-600" />
+          {steps.map((s, i) => {
+            const done = completedSteps[i] ?? false
+            return (
+              <div key={i} className="flex items-start gap-3">
+                {done
+                  ? <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  : <span className="w-5 h-5 rounded-full border border-slate-500 text-slate-500 text-xs flex items-center justify-center shrink-0 mt-0.5 font-medium">{i + 1}</span>
                 }
-              </button>
-              <div className="flex-1">
-                <p className={`text-sm font-medium ${checked[i] ? 'text-gray-500 line-through' : 'text-white'}`}>{s.label}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{s.desc}</p>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-medium ${done ? 'text-slate-400 line-through' : 'text-slate-100'}`}>{s.label}</p>
+                  {!done && <p className="text-xs text-slate-400 mt-0.5">{s.desc}</p>}
+                </div>
+                {done
+                  ? <span className="text-xs text-emerald-400 self-center shrink-0">Terminé</span>
+                  : i === 2
+                    ? <Link href={completedSteps[0] ? s.href : '#'}
+                        className={`text-sm px-4 py-1.5 rounded-xl font-medium transition-colors shrink-0 ${completedSteps[0] ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
+                        Commencer
+                      </Link>
+                    : <Link href={s.href} className="text-xs text-indigo-400 hover:underline self-center shrink-0">Configurer</Link>
+                }
               </div>
-              {i === 2 && (
-                <Link href={checked[0] ? s.href : '#'}
-                  className={`text-sm px-4 py-1.5 rounded-xl font-medium transition-colors ${checked[0] ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
-                  Commencer
-                </Link>
-              )}
-              {i !== 2 && (
-                <Link href={s.href} className="text-xs text-indigo-400 hover:underline self-center">Configurer</Link>
-              )}
-            </div>
-          ))}
+            )
+          })}
         </div>
       </DCard>
 
@@ -427,7 +417,7 @@ function StateNew({ firstName }: { firstName: string }) {
         <div className="grid grid-cols-3 gap-3">
           {[
             { title: 'Un jury IA réaliste', desc: 'Trois jurés distincts, questions adaptées à votre concours, conditions de pression réelles.' },
-            { title: 'Un rapport immédiat', desc: 'Points forts, axes de travail, extraits de vos réponses, plan d\'action personnalisé.' },
+            { title: 'Un rapport immédiat', desc: "Points forts, axes de travail, extraits de vos réponses, plan d'action personnalisé." },
             { title: 'Une progression mesurable', desc: 'Chaque simulation nourrit votre radar de compétences. Voyez vos progrès, session après session.' },
           ].map((item, i) => (
             <div key={i} className="border-l-2 border-indigo-500/30 pl-3">
@@ -683,6 +673,7 @@ export default function DashboardPage() {
   const [reportMap, setReportMap] = useState<Map<string, ReportData>>(new Map())
   const [goals, setGoals] = useState<Goal[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [onboardingSteps, setOnboardingSteps] = useState<boolean[]>([false, false, false])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -695,7 +686,7 @@ export default function DashboardPage() {
     setLoading(true)
     const uid = user.id
 
-    const [simRes, goalRes, bookRes] = await Promise.all([
+    const [simRes, goalRes, bookRes, onboardingRes] = await Promise.all([
       supabase
         .from('simulations')
         .select('id, created_at, completed_at, actual_duration_seconds, status, simulation_config')
@@ -713,12 +704,19 @@ export default function DashboardPage() {
         .in('status', ['confirmed', 'pending'])
         .order('scheduled_at', { ascending: true })
         .limit(3),
+      supabase
+        .from('user_onboarding_progress')
+        .select('step_key')
+        .eq('user_id', uid),
     ])
 
     const simsData = (simRes.data ?? []) as unknown as Simulation[]
     setSims(simsData)
     setGoals((goalRes.data ?? []) as unknown as Goal[])
     setBookings((bookRes.data ?? []) as unknown as Booking[])
+    const STEP_KEYS = ['choose_concours', 'set_exam_date', 'first_simulation']
+    const completedSet = new Set(((onboardingRes.data ?? []) as { step_key: string }[]).map(r => r.step_key))
+    setOnboardingSteps(STEP_KEYS.map(k => completedSet.has(k)))
 
     if (simsData.length > 0) {
       const { data: reps } = await supabase
@@ -761,7 +759,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen text-white" style={{ background: '#0F1629' }}>
       <CandidateNavbar />
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-7">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-8 space-y-7">
         {/* Common header */}
         <DashboardHeader
           firstName={firstName}
@@ -779,7 +777,7 @@ export default function DashboardPage() {
         )}
 
         {/* State-specific content */}
-        {state === 'new' && <StateNew firstName={firstName} />}
+        {state === 'new' && <StateNew firstName={firstName} completedSteps={onboardingSteps} />}
         {state === 'active' && (
           <StateActive sims={sims} reports={reports} reportMap={reportMap} bookings={bookings} />
         )}

@@ -85,9 +85,9 @@ function PurchaseModal({ label, price, productId, kind, onClose }: {
   )
 }
 
-/* â”€â”€â”€ Main â”€â”€â”€ */
+/* --- Main --- */
 export default function CreditsPage() {
-  const { profile, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
   const [tab, setTab] = useState<'abonnements' | 'packs'>('abonnements')
   const [modal, setModal] = useState<{ label: string; price: number; productId: string; kind: 'plan' | 'pack' } | null>(null)
@@ -100,7 +100,17 @@ export default function CreditsPage() {
     )
   }
 
-  if (!profile) { router.push('/login'); return null }
+  // Only redirect if the user is definitively not authenticated
+  if (!user) { router.push('/login'); return null }
+
+  // Profile may still be fetching after auth resolves — show spinner instead of redirecting
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0F1629' }}>
+        <div className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   const available = Math.max(0, profile.interviews_limit - profile.interviews_used_this_month)
   const currentTier = profile.subscription_tier
