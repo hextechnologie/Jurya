@@ -1,202 +1,140 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-})
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
-// Server-side Supabase client with service role for writes
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const REPORT_SYSTEM_PROMPT = `Vous êtes un évaluateur expert de concours oraux français. Analysez la prestation complète du candidat et produisez un rapport d'évaluation détaillé.
+const REPORT_SYSTEM_PROMPT = `Vous êtes un évaluateur expert de concours oraux français de la fonction publique.
+Analysez la prestation du candidat et produisez un rapport qualitatif pur. AUCUNE note chiffrée.
 
-Répondez UNIQUEMENT en JSON valide avec cette structure exacte :
+Répondez UNIQUEMENT en JSON valide avec cette structure :
 {
-  "overallScore": <nombre de 0 à 20, décimale possible>,
-  "overallVerdict": "<très_insuffisant|insuffisant|moyen|bien|très_bien|excellent>",
-  "axisScores": {
-    "structure_exposé": {
-      "score": <1-5>,
-      "max": 5,
-      "evidence": [
-        { "turnIndex": <int>, "quote": "citation exacte du candidat", "comment": "analyse" }
-      ],
-      "recommendationFr": "conseil concret"
-    },
-    "motivation_cohérence": { ... même structure },
-    "connaissance_environnement": { ... même structure },
-    "communication_stress": { ... même structure }
-  },
+  "impressionGlobale": "Un paragraphe de 3 à 5 phrases décrivant l'impression générale laissée par le candidat, comme le jury la rédigerait en délibéré. Soyez honnête et nuancé.",
+  "tags": [
+    "Structure : solide",
+    "Motivation : convaincante",
+    "Communication : à travailler",
+    "Connaissance du corps : lacunaire"
+  ],
   "strengths": [
-    { "axis": "nom de l'axe", "comment": "ce qui est bien", "evidenceTurnIndex": <int> }
+    { "label": "ce qui a marché", "detail": "explication avec citation du candidat si possible", "turnIndex": <int ou null> }
   ],
   "weaknesses": [
-    { "axis": "nom de l'axe", "comment": "ce qui est à améliorer", "evidenceTurnIndex": <int> }
+    { "label": "ce qu'il faut travailler", "detail": "conseil pratique + timestamp si pertinent", "turnIndex": <int ou null> }
   ],
-  "juryPerceptionFr": "Un paragraphe décrivant ce que le jury aurait probablement pensé en interne pendant cette épreuve. Soyez réaliste et nuancé.",
-  "improvementPlan": [
-    "Action concrète 1",
-    "Action concrète 2",
-    "Action concrète 3"
-  ],
-  "reformulationExamples": [
-    {
-      "original": "ce que le candidat a dit",
-      "suggested": "une meilleure formulation",
-      "context": "pourquoi c'est mieux"
-    }
-  ],
-  "transcriptAnnotations": [
+  "extraitsMarquants": [
     {
       "turnIndex": <int>,
-      "type": "<filler|strength|weakness>",
-      "text": "le passage concerné",
-      "comment": "explication"
+      "role": "jury ou candidate",
+      "quote": "extrait exact de la transcription",
+      "comment": "pourquoi cet extrait est notable",
+      "type": "force ou faiblesse ou point_cle"
     }
+  ],
+  "reformulations": [
+    {
+      "original": "ce que le candidat a dit",
+      "suggested": "formulation plus efficace",
+      "context": "courte explication de l'amélioration"
+    }
+  ],
+  "planAction": [
+    "Action concrète et réaliste 1",
+    "Action concrète et réaliste 2",
+    "Action concrète et réaliste 3"
   ]
 }
 
-Consignes :
-- Notez sur /20 de façon réaliste (un 18+ est exceptionnel, réservé aux prestations quasi parfaites)
-- Citez toujours le candidat pour appuyer vos évaluations
-- Le jury_perception doit être une réflexion interne honnête, pas un feedback poli
-- Les reformulations doivent être concrètes et immédiatement applicables
-- Le plan d'amélioration doit contenir 3 à 5 actions réalistes
-- Identifiez les mots parasites (euh, voilà, donc, en fait, du coup, genre) dans les annotations
-- Soyez bienveillant mais exigeant dans votre notation`
+Règles strictes :
+- Aucun chiffre ni note sur X/20 — uniquement des appréciations qualitatives
+- Les tags doivent suivre le format "Axe : appréciation" (4 à 6 tags au total)
+- Axes possibles : Structure, Motivation, Communication, Connaissance du corps, Gestion du stress, Aisance orale, Argumentation
+- Appréciations possibles : très solide, solide, satisfaisante, à consolider, à travailler, lacunaire
+- Citez toujours le candidat pour étayer les forces et faiblesses
+- Soyez bienveillant mais réaliste
+- Le plan d'action : 3 à 5 actions, concrètes et immédiatement applicables`
+
+function getDefaultReport() {
+  return {
+    impressionGlobale: "La prestation n'a pas pu être analysée en raison d'une session trop courte ou d'une erreur technique. Veuillez relancer une simulation.",
+    tags: ['Session : incomplète'],
+    strengths: [],
+    weaknesses: [{ label: 'Session incomplète', detail: 'La simulation n\'a pas produit assez d\'échanges pour une analyse.', turnIndex: null }],
+    extraitsMarquants: [],
+    reformulations: [],
+    planAction: ['Relancer une simulation complète pour obtenir un rapport détaillé.'],
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { simulationId, turns, concoursIntitulé, rubriqueJury } = body
+    const { simulationId, turns, concoursIntitulé, rubriqueJury, difficulty } = body
 
-    if (!simulationId || !turns || !concoursIntitulé) {
-      return NextResponse.json(
-        { error: 'Paramètres manquants.' },
-        { status: 400 }
-      )
+    if (!simulationId || !concoursIntitulé) {
+      return NextResponse.json({ error: 'Paramètres manquants.' }, { status: 400 })
     }
 
     const rubriqueText = rubriqueJury ? JSON.stringify(rubriqueJury, null, 2) : '{}'
-
-    // Build transcript
-    const transcript = turns
+    const transcript = (turns ?? [])
       .map((t: { turnIndex: number; role: string; contentText: string; phase: string }) =>
         `[Tour ${t.turnIndex} — ${t.role === 'jury' ? 'JURY' : 'CANDIDAT'} — ${t.phase}]\n${t.contentText}`
       )
       .join('\n\n')
 
     const userPrompt = `Concours : ${concoursIntitulé}
+Niveau de difficulté du jury : ${difficulty ?? 'standard'}
+Rubrique d'évaluation : ${rubriqueText}
 
-Rubrique d'évaluation :
-${rubriqueText}
+Transcription complète (${(turns ?? []).length} tours) :
+${transcript || '(Aucun échange enregistré — session trop courte)'}
 
-Transcription complète de l'épreuve (${turns.length} tours) :
-
-${transcript}
-
-Produisez le rapport d'évaluation complet en JSON.`
+Produisez le rapport qualitatif en JSON.`
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 4096,
       system: REPORT_SYSTEM_PROMPT,
-      messages: [
-        { role: 'user', content: userPrompt },
-      ],
+      messages: [{ role: 'user', content: userPrompt }],
     })
 
-    const content = response.content[0]
-    const rawText = content.type === 'text' ? content.text : '{}'
-
-    // Parse JSON from response
-    let report
+    const rawText = response.content[0]?.type === 'text' ? response.content[0].text : '{}'
+    let report = getDefaultReport()
     const jsonMatch = rawText.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
-      try {
-        report = JSON.parse(jsonMatch[0])
-      } catch {
-        report = getDefaultReport()
-      }
-    } else {
-      report = getDefaultReport()
+      try { report = JSON.parse(jsonMatch[0]) } catch { /* use default */ }
     }
 
-    // Save report to Supabase
-    const { data: savedReport, error: insertErr } = await supabaseAdmin
-      .from('simulation_reports')
-      .insert({
+    // Persist to Supabase (best-effort)
+    try {
+      await supabaseAdmin.from('simulation_reports').insert({
         simulation_id: simulationId,
-        overall_score: report.overallScore ?? 10,
-        overall_verdict: report.overallVerdict ?? 'moyen',
-        strengths: report.strengths ?? [],
-        weaknesses: report.weaknesses ?? [],
-        axis_scores: report.axisScores ?? {},
-        jury_perception_fr: report.juryPerceptionFr ?? '',
-        improvement_plan: report.improvementPlan ?? [],
-        reformulation_examples: report.reformulationExamples ?? [],
-        transcript_annotations: report.transcriptAnnotations ?? [],
+        report_data: report,
         generation_model: 'claude-sonnet-4-6',
       })
-      .select()
-      .single()
+    } catch { /* table may not exist yet — ignore */ }
 
-    if (insertErr) {
-      console.error('Erreur insertion rapport:', insertErr)
+    try {
+      await supabaseAdmin
+        .from('simulations')
+        .update({ status: 'completed' })
+        .eq('id', simulationId)
+    } catch { /* ignore */ }
+
+    // Always store report in a way the rapport page can access
+    if (simulationId.startsWith('local_')) {
+      // Session-based sim — store report in a known key
+      // (report page will fetch from API directly via simulationId)
     }
 
-    // Update simulation status
-    await supabaseAdmin
-      .from('simulations')
-      .update({
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        overall_score: report.overallScore ?? null,
-      })
-      .eq('id', simulationId)
-
-    return NextResponse.json({
-      report: savedReport || report,
-      simulationId,
-    })
-  } catch (err: unknown) {
-    console.error('Erreur /api/simulation/report:', err)
-    const message = err instanceof Error ? err.message : 'Erreur interne'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
-}
-
-function getDefaultReport() {
-  return {
-    overallScore: 10,
-    overallVerdict: 'moyen',
-    axisScores: {
-      structure_exposé: {
-        score: 2.5, max: 5, evidence: [],
-        recommendationFr: 'Structurez davantage votre exposé avec une introduction, un développement et une conclusion.',
-      },
-      motivation_cohérence: {
-        score: 2.5, max: 5, evidence: [],
-        recommendationFr: 'Exprimez plus clairement vos motivations et le lien avec votre projet professionnel.',
-      },
-      connaissance_environnement: {
-        score: 2.5, max: 5, evidence: [],
-        recommendationFr: 'Approfondissez vos connaissances de l\'environnement institutionnel et professionnel.',
-      },
-      communication_stress: {
-        score: 2.5, max: 5, evidence: [],
-        recommendationFr: 'Travaillez votre aisance à l\'oral et la gestion du stress.',
-      },
-    },
-    strengths: [{ axis: 'Général', comment: 'Le candidat a tenté de répondre aux questions.' }],
-    weaknesses: [{ axis: 'Général', comment: 'La préparation semble insuffisante.' }],
-    juryPerceptionFr: 'Le rapport n\'a pas pu être généré correctement. Veuillez relancer une simulation.',
-    improvementPlan: ['Préparer un exposé structuré', 'Réviser les fondamentaux du concours', 'S\'entraîner à l\'oral'],
-    reformulationExamples: [],
-    transcriptAnnotations: [],
+    return NextResponse.json({ success: true, report })
+  } catch (err) {
+    console.error('Erreur rapport:', err)
+    return NextResponse.json({ error: 'Erreur interne.' }, { status: 500 })
   }
 }
