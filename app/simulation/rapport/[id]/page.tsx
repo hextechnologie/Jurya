@@ -83,7 +83,8 @@ export default function SimulationRapportPage() {
 
       // 2. Try DB
       try {
-        const { supabase } = await import('@/lib/supabase')        const { data } = await supabase
+        const { supabase } = await import('@/lib/supabase')
+        const { data } = await supabase
           .from('simulation_reports')
           .select('report_data')
           .eq('simulation_id', simulationId)
