@@ -270,6 +270,9 @@ export default function SimulationRapportPage() {
     const t = setInterval(() => setLoadingMsgIdx(i => (i + 1) % LOADING_MESSAGES.length), 4000)
     return () => clearInterval(t)
   }, [loading])
+
+  /* ── Loading ── */
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: '#0F1629' }}>
         <CandidateNavbar />
