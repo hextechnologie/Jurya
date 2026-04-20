@@ -28,8 +28,8 @@ function buildSystemPrompt(
       : 'Le jury est professionnel et neutre, questions directes de concours. Quelques relances sur les points imprécis.'
 
   const nameInstruction = candidateName
-    ? `Le candidat s'appelle "${candidateName}". Utilisez ce prénom/nom exactement quand vous vous adressez à lui. Ne le déformez jamais.`
-    : 'Utilisez simplement "vous" pour vous adresser au candidat.'
+    ? `Le candidat s'appelle "${candidateName}". N'utilisez son nom QU'AU PREMIER tour de questions pour l'accueillir. Ensuite, utilisez uniquement "vous". Ne commencez JAMAIS une question par son nom. Variez vos débuts de phrase.`
+    : "Utilisez simplement \"vous\" pour vous adresser au candidat. Ne commencez pas vos questions par son prénom."
 
   const humanness = `
 Comportement humain attendu du jury :
@@ -116,7 +116,19 @@ export async function POST(req: NextRequest) {
     ]
     const jury: JuryMember[] = Array.isArray(juryMembers) && juryMembers.length === 3 ? juryMembers : defaultJury
 
-    const rubriqueText = rubriqueJury ? JSON.stringify(rubriqueJury, null, 2) : '{}'
+    // Detect rude/inappropriate language in last candidate turn
+    const RUDE_PATTERNS = /putain|merde|con\b|conne\b|idiot|crétin|nul|incompétent|vous êtes nul|c'est nul|je m'en fous|laissez-moi|vous me faites chier|allez vous faire/i
+    const lastCandidateTurn = [...(conversationHistory ?? [])].reverse().find((t: { role: string; content: string }) => t.role === 'user')
+    if (lastCandidateTurn && RUDE_PATTERNS.test(lastCandidateTurn.content)) {
+      const president = jury.find(m => m.id === 'president') ?? defaultJury[0]
+      return NextResponse.json({
+        question: `${president.name} intervient : "Je dois interrompre cette simulation. Le comportement adopté ne correspond pas aux standards attendus lors d'un entretien de concours. Je vous invite à prendre connaissance de votre rapport et à retravailler votre posture professionnelle."`,
+        next_speaker: 'president',
+        turnIndex,
+        phase,
+        end_session: true,
+      })
+    }
     const systemPrompt = buildSystemPrompt(
       concoursIntitulé,
       rubriqueText,

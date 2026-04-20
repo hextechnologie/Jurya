@@ -11,7 +11,7 @@ import {
 import {
   CheckCircle2, AlertCircle, Loader2, ChevronLeft, RotateCcw,
   ArrowRight, Mic, Calendar, BookOpen, TrendingUp, Clock,
-  MessageSquare, Star, AlertTriangle, ChevronDown, ChevronUp,
+  MessageSquare, Star, AlertTriangle, ChevronDown, ChevronUp, Download,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -78,6 +78,13 @@ interface QualReport {
   reformulations: ReformItem[]
   planAction: (string | ActionItem)[]
   metrics?: Metrics
+  sessionMeta?: {
+    startedAt: string
+    durationMinutes: number
+    concoursIntitulé: string
+    difficulty: string
+    turnCount: number
+  }
 }
 
 /* ─── Constants ─── */
@@ -248,17 +255,39 @@ export default function SimulationRapportPage() {
     })
   }, [simulationId])
 
-  /* ── Loading ── */
-  if (loading) {
+  /* ── Loading messages rotation ── */
+  const LOADING_MESSAGES = [
+    'Analyse de votre prestation en cours…',
+    'Évaluation des axes de compétence…',
+    'Identification des points forts…',
+    'Rédaction de l\'impression globale du jury…',
+    'Génération du plan d\'action…',
+    'Finalisation du rapport…',
+  ]
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
+  useEffect(() => {
+    if (!loading) return
+    const t = setInterval(() => setLoadingMsgIdx(i => (i + 1) % LOADING_MESSAGES.length), 4000)
+    return () => clearInterval(t)
+  }, [loading])
     return (
       <div className="min-h-screen flex flex-col" style={{ background: '#0F1629' }}>
         <CandidateNavbar />
-        <div className="flex-1 flex flex-col items-center justify-center gap-4">
-          <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
-          <p className="text-gray-400 text-sm text-center max-w-xs">
-            Génération du rapport en cours…<br />
-            <span className="text-gray-600 text-xs">(cela peut prendre 30 à 60 secondes)</span>
-          </p>
+        <div className="flex-1 flex flex-col items-center justify-center gap-5">
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 rounded-full border-2 border-indigo-400/20" />
+            <div className="absolute inset-0 rounded-full border-2 border-t-indigo-400 animate-spin" />
+            <div className="absolute inset-2 rounded-full border-2 border-t-violet-400 animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
+          </div>
+          <div className="text-center">
+            <p className="text-white text-base font-medium transition-all">{LOADING_MESSAGES[loadingMsgIdx]}</p>
+            <p className="text-gray-600 text-xs mt-1">Cela prend généralement 30 à 60 secondes</p>
+          </div>
+          <div className="flex gap-1.5 mt-2">
+            {LOADING_MESSAGES.map((_, i) => (
+              <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === loadingMsgIdx ? 'bg-indigo-400 scale-125' : 'bg-white/20'}`} />
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -293,6 +322,7 @@ export default function SimulationRapportPage() {
     : null
 
   const metrics = report.metrics
+  const meta = report.sessionMeta
   const level = report.overallLevel ?? 'correct'
   const actions = report.planAction ?? []
   const checkedCount = Object.values(checkedActions).filter(Boolean).length
@@ -304,25 +334,65 @@ export default function SimulationRapportPage() {
 
   const recommendCoach = avgAxisScore !== null && avgAxisScore < 3
 
+  const startDateFormatted = meta?.startedAt
+    ? format(new Date(meta.startedAt), "dd MMMM yyyy 'à' HH:mm", { locale: fr })
+    : sessionDate
+
+  const handlePrint = () => window.print()
+
   return (
     <div className="min-h-screen text-white" style={{ background: '#0F1629' }}>
+      <style>{`
+        @media print {
+          nav, button, .no-print { display: none !important; }
+          body { background: white !important; color: black !important; }
+          .print-page { background: white !important; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+      `}</style>
       <CandidateNavbar />
 
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8 print-page">
 
         {/* ══ 1. Header ══ */}
-        <div>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-300 text-sm mb-4 transition-colors"
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <Link
+              href="/dashboard"
+              className="no-print inline-flex items-center gap-1 text-gray-500 hover:text-gray-300 text-sm mb-4 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" /> Retour au tableau de bord
+            </Link>
+            <h1 className="text-2xl font-bold">Rapport de simulation</h1>
+            <div className="flex flex-wrap gap-3 mt-2 text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                {startDateFormatted}
+              </span>
+              {meta?.durationMinutes && (
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {meta.durationMinutes} min prévues
+                </span>
+              )}
+              {meta?.concoursIntitulé && (
+                <span className="flex items-center gap-1">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  {meta.concoursIntitulé}
+                </span>
+              )}
+              {meta?.turnCount !== undefined && (
+                <span>{meta.turnCount} tours d'échange</span>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={handlePrint}
+            className="no-print shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 hover:bg-white/5 text-gray-300 text-sm transition-colors"
           >
-            <ChevronLeft className="w-4 h-4" /> Retour au tableau de bord
-          </Link>
-          <h1 className="text-2xl font-bold">Votre rapport — simulation du {sessionDate}</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Simulation #{simulationId.slice(0, 8)}
-            {metrics ? ` · ${metrics.totalWords} mots prononcés` : ''}
-          </p>
+            <Download className="w-4 h-4" />
+            PDF
+          </button>
         </div>
 
         {/* ══ 2. Radar chart ══ */}

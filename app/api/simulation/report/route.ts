@@ -89,7 +89,7 @@ function computeMetrics(turns: Array<{ role: string; contentText: string; phase:
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { simulationId, turns, concoursIntitulé, rubriqueJury, difficulty } = body
+    const { simulationId, turns, concoursIntitulé, rubriqueJury, difficulty, sessionStartedAt, durationMinutes } = body
 
     if (!simulationId || !concoursIntitulé) {
       return NextResponse.json({ error: 'Paramètres manquants.' }, { status: 400 })
@@ -129,7 +129,17 @@ Produisez le rapport JSON.`
       try { report = { ...getDefaultReport(), ...JSON.parse(jsonMatch[0]) } } catch { /* use default */ }
     }
 
-    const reportWithMetrics = { ...report, metrics }
+    const reportWithMetrics = {
+      ...report,
+      metrics,
+      sessionMeta: {
+        startedAt: sessionStartedAt ?? new Date().toISOString(),
+        durationMinutes: durationMinutes ?? 30,
+        concoursIntitulé,
+        difficulty: difficulty ?? 'standard',
+        turnCount: safeTurns.length,
+      },
+    }
 
     // Persist to Supabase (best-effort)
     try {

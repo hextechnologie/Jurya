@@ -234,6 +234,7 @@ export default function SimulationSessionPage() {
   const [textInput, setTextInput] = useState('')
   const [ending, setEnding] = useState(false)
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
+  const sessionStartRef = useRef<string>(new Date().toISOString())
 
   // Mic always-on flow
   const [listenEnabled, setListenEnabled] = useState(false)
@@ -286,6 +287,8 @@ export default function SimulationSessionPage() {
   /* ── Start timer + mic level + opening message ── */
   useEffect(() => {
     if (!config || loading) return
+    // Reset timer to correct duration (config was null at hook init, defaulted to 30min)
+    timer.reset(config.durationMinutes * 60)
     timer.start()
     startAudioLevel()
 
@@ -403,6 +406,13 @@ export default function SimulationSessionPage() {
       })
       if (!res.ok) throw new Error('API error')
       const data = await res.json()
+      // Rude detection: jury stops the session
+      if (data.end_session) {
+        const speakerId: SpeakerId = 'president'
+        await speakAsJury(data.question, speakerId)
+        setTimeout(() => handleEnd(), 4000)
+        return
+      }
       if (data.phase && data.phase !== phaseRef.current) {
         setPhase(data.phase as SimulationPhase)
         triggerPhaseOverlay(getPhaseLabel(data.phase as SimulationPhase))
@@ -508,6 +518,8 @@ export default function SimulationSessionPage() {
         concoursIntitulé: cfg?.concoursIntitulé ?? '',
         rubriqueJury: cfg?.rubriqueJury ?? {},
         difficulty: cfg?.difficulty ?? 'standard',
+        sessionStartedAt: sessionStartRef.current,
+        durationMinutes: cfg?.durationMinutes ?? 30,
       }),
     })
       .then(r => r.json())

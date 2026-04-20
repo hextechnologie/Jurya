@@ -60,7 +60,7 @@ function generateSessionId(): string {
 }
 
 export default function SimulationSetupPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, profile } = useAuth()
   const router = useRouter()
 
   const [concoursList, setConcoursList] = useState<Concours[]>([])
@@ -149,6 +149,13 @@ export default function SimulationSetupPage() {
     setCreating(true)
     setCreateError(null)
     stopMicCheck()
+
+    // Credits check
+    if (profile && profile.interviews_used_this_month >= profile.interviews_limit) {
+      setCreateError('Vous n\'avez plus de crédits disponibles. Rechargez votre compte sur la page Crédits.')
+      setCreating(false)
+      return
+    }
 
     const config = {
       concoursId: selectedConcoursId,
@@ -382,7 +389,14 @@ export default function SimulationSetupPage() {
           {createError && (
             <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              {createError}
+              <span>
+                {createError}
+                {createError.includes('crédits') && (
+                  <Link href="/credits" className="ml-1 underline text-indigo-400 hover:text-indigo-300">
+                    Recharger maintenant →
+                  </Link>
+                )}
+              </span>
             </div>
           )}
 

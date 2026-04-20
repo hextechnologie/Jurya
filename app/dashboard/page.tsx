@@ -106,7 +106,7 @@ export default function DashboardPage() {
     const [simRes, goalRes, planRes, bookRes] = await Promise.all([
       supabase
         .from('simulations')
-        .select('id, created_at, completed_at, overall_score, actual_duration_seconds, status, concours:concours_id(intitulé)')
+        .select('id, created_at, completed_at, actual_duration_seconds, status, concours:concours_id(intitulé)')
         .eq('user_id', uid)
         .order('created_at', { ascending: false })
         .limit(30),
@@ -166,6 +166,7 @@ export default function DashboardPage() {
   const quote = MOTIVATIONAL_QUOTES[new Date().getDate() % MOTIVATIONAL_QUOTES.length]
 
   const completedSims = simulations.filter(s => s.status === 'completed')
+  const allSims = simulations // for display in table (all statuses)
   const totalSims = completedSims.length
 
   const reportMap = new Map(reports.map(r => [r.simulation_id, r]))
@@ -441,7 +442,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {completedSims.slice(0, 5).map(sim => {
+                  {allSims.slice(0, 8).map(sim => {
                     const rep = reportMap.get(sim.id)?.report_data
                     const level = rep?.overallLevel
                     const levelColor: Record<string, string> = {
@@ -449,6 +450,7 @@ export default function DashboardPage() {
                       correct: 'text-amber-400', 'à travailler': 'text-amber-400',
                       lacunaire: 'text-red-400',
                     }
+                    const isInProgress = sim.status === 'in_progress'
                     return (
                       <tr key={sim.id} className="border-b border-white/5 hover:bg-white/5 transition">
                         <td className="py-3 px-2 whitespace-nowrap">
@@ -456,21 +458,27 @@ export default function DashboardPage() {
                         </td>
                         <td className="py-3 px-2 text-sm">{sim.concours?.intitulé ?? '—'}</td>
                         <td className="py-3 px-2 text-center">
-                          {level ? (
-                            <span className={`text-xs font-medium capitalize ${levelColor[level] ?? 'text-gray-400'}`}>
-                              {level}
-                            </span>
+                          {isInProgress ? (
+                            <span className="text-xs font-medium text-indigo-400">En cours</span>
+                          ) : level ? (
+                            <span className={`text-xs font-medium capitalize ${levelColor[level] ?? 'text-gray-400'}`}>{level}</span>
                           ) : '—'}
                         </td>
                         <td className="py-3 px-2 hidden md:table-cell">
                           <p className="text-xs text-gray-500 truncate max-w-[240px]">
-                            {rep?.synthesePhrase ?? rep?.impressionGlobale?.slice(0, 80) ?? '—'}
+                            {isInProgress ? 'Simulation non terminée' : (rep?.synthesePhrase ?? rep?.impressionGlobale?.slice(0, 80) ?? '—')}
                           </p>
                         </td>
                         <td className="py-3 px-2 text-right">
-                          <Link href={`/simulation/rapport/${sim.id}`} className="text-primary hover:underline text-xs">
-                            Voir le rapport
-                          </Link>
+                          {isInProgress ? (
+                            <Link href={`/simulation/${sim.id}`} className="text-indigo-400 hover:underline text-xs font-medium">
+                              Continuer
+                            </Link>
+                          ) : (
+                            <Link href={`/simulation/rapport/${sim.id}`} className="text-primary hover:underline text-xs">
+                              Voir le rapport
+                            </Link>
+                          )}
                         </td>
                       </tr>
                     )
