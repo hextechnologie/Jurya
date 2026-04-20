@@ -197,11 +197,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
-      turnIndex,
-      difficulty,
-      candidateName,
-      lastSpeaker as SpeakerId,
-    )
 
     const messages: Array<{ role: 'user' | 'assistant'; content: string }> = []
     for (const turn of conversationHistory) {

@@ -476,12 +476,6 @@ export default function DashboardPage() {
                     )
                   })}
                 </tbody>
-                          </Link>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
               </table>
             </div>
           )}

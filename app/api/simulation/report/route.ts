@@ -154,9 +154,6 @@ Produisez le rapport JSON.`
   }
 }
 
-const REPORT_SYSTEM_PROMPT = `Vous êtes un évaluateur expert de concours oraux français de la fonction publique.
-Analysez la prestation du candidat et produisez un rapport qualitatif pur. AUCUNE note chiffrée.
-
 Répondez UNIQUEMENT en JSON valide avec cette structure :
 {
   "impressionGlobale": "Un paragraphe de 3 à 5 phrases décrivant l'impression générale laissée par le candidat, comme le jury la rédigerait en délibéré. Soyez honnête et nuancé.",
