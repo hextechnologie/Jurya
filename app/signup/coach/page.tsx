@@ -6,7 +6,21 @@ import { ArrowLeft, Camera, Plus, Sparkles, X } from 'lucide-react'
 import { Button, Card, Input, Badge } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
 
-const specializationOptions = ['Tech', 'Finance', 'Marketing', 'Sales', 'Healthcare', 'Operations', 'Design', 'Product']
+const specializationOptions = [
+  'Attaché territorial',
+  'IRA',
+  'INSP / ENA',
+  'Commissaire de police',
+  'Directeur d\'hôpital',
+  'Administrateur civil',
+  'Agrégation',
+  'CAPES',
+  'Magistrat (ENM)',
+  'Inspecteur du travail',
+  'Douanes',
+  'Ingénieur territorial',
+  'Autre',
+]
 
 export default function CoachSignupPage() {
   const [firstName, setFirstName] = useState('')
@@ -15,7 +29,7 @@ export default function CoachSignupPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [title, setTitle] = useState('')
-  const [experience, setExperience] = useState('8')
+  const [experience, setExperience] = useState('5-10 ans')
   const [country, setCountry] = useState('')
   const [city, setCity] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>(['Tech'])
@@ -124,7 +138,7 @@ export default function CoachSignupPage() {
           user_id: userId,
           title,
           bio,
-          years_experience: Number(experience),
+          years_experience: experience.startsWith('Moins') ? 1 : experience.startsWith('2') ? 3 : experience.startsWith('5') ? 7 : 15,
           price_per_hour: price,
           linkedin_url: linkedinUrl,
           companies,
@@ -202,7 +216,7 @@ export default function CoachSignupPage() {
           user_id: userId,
           title,
           bio,
-          years_experience: Number(experience),
+          years_experience: experience.startsWith('Moins') ? 1 : experience.startsWith('2') ? 3 : experience.startsWith('5') ? 7 : 15,
           price_per_hour: price,
           linkedin_url: linkedinUrl,
           companies,
@@ -282,9 +296,23 @@ export default function CoachSignupPage() {
               </div>
 
               {/* Professional info */}
-              <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
                 <Input label="Titre professionnel *" value={title} onChange={setTitle} placeholder="Professeur agrégé de droit" required />
-                <Input label="Années d'expérience *" type="number" value={experience} onChange={setExperience} placeholder="8" required />
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-foreground">Expérience dans le domaine *</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Moins de 2 ans', '2–5 ans', '5–10 ans', '10+ ans'].map(opt => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => setExperience(opt)}
+                        className={`px-4 py-2 rounded-lg border text-sm transition ${experience === opt ? 'bg-primary/20 border-primary text-primary' : 'border-border bg-background text-gray-400 hover:border-gray-500'}`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Location */}

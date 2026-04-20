@@ -25,6 +25,24 @@ interface Concours {
 
 type Difficulty = 'easy' | 'medium' | 'hard'
 
+const DURATION_OPTIONS = [15, 30, 45, 60]
+
+// Fallback used when the `concours` table is empty or unreachable
+const FALLBACK_CONCOURS: Concours[] = [
+  { id: 'attache-territorial', type: 'externe', grade: 'A', intitulé: 'Attaché territorial', durée_épreuve_minutes: 30, rubrique_jury: {}, organisme_organisateur: 'CNFPT' },
+  { id: 'ira', type: 'externe', grade: 'A', intitulé: 'IRA — Institut Régional d\'Administration', durée_épreuve_minutes: 30, rubrique_jury: {}, organisme_organisateur: 'DGAFP' },
+  { id: 'insp', type: 'externe', grade: 'A+', intitulé: 'INSP (ex-ENA)', durée_épreuve_minutes: 45, rubrique_jury: {}, organisme_organisateur: 'INSP' },
+  { id: 'commissaire-police', type: 'externe', grade: 'A', intitulé: 'Commissaire de police', durée_épreuve_minutes: 30, rubrique_jury: {}, organisme_organisateur: 'Ministère de l\'Intérieur' },
+  { id: 'directeur-hopital', type: 'externe', grade: 'A', intitulé: 'Directeur d\'hôpital (DH)', durée_épreuve_minutes: 45, rubrique_jury: {}, organisme_organisateur: 'EHESP' },
+  { id: 'agregation', type: 'externe', grade: 'A', intitulé: 'Agrégation (toutes disciplines)', durée_épreuve_minutes: 30, rubrique_jury: {}, organisme_organisateur: 'Ministère de l\'Éducation' },
+  { id: 'administrateur-civil', type: 'interne', grade: 'A+', intitulé: 'Administrateur civil', durée_épreuve_minutes: 45, rubrique_jury: {}, organisme_organisateur: 'DGAFP' },
+  { id: 'capes', type: 'externe', grade: 'A', intitulé: 'CAPES', durée_épreuve_minutes: 30, rubrique_jury: {}, organisme_organisateur: 'Ministère de l\'Éducation' },
+  { id: 'ingenieur-territorial', type: 'externe', grade: 'A', intitulé: 'Ingénieur territorial', durée_épreuve_minutes: 30, rubrique_jury: {}, organisme_organisateur: 'CNFPT' },
+  { id: 'magistrat', type: 'externe', grade: 'A+', intitulé: 'Magistrat (ENM)', durée_épreuve_minutes: 30, rubrique_jury: {}, organisme_organisateur: 'ENM' },
+  { id: 'inspection-travail', type: 'externe', grade: 'A', intitulé: 'Inspecteur du travail', durée_épreuve_minutes: 20, rubrique_jury: {}, organisme_organisateur: 'Ministère du Travail' },
+  { id: 'greffier-en-chef', type: 'externe', grade: 'B', intitulé: 'Greffier en chef', durée_épreuve_minutes: 20, rubrique_jury: {}, organisme_organisateur: 'Ministère de la Justice' },
+]
+
 export default function SimulationSetupPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -55,15 +73,24 @@ export default function SimulationSetupPage() {
 
   const selectedConcours = concoursList.find(c => c.id === selectedConcoursId)
 
-  // Fetch concours on mount
+  // Fetch concours on mount; fall back to hardcoded list if DB is empty or errors
   useEffect(() => {
     async function fetchConcours() {
-      const { data, error } = await supabase
-        .from('concours')
-        .select('id, type, grade, intitulé, durée_épreuve_minutes, rubrique_jury, organisme_organisateur')
-        .order('intitulé')
-      if (!error && data) setConcoursList(data as unknown as Concours[])
-      setLoadingConcours(false)
+      try {
+        const { data, error } = await supabase
+          .from('concours')
+          .select('id, type, grade, intitulé, durée_épreuve_minutes, rubrique_jury, organisme_organisateur')
+          .order('intitulé')
+        if (!error && data && data.length > 0) {
+          setConcoursList(data as unknown as Concours[])
+        } else {
+          setConcoursList(FALLBACK_CONCOURS)
+        }
+      } catch {
+        setConcoursList(FALLBACK_CONCOURS)
+      } finally {
+        setLoadingConcours(false)
+      }
     }
     fetchConcours()
   }, [])
@@ -271,20 +298,28 @@ export default function SimulationSetupPage() {
           {/* 3. Duration */}
           <section className="space-y-2">
             <label className="block text-sm font-medium text-foreground flex items-center gap-2">
-              <Clock className="w-4 h-4" /> Durée (minutes)
+              <Clock className="w-4 h-4" /> Durée de la simulation
             </label>
-            <input
-              type="number"
-              min={5}
-              max={120}
-              value={duration}
-              onChange={e => setDuration(Math.max(5, Math.min(120, Number(e.target.value))))}
-              className="w-full bg-card border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            {selectedConcours && duration !== selectedConcours.durée_épreuve_minutes && (
-              <p className="text-xs text-yellow-400 flex items-center gap-1">
+            <div className="grid grid-cols-4 gap-2">
+              {DURATION_OPTIONS.map(mins => (
+                <button
+                  key={mins}
+                  type="button"
+                  onClick={() => setDuration(mins)}
+                  className={`py-3 rounded-lg text-sm font-medium border transition-all ${
+                    duration === mins
+                      ? 'border-primary bg-primary/20 text-primary'
+                      : 'border-border bg-card text-gray-400 hover:border-gray-500'
+                  }`}
+                >
+                  {mins} min
+                </button>
+              ))}
+            </div>
+            {selectedConcours && !DURATION_OPTIONS.includes(selectedConcours.durée_épreuve_minutes) === false && duration !== selectedConcours.durée_épreuve_minutes && (
+              <p className="text-xs text-amber-400 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
-                Durée réglementaire : {selectedConcours.durée_épreuve_minutes} min
+                Durée réglementaire recommandée : {selectedConcours.durée_épreuve_minutes} min
               </p>
             )}
           </section>

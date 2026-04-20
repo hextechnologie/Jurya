@@ -173,17 +173,8 @@ export default function CandidateSignupPage() {
 
       // Supabase silently "succeeds" for existing emails — detect via empty identities
       if (data.user && (data.user.identities?.length ?? 0) === 0) {
-        // Check if a profile exists (= email was confirmed before)
-        const { data: existing } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', email)
-          .maybeSingle()
-        if (existing) {
-          throw new Error('Cet e-mail est déjà enregistré. Veuillez vous connecter.')
-        } else {
-          throw new Error('Vous vous êtes déjà inscrit(e) avec cet e-mail mais vous ne l\'avez pas encore confirmé. Vérifiez votre boîte de réception (et le dossier spam) pour le lien de confirmation.')
-        }
+        // Supabase silently succeeds for existing emails — always show login prompt
+        throw new Error('Un compte existe déjà avec cet e-mail. Veuillez vous connecter, ou utilisez « Mot de passe oublié » si nécessaire.')
       }
 
       if (data.user) {

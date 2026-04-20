@@ -30,8 +30,8 @@ const STATS = [
 
 const TESTIMONIALS = [
   {
-    name: 'Marie Lefèvre',
-    concours: 'ENA',
+    name: 'Marie L.',
+    concours: 'INSP',
     year: 2025,
     quote:
       "Grâce à Jurya, j'ai pu m'entraîner dans des conditions proches du réel. Les retours de l'IA sont pertinents et m'ont permis de corriger mes tics de langage.",
@@ -40,7 +40,7 @@ const TESTIMONIALS = [
     avatar: 'ML',
   },
   {
-    name: 'Karim Benali',
+    name: 'Karim B.',
     concours: 'Agrégation de droit',
     year: 2025,
     quote:
@@ -50,7 +50,7 @@ const TESTIMONIALS = [
     avatar: 'KB',
   },
   {
-    name: 'Sophie Martin',
+    name: 'Sophie M.',
     concours: 'IRA de Bastia',
     year: 2024,
     quote:
@@ -60,7 +60,7 @@ const TESTIMONIALS = [
     avatar: 'SM',
   },
   {
-    name: 'Thomas Durand',
+    name: 'Thomas D.',
     concours: 'Commissaire de police',
     year: 2025,
     quote:
@@ -70,17 +70,17 @@ const TESTIMONIALS = [
     avatar: 'TD',
   },
   {
-    name: 'Fatima El Amrani',
+    name: 'Fatima E.',
     concours: 'Attaché territorial',
     year: 2024,
     quote:
       "Jurya m'a permis de m'exercer à tout moment, même tard le soir. Le rapport de performance après chaque session est très complet.",
     rating: 5,
     verified: false,
-    avatar: 'FA',
+    avatar: 'FE',
   },
   {
-    name: 'Lucas Moreau',
+    name: 'Lucas M.',
     concours: 'ENM',
     year: 2025,
     quote:

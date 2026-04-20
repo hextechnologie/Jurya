@@ -1,12 +1,12 @@
 ﻿'use client'
 
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import CandidateNavbar from '@/components/CandidateNavbar'
 import { Button, Input, LoadingSpinner } from '@/components/ui'
-import { ArrowLeft, Save, CheckCircle, User, Bell, BookOpen, Trophy, GraduationCap, Mail, Lock, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Save, CheckCircle, User, Bell, BookOpen, Trophy, GraduationCap, Mail, Lock, AlertCircle, Camera } from 'lucide-react'
 import Link from 'next/link'
 
 /* ---------- types ---------- */
@@ -46,6 +46,17 @@ export default function ProfilePage() {
   const [emailReminders, setEmailReminders] = useState(true)
   const [simulationReminders, setSimulationReminders] = useState(true)
   const [coachMessages, setCoachMessages] = useState(true)
+
+  // avatar upload
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+
+  const onAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
+  }
 
   // ui
   const [saving, setSaving] = useState(false)
@@ -150,12 +161,27 @@ export default function ProfilePage() {
     const uid = user.id
 
     try {
-      // update profiles
+      // Update profiles
       const fullName = `${firstName} ${lastName}`.trim()
+
+      // Upload avatar if changed
+      let avatarUrl: string | undefined
+      if (avatarFile) {
+        const ext = avatarFile.name.split('.').pop()
+        const { data: uploadData } = await supabase.storage
+          .from('avatars')
+          .upload(`${uid}.${ext}`, avatarFile, { upsert: true })
+        if (uploadData) {
+          const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(uploadData.path)
+          avatarUrl = urlData.publicUrl
+        }
+      }
+
       await supabase.from('profiles').update({
         full_name: fullName,
         first_name: firstName,
         last_name: lastName,
+        ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
       }).eq('id', uid)
 
       // upsert candidate_profiles
@@ -225,6 +251,7 @@ export default function ProfilePage() {
 
   // initials
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U'
+  const currentAvatarUrl = avatarPreview || profile?.avatar_url
 
   if (authLoading || loading) {
     return (
@@ -248,8 +275,29 @@ export default function ProfilePage() {
 
         {/* ── 1. Avatar + Name ── */}
         <section className="glass rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl font-bold shrink-0">
-            {initials}
+          <div className="relative shrink-0">
+            {currentAvatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={currentAvatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-primary/40" />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl font-bold">
+                {initials}
+              </div>
+            )}
+            <label
+              htmlFor="avatar-upload"
+              className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer hover:bg-primary/80 transition-colors border-2 border-background"
+              title="Changer la photo"
+            >
+              <Camera className="w-4 h-4 text-white" />
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onAvatarChange}
+            />
           </div>
           <div className="flex-1 space-y-4 w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

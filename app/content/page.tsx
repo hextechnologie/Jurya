@@ -66,6 +66,20 @@ function estimateReadTime(seconds: number | null, kind: string): string {
   return '5 min'
 }
 
+// Shown when the `resources` table is empty
+const STATIC_RESOURCES: Resource[] = [
+  { id: 's1', slug: 'comprendre-le-jury-administratif', kind: 'fiche_thématique', title_fr: 'Comprendre le jury administratif', excerpt_fr: 'Qui sont les membres, comment ils évaluent, ce qu’ils attendent de vous.', cover_image_url: null, difficulty: 'easy', is_premium: false, published_at: '2025-01-01', view_count: 0, duration_seconds: 300, concours_ids: [] },
+  { id: 's2', slug: 'structurer-ses-reponses-a-oral', kind: 'fiche_thématique', title_fr: 'Structurer ses réponses à l’oral', excerpt_fr: 'La méthode STAR adaptée aux concours de la fonction publique.', cover_image_url: null, difficulty: 'easy', is_premium: false, published_at: '2025-01-02', view_count: 0, duration_seconds: 240, concours_ids: [] },
+  { id: 's3', slug: 'gestion-du-stress-examen-oral', kind: 'article', title_fr: 'Gérer le stress avant et pendant l’oral', excerpt_fr: 'Techniques de respiration, visualisation positive et routines de préparation.', cover_image_url: null, difficulty: 'easy', is_premium: false, published_at: '2025-01-03', view_count: 0, duration_seconds: 480, concours_ids: [] },
+  { id: 's4', slug: 'ira-oral-admission', kind: 'fiche_thématique', title_fr: 'IRA — L’oral d’admission en pratique', excerpt_fr: 'Format, durée, questions types et critères de notation des IRA.', cover_image_url: null, difficulty: 'medium', is_premium: false, published_at: '2025-01-04', view_count: 0, duration_seconds: 360, concours_ids: [] },
+  { id: 's5', slug: 'insp-grand-oral', kind: 'fiche_thématique', title_fr: 'INSP — Le grand oral', excerpt_fr: 'Tout ce qu’il faut savoir sur l’épreuve orale de l’INSP (ex-ENA).', cover_image_url: null, difficulty: 'hard', is_premium: false, published_at: '2025-01-05', view_count: 0, duration_seconds: 420, concours_ids: [] },
+  { id: 's6', slug: 'neutralite-service-public', kind: 'article', title_fr: 'La neutralité dans le service public', excerpt_fr: 'Valeurs fondamentales du fonctionnaire : neutralité, laicité, égalité.', cover_image_url: null, difficulty: 'medium', is_premium: false, published_at: '2025-01-06', view_count: 0, duration_seconds: 600, concours_ids: [] },
+  { id: 's7', slug: 'reussir-mise-en-situation', kind: 'fiche_thématique', title_fr: 'Réussir la mise en situation professionnelle', excerpt_fr: 'Comment analyser et répondre aux épreuves de mise en situation des concours de catégorie A.', cover_image_url: null, difficulty: 'medium', is_premium: false, published_at: '2025-01-07', view_count: 0, duration_seconds: 450, concours_ids: [] },
+  { id: 's8', slug: 'vocabulaire-rh-fonction-publique', kind: 'fiche_thématique', title_fr: 'Vocabulaire RH de la fonction publique', excerpt_fr: 'Les termes clés à maîtriser : GPEC, agents titulaires, contractuels, RIFSEEP…', cover_image_url: null, difficulty: 'easy', is_premium: false, published_at: '2025-01-08', view_count: 0, duration_seconds: 300, concours_ids: [] },
+  { id: 's9', slug: 'budget-etat-bases', kind: 'article', title_fr: 'Comprendre le budget de l’État', excerpt_fr: 'LOLF, programme, crédits : les bases pour briller sur les questions économiques.', cover_image_url: null, difficulty: 'medium', is_premium: true, published_at: '2025-01-09', view_count: 0, duration_seconds: 720, concours_ids: [] },
+  { id: 's10', slug: 'simulation-commissaire-police', kind: 'masterclass', title_fr: 'Masterclass : l’oral du commissaire de police', excerpt_fr: 'Un ancien membre du jury vous explique ce qu’il cherche vraiment lors de l’épreuve orale.', cover_image_url: null, difficulty: 'hard', is_premium: true, published_at: '2025-01-10', view_count: 0, duration_seconds: 2700, concours_ids: [] },
+]
+
 export default function ContentPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -101,7 +115,7 @@ export default function ContentPage() {
         .order('published_at', { ascending: false }),
       supabase.from('concours').select('id, intitulé').order('intitulé'),
     ])
-    setResources((resRes.data ?? []) as unknown as Resource[])
+    setResources((resRes.data && resRes.data.length > 0 ? resRes.data : STATIC_RESOURCES) as unknown as Resource[])
     setAllConcours((conRes.data ?? []) as unknown as Concours[])
     setLoading(false)
   }
@@ -246,11 +260,16 @@ export default function ContentPage() {
                 {filtered.map(resource => {
                   const Icon = KIND_ICONS[resource.kind] ?? BookOpen
                   const locked = resource.is_premium && !isPremiumUser
+                  const CardWrapper = locked ? 'div' : Link
+                  const cardProps = locked ? {} : { href: `/content/${resource.slug}` }
                   return (
-                    <div
+                    <CardWrapper
                       key={resource.id}
+                      {...(cardProps as Record<string, string>)}
                       onClick={() => { if (!locked) trackView(resource.id) }}
-                      className={`glass rounded-xl overflow-hidden group transition hover:border-primary/50 ${locked ? 'opacity-75' : 'cursor-pointer'}`}
+                      className={`glass rounded-xl overflow-hidden group transition hover:border-primary/50 block ${
+                        locked ? 'opacity-75' : 'cursor-pointer'
+                      }`}
                     >
                       {/* cover */}
                       {resource.cover_image_url ? (
@@ -307,7 +326,7 @@ export default function ContentPage() {
                           </Link>
                         )}
                       </div>
-                    </div>
+                    </CardWrapper>
                   )
                 })}
               </div>
