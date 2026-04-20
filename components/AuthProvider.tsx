@@ -33,24 +33,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data) {
       setProfile(data)
     } else if (error) {
-      console.error('❌ Profile fetch error:', error)
+      // Real DB error — log and leave profile null (pages handle gracefully)
+      console.error('Profile fetch error:', error.message)
     } else {
-      // No profile row exists — create a minimal one (new user, trigger may not have fired)
-      const { data: created, error: createErr } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          subscription_tier: 'free',
-          interviews_limit: 30,
-          interviews_used_this_month: 0,
-        })
-        .select('*')
-        .single()
-      if (created) {
-        setProfile(created)
-      } else {
-        console.warn('Could not create profile:', createErr?.message)
-      }
+      // data is null → no profile row for this user_id.
+      // This means either the DB trigger didn't fire (new user race) OR the user was deleted.
+      // Sign them out so a deleted user cannot keep navigating the app.
+      console.warn('No profile found for user — signing out.')
+      await supabase.auth.signOut()
     }
   }
 

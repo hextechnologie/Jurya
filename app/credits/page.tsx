@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useState } from 'react'
 import { useAuth } from '@/components/AuthProvider'
@@ -7,36 +7,36 @@ import CandidateNavbar from '@/components/CandidateNavbar'
 import Link from 'next/link'
 import { CheckCircle2, Zap, Star, ChevronLeft, AlertTriangle, Package } from 'lucide-react'
 
-/* â”€â”€â”€ Plan data â”€â”€â”€ */
+/* --- Plan data --- */
 const PLANS = [
   {
-    id: 'free', tier: 'free', name: 'DÃ©couverte', price: null, credits: 30, highlighted: false,
-    features: ['30 crÃ©dits/mois offerts', 'AccÃ¨s Ã  tous les concours', 'Rapport IA aprÃ¨s chaque simulation', 'Support communautaire'],
+    id: 'free', tier: 'free', name: 'Decouverte', price: null, credits: 30, highlighted: false,
+    features: ['30 credits/mois offerts', 'Acces a tous les concours', 'Rapport IA apres chaque simulation', 'Support communautaire'],
   },
   {
     id: 'basic', tier: 'basic', name: 'Essentiel', price: 19, credits: 60, highlighted: false,
-    features: ['60 crÃ©dits/mois', 'Historique complet des rapports', 'Support email prioritaire'],
+    features: ['60 credits/mois', 'Historique complet des rapports', 'Support email prioritaire'],
   },
   {
     id: 'pro', tier: 'pro', name: 'Intensif', price: 49, credits: 200, highlighted: true, badge: 'Le plus choisi',
-    features: ['200 crÃ©dits/mois', 'Analyses comparatives multi-sessions', 'Support prioritaire', 'AccÃ¨s anticipÃ© aux nouveautÃ©s'],
+    features: ['200 credits/mois', 'Analyses comparatives multi-sessions', 'Support prioritaire', 'Acces anticipe aux nouveautes'],
   },
   {
     id: 'team', tier: 'team', name: 'Premium', price: 129, credits: 500, highlighted: false,
-    features: ['500 crÃ©dits/mois', '1 session coaching/mois incluse', 'Support dÃ©diÃ© 7j/7', 'Rapports PDF avancÃ©s'],
+    features: ['500 credits/mois', '1 session coaching/mois incluse', 'Support dedie 7j/7', 'Rapports PDF avances'],
   },
 ]
 
 const CREDIT_PACKS = [
-  { id: 'pack_50', credits: 50, price: 15, highlighted: false, ppc: '0,30 â‚¬/crÃ©dit' },
-  { id: 'pack_150', credits: 150, price: 39, highlighted: true, badge: 'Meilleur rapport qualitÃ©/prix', ppc: '0,26 â‚¬/crÃ©dit' },
-  { id: 'pack_500', credits: 500, price: 99, highlighted: false, ppc: '0,20 â‚¬/crÃ©dit' },
+  { id: 'pack_50', credits: 50, price: 15, highlighted: false, ppc: '0,30 EUR/credit' },
+  { id: 'pack_150', credits: 150, price: 39, highlighted: true, badge: 'Meilleur rapport qualite/prix', ppc: '0,26 EUR/credit' },
+  { id: 'pack_500', credits: 500, price: 99, highlighted: false, ppc: '0,20 EUR/credit' },
 ]
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(n)
 
-/* â”€â”€â”€ Purchase modal â”€â”€â”€ */
+/* --- Purchase modal --- */
 function PurchaseModal({ label, price, productId, kind, onClose }: {
   label: string; price: number; productId: string; kind: 'plan' | 'pack'; onClose: () => void
 }) {
@@ -76,10 +76,10 @@ function PurchaseModal({ label, price, productId, kind, onClose }: {
         <div className="flex gap-3">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-white/10 text-gray-300 text-sm hover:bg-white/5 transition-colors">Annuler</button>
           <button onClick={go} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-60">
-            {loading ? 'Redirectionâ€¦' : 'Payer â†’'}
+            {loading ? 'Redirection...' : 'Payer '}
           </button>
         </div>
-        <p className="text-gray-600 text-xs text-center">Paiement sÃ©curisÃ© via Stripe</p>
+        <p className="text-gray-600 text-xs text-center">Paiement securise via Stripe</p>
       </div>
     </div>
   )
@@ -119,18 +119,18 @@ export default function CreditsPage() {
             <Link href="/dashboard" className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-300 text-sm mb-3 transition-colors">
               <ChevronLeft className="w-4 h-4" /> Tableau de bord
             </Link>
-            <h1 className="text-2xl font-bold">CrÃ©dits &amp; Abonnement</h1>
+            <h1 className="text-2xl font-bold">Credits &amp; Abonnement</h1>
           </div>
           <div className="bg-slate-900/80 border border-white/8 rounded-2xl px-5 py-4 text-center min-w-[150px]">
             <div className="text-3xl font-bold text-indigo-400">{available}</div>
-            <div className="text-xs text-gray-500 mt-1">crÃ©dits disponibles</div>
+            <div className="text-xs text-gray-500 mt-1">credits disponibles</div>
             <div className="text-xs text-gray-600 mt-0.5">{profile?.interviews_used_this_month ?? 0}/{profile?.interviews_limit ?? 30} utilises ce mois</div>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-1 bg-white/5 rounded-xl p-1 w-fit">
-          {([['abonnements', 'Abonnements'], ['packs', 'Packs crÃ©dits']] as const).map(([key, label]) => (
+          {([['abonnements', 'Abonnements'], ['packs', 'Packs credits']] as const).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === key ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}>
               {label}
@@ -158,7 +158,7 @@ export default function CreditsPage() {
                           ? <span className="text-2xl font-bold text-white">Gratuit</span>
                           : <span className="text-2xl font-bold text-white">{fmt(plan.price)}<span className="text-sm text-gray-500 font-normal">/mois</span></span>}
                       </div>
-                      <p className="text-indigo-400 text-xs mt-1 font-medium">{plan.credits} crÃ©dits/mois</p>
+                      <p className="text-indigo-400 text-xs mt-1 font-medium">{plan.credits} credits/mois</p>
                     </div>
                     <ul className="space-y-2">
                       {plan.features.map((f, i) => (
@@ -168,10 +168,10 @@ export default function CreditsPage() {
                       ))}
                     </ul>
                     {isCurrent ? (
-                      <div className="w-full py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm text-center font-medium">Plan actuel âœ“</div>
+                      <div className="w-full py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm text-center font-medium">Plan actuel &#10003;</div>
                     ) : (
                       <button
-                        onClick={() => plan.price !== null && setModal({ label: `Abonnement ${plan.name} â€” ${plan.credits} crÃ©dits/mois`, price: plan.price, productId: plan.id, kind: 'plan' })}
+                        onClick={() => plan.price !== null && setModal({ label: `Abonnement ${plan.name} - ${plan.credits} credits/mois`, price: plan.price, productId: plan.id, kind: 'plan' })}
                         disabled={plan.price === null}
                         className={`w-full py-2 rounded-xl text-sm font-semibold transition-colors ${plan.highlighted ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : plan.price === null ? 'bg-white/5 text-gray-500 cursor-not-allowed' : 'bg-white/8 hover:bg-white/12 text-white border border-white/10'}`}>
                         {plan.price === null ? 'Offert' : 'Choisir ce plan'}
@@ -187,7 +187,7 @@ export default function CreditsPage() {
         {/* Packs tab */}
         {tab === 'packs' && (
           <div className="space-y-4">
-            <p className="text-gray-500 text-sm">CrÃ©dits supplÃ©mentaires sans engagement. S&apos;ajoutent Ã  votre solde et n&apos;expirent pas.</p>
+            <p className="text-gray-500 text-sm">Credits supplementaires sans engagement. S&apos;ajoutent a votre solde et n&apos;expirent pas.</p>
             <div className="grid sm:grid-cols-3 gap-4">
               {CREDIT_PACKS.map(pack => (
                 <div key={pack.id} className={`relative rounded-2xl p-6 border transition-all ${pack.highlighted ? 'bg-indigo-600/15 border-indigo-500 border-2 shadow-lg shadow-indigo-500/10' : 'bg-slate-900/50 border-white/8'}`}>
@@ -199,14 +199,14 @@ export default function CreditsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <Package className="w-5 h-5 text-indigo-400" />
-                      <span className="text-xl font-bold text-white">{pack.credits} crÃ©dits</span>
+                      <span className="text-xl font-bold text-white">{pack.credits} credits</span>
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-white">{fmt(pack.price)}</div>
                       <div className="text-xs text-gray-500 mt-0.5">{pack.ppc}</div>
                     </div>
                     <button
-                      onClick={() => setModal({ label: `Pack ${pack.credits} crÃ©dits`, price: pack.price, productId: pack.id, kind: 'pack' })}
+                      onClick={() => setModal({ label: `Pack ${pack.credits} credits`, price: pack.price, productId: pack.id, kind: 'pack' })}
                       className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors ${pack.highlighted ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-white/8 hover:bg-white/12 text-white border border-white/10'}`}>
                       Acheter ce pack
                     </button>
@@ -219,8 +219,8 @@ export default function CreditsPage() {
 
         {/* Footer */}
         <div className="flex flex-wrap gap-4 text-xs text-gray-600 border-t border-white/5 pt-6">
-          <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> 1 crÃ©dit = 1 simulation complÃ¨te</span>
-          <span className="flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> Packs : crÃ©dits sans expiration</span>
+          <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> 1 credit = 1 simulation complete</span>
+          <span className="flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> Packs : credits sans expiration</span>
         </div>
       </div>
     </div>
