@@ -343,6 +343,175 @@ export default function SimulationRapportPage() {
 
   const handlePrint = () => window.print()
 
+  /** Generate a structured, well-formatted PDF document */
+  const handleDownloadPdf = () => {
+    if (!report) return
+    const axeRows = report.axisScores
+      ? (Object.entries(AXIS_LABELS) as [keyof AxisScores, string][]).map(([key, label]) => {
+          const score = report.axisScores![key] ?? 1
+          const lvl = score >= 4 ? 'Solide' : score >= 3 ? 'Correct' : score >= 2 ? 'À travailler' : 'Lacunaire'
+          const color = score >= 4 ? '#10b981' : score >= 3 ? '#f59e0b' : '#ef4444'
+          return `<tr>
+            <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;">${label}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:center;">
+              ${'<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#d1d5db;margin:0 1px;"></span>'.repeat(Math.max(0, score - 1)).replace(/<span/g, `<span style="background:${color};"`)
+                .concat('<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#d1d5db;margin:0 1px;"></span>'.repeat(5 - score))}
+            </td>
+            <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-weight:600;font-size:13px;color:${color};">${lvl}</td>
+          </tr>`
+        }).join('')
+      : ''
+
+    const strengthsHtml = report.strengths.map(s =>
+      `<div style="border-left:3px solid #10b981;padding:10px 14px;margin-bottom:10px;background:#f0fdf4;border-radius:0 6px 6px 0;">
+        <p style="font-weight:600;font-size:13px;color:#065f46;margin:0 0 4px;">${s.label}</p>
+        <p style="font-size:12px;color:#374151;margin:0;line-height:1.6;">${s.detail}</p>
+      </div>`
+    ).join('')
+
+    const priorityColors: Record<number, string> = { 1: '#ef4444', 2: '#f59e0b', 3: '#6366f1' }
+    const priorityLabels: Record<number, string> = { 1: 'Priorité 1 — critique', 2: 'Priorité 2 — importante', 3: 'Priorité 3 — à améliorer' }
+    const weaknessesHtml = report.weaknesses.map(w => {
+      const p = w.priority ?? 2
+      return `<div style="border-left:3px solid ${priorityColors[p]};padding:10px 14px;margin-bottom:10px;background:#fafafa;border-radius:0 6px 6px 0;">
+        <p style="font-weight:600;font-size:13px;color:#111827;margin:0 0 4px;">${w.label}</p>
+        <p style="font-size:12px;color:#6b7280;margin:0 0 4px;line-height:1.6;">${w.detail}</p>
+        <span style="font-size:11px;color:${priorityColors[p]};font-weight:600;">${priorityLabels[p]}</span>
+      </div>`
+    }).join('')
+
+    const actionsHtml = report.planAction.map((a, i) => {
+      const isObj = typeof a === 'object' && a !== null && 'action' in a
+      const text = isObj ? (a as ActionItem).action : String(a)
+      const duree = isObj ? (a as ActionItem).duree : undefined
+      return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6;">
+        <div style="width:20px;height:20px;border:2px solid #d1d5db;border-radius:4px;flex-shrink:0;margin-top:1px;"></div>
+        <div>
+          <p style="font-size:13px;color:#111827;margin:0;">${text}</p>
+          ${duree ? `<p style="font-size:11px;color:#9ca3af;margin:3px 0 0;">Estimé : ${duree}</p>` : ''}
+        </div>
+      </div>`
+    }).join('')
+
+    const extraitsHtml = report.extraitsMarquants.slice(0, 5).map(ex => {
+      const typeColor = ex.type === 'force' ? '#10b981' : ex.type === 'faiblesse' ? '#ef4444' : '#6366f1'
+      const typeLabel = ex.type === 'force' ? 'Point fort' : ex.type === 'faiblesse' ? 'Faiblesse' : 'Point clé'
+      return `<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;">
+        <span style="font-size:10px;background:${typeColor}20;color:${typeColor};font-weight:600;padding:2px 8px;border-radius:20px;">${typeLabel}</span>
+        <blockquote style="border-left:2px solid #e5e7eb;margin:8px 0 6px;padding-left:10px;font-style:italic;font-size:12px;color:#374151;line-height:1.6;">"${ex.quote}"</blockquote>
+        <p style="font-size:12px;color:#6b7280;margin:0;">${ex.comment}</p>
+      </div>`
+    }).join('')
+
+    const levelColorPdf = level === 'excellent' || level === 'solide' ? '#10b981' : level === 'correct' ? '#f59e0b' : '#ef4444'
+    const avgStr = avgAxisScore !== null ? `${avgAxisScore}/5` : '—'
+
+    const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rapport Jurya — ${meta?.concoursIntitulé ?? ''}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Segoe UI', Arial, sans-serif; color: #111827; background: white; }
+  @page { size: A4; margin: 16mm 15mm; }
+  @media print { .no-print { display: none !important; } body { font-size: 12px; } }
+  h1 { font-size: 22px; font-weight: 700; color: #111827; }
+  h2 { font-size: 15px; font-weight: 600; color: #111827; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #e5e7eb; }
+  .cover { padding: 40px 0 30px; border-bottom: 3px solid #6366f1; margin-bottom: 28px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .section { margin-bottom: 28px; page-break-inside: avoid; }
+  .score-table { width: 100%; border-collapse: collapse; margin-top: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; }
+  .score-table th { background: #f9fafb; padding: 8px 12px; font-size: 11px; font-weight: 600; color: #6b7280; text-align: left; border-bottom: 1px solid #e5e7eb; }
+  .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 10px; color: #9ca3af; text-align: center; }
+  .meta-row { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+  .meta-item { font-size: 12px; color: #6b7280; }
+  .meta-item strong { color: #374151; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+      <p style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:2px;margin-bottom:6px;">JURYA · RAPPORT DE SIMULATION</p>
+      <h1>${meta?.concoursIntitulé ?? 'Simulation orale'}</h1>
+      <div class="meta-row">
+        <span class="meta-item"><strong>Date :</strong> ${startDateFormatted}</span>
+        ${meta?.durationMinutes ? `<span class="meta-item"><strong>Durée :</strong> ${meta.durationMinutes} min</span>` : ''}
+        ${meta?.turnCount ? `<span class="meta-item"><strong>Échanges :</strong> ${meta.turnCount} tours</span>` : ''}
+        <span class="meta-item"><strong>Difficulté :</strong> ${meta?.difficulty ?? '—'}</span>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:28px;font-weight:800;color:${levelColorPdf};">${avgStr}</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:2px;">Moyenne axes</div>
+      <div class="badge" style="background:${levelColorPdf}20;color:${levelColorPdf};margin-top:6px;">${level.charAt(0).toUpperCase() + level.slice(1)}</div>
+    </div>
+  </div>
+</div>
+
+${axeRows ? `<div class="section">
+<h2>📊 Évaluation par axe de compétence</h2>
+<table class="score-table">
+  <thead><tr>
+    <th>Axe</th><th style="text-align:center;">Niveau visuel</th><th>Appréciation</th>
+  </tr></thead>
+  <tbody>${axeRows}</tbody>
+</table>
+</div>` : ''}
+
+<div class="section">
+<h2>🎯 Impression globale du jury</h2>
+<div style="background:#f9fafb;border-left:4px solid #6366f1;padding:14px 16px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.8;color:#374151;">
+  ${report.impressionGlobale}
+</div>
+${report.synthesePhrase ? `<p style="font-size:13px;color:#6b7280;margin-top:10px;font-style:italic;">${report.synthesePhrase}</p>` : ''}
+</div>
+
+${strengthsHtml ? `<div class="section">
+<h2>✅ Points forts</h2>
+${strengthsHtml}
+</div>` : ''}
+
+${weaknessesHtml ? `<div class="section">
+<h2>⚠️ Points à améliorer</h2>
+${weaknessesHtml}
+</div>` : ''}
+
+${extraitsHtml ? `<div class="section">
+<h2>💬 Extraits marquants</h2>
+${extraitsHtml}
+</div>` : ''}
+
+${actionsHtml ? `<div class="section">
+<h2>📋 Plan d'action</h2>
+<p style="font-size:12px;color:#6b7280;margin-bottom:10px;">Cochez chaque action une fois réalisée.</p>
+${actionsHtml}
+</div>` : ''}
+
+<div class="footer">
+  Rapport généré par Jurya · jurya.fr · ${new Date().toLocaleDateString('fr-FR')}
+</div>
+
+<script>
+  window.onload = function() { window.print(); }
+</script>
+</body>
+</html>`
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const win = window.open(url, '_blank')
+    if (!win) {
+      // Popup blocked fallback — download as file
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `rapport-jurya-${simulationId.slice(0, 8)}.html`
+      a.click()
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60000)
+  }
+
   return (
     <div className="min-h-screen text-white" style={{ background: '#0F1629' }}>
       <style>{`
@@ -390,11 +559,11 @@ export default function SimulationRapportPage() {
             </div>
           </div>
           <button
-            onClick={handlePrint}
+            onClick={handleDownloadPdf}
             className="no-print shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 hover:bg-white/5 text-gray-300 text-sm transition-colors"
           >
             <Download className="w-4 h-4" />
-            PDF
+            PDF structuré
           </button>
         </div>
 

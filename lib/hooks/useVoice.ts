@@ -218,6 +218,7 @@ export function useJuryVoice() {
     fallbackPitch = 0.9,
     fallbackRate = 0.92,
     voiceSettings?: { stability: number; similarity_boost: number; style: number; use_speaker_boost: boolean },
+    skipElevenlabs = false,
   ): Promise<void> => {
     // Stop any currently playing audio
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
@@ -227,8 +228,8 @@ export function useJuryVoice() {
     const clean = stripMarkdown(text)
     if (!clean) return
 
-    // Try ElevenLabs if voiceId provided
-    if (voiceId) {
+    // Try ElevenLabs if voiceId provided and not explicitly skipped
+    if (voiceId && !skipElevenlabs) {
       try {
         const res = await fetch('/api/simulation/tts', {
           method: 'POST',

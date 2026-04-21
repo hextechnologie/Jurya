@@ -7,7 +7,7 @@ import { useAuth } from '@/components/AuthProvider'
 import { useSpeechRecognition, useJuryVoice, useSimulationTimer, useAudioLevel } from '@/lib/hooks/useVoice'
 import { SimulationPhase, SimulationTurn, getPhaseLabel, countFillerWords } from '@/lib/types/simulation'
 import { DEFAULT_JURY, getJuryMember, getRandomJury, type SpeakerId, type JuryMemberConfig } from '@/lib/juries/voices'
-import { LogOut, Clock, Loader2, CheckCircle2, Send, Mic, PenLine } from 'lucide-react'
+import { LogOut, Clock, Loader2, CheckCircle2, Mic, PenLine, Square, Video, VideoOff } from 'lucide-react'
 
 /* ─── Types ─── */
 interface SimConfig {
@@ -21,6 +21,8 @@ interface SimConfig {
   userId: string | null
   candidateName?: string
   juryMembers?: JuryMemberConfig[]
+  /** Whether to use ElevenLabs TTS (false = Web Speech API fallback only) */
+  elevenLabsEnabled?: boolean
 }
 
 /* ─── Helpers ─── */
@@ -144,54 +146,73 @@ function JuryTile({
   )
 }
 
-/* ─── Candidate Tile ─── */
-function CandidateTile({ isListening, audioLevel, candidateName, avatarUrl }: {
+/* ─── Candidate Tile (fixed bottom-right, optional webcam) ─── */
+function CandidateTile({ isListening, isSpeaking, audioLevel, candidateName, avatarUrl, videoRef, webcamActive }: {
   isListening: boolean
+  isSpeaking: boolean
   audioLevel: number
   candidateName: string
   avatarUrl?: string | null
+  videoRef: React.RefObject<HTMLVideoElement>
+  webcamActive: boolean
 }) {
   const [imgError, setImgError] = React.useState(false)
   const initials = candidateName
     ? candidateName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
     : 'V'
 
+  const borderColor = isListening ? '#ef4444' : isSpeaking ? '#6366f1' : 'rgba(255,255,255,0.12)'
+  const glowColor = isListening ? 'rgba(239,68,68,0.35)' : isSpeaking ? 'rgba(99,102,241,0.30)' : 'none'
+
   return (
     <div
-      className="relative rounded-lg overflow-hidden transition-all duration-200"
+      className="relative rounded-xl overflow-hidden transition-all duration-200"
       style={{
-        width: '140px',
+        width: '160px',
         aspectRatio: '4/3',
-        border: isListening ? '2px solid #6366f1' : '2px solid rgba(255,255,255,0.1)',
-        boxShadow: isListening ? '0 0 18px rgba(99,102,241,0.4)' : 'none',
+        border: `2px solid ${borderColor}`,
+        boxShadow: glowColor !== 'none' ? `0 0 20px ${glowColor}` : 'none',
       }}
     >
-      {/* Background: real avatar or gradient */}
-      {avatarUrl && !imgError ? (
-        <img
-          src={avatarUrl}
-          alt={candidateName}
-          className="w-full h-full object-cover"
-          onError={() => setImgError(true)}
+      {/* Webcam feed */}
+      {webcamActive && (
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         />
-      ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-          <div className="w-10 h-10 rounded-full bg-indigo-600/40 flex items-center justify-center mb-1">
-            <span className="text-white text-sm font-bold">{initials}</span>
-          </div>
-        </div>
       )}
 
-      {/* Listening waveform overlay */}
+      {/* Avatar / gradient when webcam off */}
+      {!webcamActive && (
+        avatarUrl && !imgError ? (
+          <img
+            src={avatarUrl}
+            alt={candidateName}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+            <div className="w-12 h-12 rounded-full bg-indigo-600/40 flex items-center justify-center mb-1">
+              <span className="text-white text-sm font-bold">{initials}</span>
+            </div>
+          </div>
+        )
+      )}
+
+      {/* Speaking waveform overlay */}
       {isListening && (
-        <div className="absolute inset-0 flex items-end justify-center pb-5 bg-black/20">
+        <div className="absolute inset-0 flex items-end justify-center pb-6 bg-black/25">
           <div className="flex items-end gap-0.5 h-8">
             {[0, 1, 2, 3, 4].map(i => {
-              const h = Math.max(4, (audioLevel / 100) * 26 * (0.6 + 0.4 * Math.sin(i * 1.3 + Date.now() / 200)))
+              const h = Math.max(3, (audioLevel / 100) * 28 * (0.5 + 0.5 * Math.sin(i * 1.4 + Date.now() / 180)))
               return (
                 <div
                   key={i}
-                  className="w-1 bg-indigo-400 rounded-full transition-all duration-100"
+                  className="w-1 bg-red-400 rounded-full transition-all duration-100"
                   style={{ height: `${h}px` }}
                 />
               )
@@ -200,16 +221,95 @@ function CandidateTile({ isListening, audioLevel, candidateName, avatarUrl }: {
         </div>
       )}
 
-      {/* Mic indicator */}
-      <div className={`absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center ${
-        isListening ? 'bg-indigo-500/80' : 'bg-black/50'
-      }`}>
-        <Mic className={`w-2.5 h-2.5 ${isListening ? 'text-white' : 'text-gray-500'}`} />
+      {/* Name bar */}
+      <div className="absolute bottom-0 left-0 right-0 px-2 py-1" style={{ background: 'rgba(0,0,0,0.65)' }}>
+        <p className="text-white truncate text-center" style={{ fontSize: '11px' }}>
+          {candidateName.split(' ')[0] || 'Vous'}
+        </p>
       </div>
+    </div>
+  )
+}
 
-      <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1" style={{ background: 'rgba(0,0,0,0.62)' }}>
-        <p className="text-white truncate" style={{ fontSize: '11px' }}>{candidateName || 'Vous'}</p>
+/* ─── Central Speak Button ─── */
+function SpeakButton({
+  juryIsSpeaking,
+  isThinking,
+  isListening,
+  listenEnabled,
+  ending,
+  onManualSubmit,
+}: {
+  juryIsSpeaking: boolean
+  isThinking: boolean
+  isListening: boolean
+  listenEnabled: boolean
+  ending: boolean
+  onManualSubmit: () => void
+}) {
+  // State 1: jury speaks / thinking → disabled
+  if (juryIsSpeaking || isThinking || ending) {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-xs text-gray-500">
+          {juryIsSpeaking ? 'Écoutez attentivement' : isThinking ? 'Le jury réfléchit…' : ''}
+        </p>
+        <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-white/10 flex items-center justify-center opacity-40 cursor-not-allowed">
+          <Mic className="w-8 h-8 text-gray-500" />
+        </div>
       </div>
+    )
+  }
+
+  // State 2: candidate speaking → red pulsing
+  if (isListening) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-xs text-red-300 font-medium tracking-wide">Le jury vous écoute</p>
+        <button
+          onClick={onManualSubmit}
+          className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
+          style={{
+            background: 'rgba(239,68,68,0.15)',
+            border: '2px solid rgba(239,68,68,0.6)',
+            boxShadow: '0 0 28px rgba(239,68,68,0.3)',
+          }}
+        >
+          <span
+            className="absolute inset-0 rounded-full animate-ping"
+            style={{ background: 'rgba(239,68,68,0.2)', animationDuration: '1.4s' }}
+          />
+          <Square className="w-7 h-7 text-red-400 relative z-10" fill="currentColor" />
+        </button>
+        <button
+          onClick={onManualSubmit}
+          className="text-xs text-gray-400 hover:text-gray-200 transition-colors underline underline-offset-4"
+        >
+          J&apos;ai terminé ma réponse
+        </button>
+      </div>
+    )
+  }
+
+  // State 3: candidate's turn → indigo pulsing
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <p className="text-xs text-indigo-300 font-medium tracking-wide">À vous de parler</p>
+      <button
+        className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative cursor-default"
+        style={{
+          background: 'rgba(99,102,241,0.15)',
+          border: '2px solid rgba(99,102,241,0.55)',
+          boxShadow: '0 0 28px rgba(99,102,241,0.25)',
+        }}
+      >
+        <span
+          className="absolute inset-0 rounded-full animate-ping"
+          style={{ background: 'rgba(99,102,241,0.15)', animationDuration: '2s' }}
+        />
+        <Mic className="w-8 h-8 text-indigo-400 relative z-10" />
+      </button>
+      <p className="text-xs text-gray-600">Le micro capte votre voix automatiquement</p>
     </div>
   )
 }
@@ -262,11 +362,14 @@ export default function SimulationSessionPage() {
   const [currentSpeakerId, setCurrentSpeakerId] = useState<SpeakerId>('president')
   const [juryMessage, setJuryMessage] = useState('')
   const [isAiThinking, setIsAiThinking] = useState(false)
-  const [textInput, setTextInput] = useState('')
   const [ending, setEnding] = useState(false)
   const endingRef = useRef(false)
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const sessionStartRef = useRef<string>(new Date().toISOString())
+
+  // Webcam (optional — user activates in briefing, stored in sessionStorage)
+  const [webcamActive, setWebcamActive] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   // Mic always-on flow
   const [listenEnabled, setListenEnabled] = useState(false)
@@ -325,20 +428,22 @@ export default function SimulationSessionPage() {
     startAudioLevel()
 
     const jury = config.juryMembers ?? DEFAULT_JURY
-    const presidentName = jury.find(m => m.id === 'president')?.name ?? 'Mme Laurent'
+    const president = jury.find(m => m.id === 'president') ?? jury[0]
+    const presidentTitle = president.gender === 'male' ? 'président' : 'présidente'
+    const presidentName = president.name
     const epreuveType = config.epreuveType ?? 'exposé_questions'
     const totalMin = config.durationMinutes ?? 30
     if (epreuveType === 'exposé_questions') {
       const exposéMin = Math.round(totalMin * 0.35)
       const questionsMin = totalMin - exposéMin
       speakAsJury(
-        `Bonjour. Je suis ${presidentName}, présidente de ce jury. Nous sommes réunis pour votre oral de ${config.concoursIntitulé}. Cette séance dure ${totalMin} minutes au total : environ ${exposéMin} minutes d'exposé libre, puis ${questionsMin} minutes de questions. Vous pouvez commencer.`,
+        `Bonjour. Je suis ${presidentName}, ${presidentTitle} de ce jury. Nous sommes réunis aujourd'hui pour votre oral du concours ${config.concoursIntitulé}. Vous disposez de ${totalMin} minutes au total : environ ${exposéMin} minutes pour votre exposé, puis ${questionsMin} minutes de questions. Quand vous êtes prêt, vous pouvez commencer.`,
         'president'
       )
     } else {
       const candidateFirstName = config.candidateName?.split(' ')[0] ?? ''
       speakAsJury(
-        `Bonjour${candidateFirstName ? ` ${candidateFirstName}` : ''}. Je suis ${presidentName}, présidente de ce jury. Nous allons procéder à votre oral de ${config.concoursIntitulé}, d'une durée de ${totalMin} minutes. Nous allons directement passer aux questions. Êtes-vous prêt ?`,
+        `Bonjour${candidateFirstName ? ` ${candidateFirstName}` : ''}. Je suis ${presidentName}, ${presidentTitle} de ce jury. Nous allons conduire votre oral du concours ${config.concoursIntitulé}, pour une durée de ${totalMin} minutes. Nous allons passer directement aux questions. Êtes-vous prêt à commencer ?`,
         'president'
       ).then(() => fetchJuryQuestion('questions_jury'))
     }
@@ -356,6 +461,21 @@ export default function SimulationSessionPage() {
     const h = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
     window.addEventListener('beforeunload', h)
     return () => window.removeEventListener('beforeunload', h)
+  }, [])
+
+  /* ── Webcam (optional) ── */
+  useEffect(() => {
+    const want = sessionStorage.getItem('sim_webcam') === 'true'
+    if (!want) return
+    let stream: MediaStream | null = null
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(s => {
+        stream = s
+        if (videoRef.current) videoRef.current.srcObject = s
+        setWebcamActive(true)
+      })
+      .catch(() => { /* user denied — stay with avatar */ })
+    return () => { stream?.getTracks().forEach(t => t.stop()) }
   }, [])
 
   /* ── Auto-manage mic based on jury speaking state ── */
@@ -384,7 +504,7 @@ export default function SimulationSessionPage() {
 
     if (currentText.trim()) {
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
-      const silenceMs = phaseRef.current === 'exposé_libre' ? 5000 : 2500
+      const silenceMs = phaseRef.current === 'exposé_libre' ? 6000 : 2800
       silenceTimerRef.current = setTimeout(() => {
         if (speech.transcript.trim()) submitAnswer(speech.transcript.trim())
       }, silenceMs)
@@ -402,6 +522,7 @@ export default function SimulationSessionPage() {
   const speakAsJury = useCallback(async (text: string, speakerId: SpeakerId) => {
     const jury = configRef.current?.juryMembers ?? DEFAULT_JURY
     const member = getJuryMember(speakerId, jury)
+    const skipElevenlabs = configRef.current?.elevenLabsEnabled === false
     setCurrentSpeakerId(speakerId)
     setJuryMessage(text)
     const juryTurn: SimulationTurn = {
@@ -413,7 +534,7 @@ export default function SimulationSessionPage() {
     }
     setTurns(prev => [...prev, juryTurn])
     turnIndexRef.current += 1
-    await juryVoice.speak(text, member.elevenlabsVoiceId, member.fallbackPitch, member.fallbackRate, member.voiceSettings)
+    await juryVoice.speak(text, member.elevenlabsVoiceId, member.fallbackPitch, member.fallbackRate, member.voiceSettings, skipElevenlabs)
   }, [juryVoice])
 
   const fetchJuryQuestion = useCallback(async (targetPhase: SimulationPhase) => {
@@ -446,14 +567,15 @@ export default function SimulationSessionPage() {
       })
       if (!res.ok) throw new Error('API error')
       const data = await res.json()
-      // Rude detection: jury stops the session — lock ending BEFORE speech so mic doesn't re-enable when speech ends
+      // Jury ends session — set React state immediately so mic useEffect sees ending=true
+      // and won't re-enable the mic when jury finishes speaking.
+      // Do NOT touch endingRef here — handleEnd() uses it as a run-once guard.
       if (data.end_session) {
         const speakerId: SpeakerId = 'president'
-        endingRef.current = true   // prevent mic auto-start while speech plays
-        setEnding(true)
+        setEnding(true)          // blocks mic useEffect (checks !ending)
         setIsAiThinking(false)
         await speakAsJury(data.question, speakerId)
-        handleEnd()
+        handleEnd()              // endingRef still false → proceeds normally
         return
       }
       if (data.phase && data.phase !== phaseRef.current) {
@@ -489,14 +611,13 @@ export default function SimulationSessionPage() {
     setTurns(prev => [...prev, t])
     turnIndexRef.current += 1
     speech.reset()
-    setTextInput('')
     lastTranscriptRef.current = ''
     setTimeout(() => fetchJuryQuestion('questions_jury'), 500)
   }, [ending, speech, fetchJuryQuestion])
 
   const finishExposé = useCallback(() => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
-    const text = speech.transcript.trim() || textInput.trim()
+    const text = speech.transcript.trim()
     speech.stop()
     if (text) {
       const t: SimulationTurn = {
@@ -513,12 +634,11 @@ export default function SimulationSessionPage() {
       turnIndexRef.current += 1
     }
     speech.reset()
-    setTextInput('')
     lastTranscriptRef.current = ''
     setPhase('questions_jury')
     triggerPhaseOverlay('Questions du jury')
     setTimeout(() => fetchJuryQuestion('questions_jury'), 2700)
-  }, [speech, textInput, fetchJuryQuestion])
+  }, [speech, fetchJuryQuestion])
 
   const handleEnd = useCallback(async (opts?: { timerExpired?: boolean; earlyExit?: boolean }) => {
     if (endingRef.current) return
@@ -617,8 +737,14 @@ export default function SimulationSessionPage() {
   const totalSec = (config.durationMinutes ?? 30) * 60
   const concoursSlug = getConcoursSlug(config.concoursId)
   const candidateName = config.candidateName ?? 'Candidat(e)'
-  const hasInput = !!(speech.transcript.trim() || textInput.trim())
   const juryConfig = config.juryMembers ?? DEFAULT_JURY
+
+  const handleManualSubmit = () => {
+    const text = speech.transcript.trim()
+    if (!text || ending) return
+    if (phase === 'exposé_libre') finishExposé()
+    else submitAnswer(text)
+  }
 
   return (
     <div className="h-screen bg-[#0F1629] flex flex-col overflow-hidden select-none text-white">
@@ -640,7 +766,7 @@ export default function SimulationSessionPage() {
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#1a2240] border border-white/10 rounded-2xl p-6 max-w-sm w-full space-y-4">
             <h3 className="text-lg font-bold">Quitter la simulation ?</h3>
-            <p className="text-sm text-gray-400">Le rapport sera généré avec les échanges effectués jusqu'ici.</p>
+            <p className="text-sm text-gray-400">Le rapport sera généré avec les échanges effectués jusqu&apos;ici.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowQuitConfirm(false)}
@@ -659,13 +785,24 @@ export default function SimulationSessionPage() {
         </div>
       )}
 
-      {/* ══ Zone haute (60px) ══ */}
+      {/* ══ Header ══ */}
       <header className="shrink-0 h-[60px] border-b border-white/10 bg-[#0d1526]/80 backdrop-blur-sm flex items-center px-4 gap-4">
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-500 truncate">{config.concoursIntitulé}</p>
           <p className="text-xs font-semibold text-[#818CF8]">{getPhaseLabel(phase)}</p>
         </div>
         <TimerBadge remaining={timer.remaining} total={totalSec} />
+
+        {/* "J'ai terminé l'exposé" — only visible during exposé_libre phase */}
+        {phase === 'exposé_libre' && !juryVoice.isSpeaking && !isAiThinking && !ending && (
+          <button
+            onClick={finishExposé}
+            className="shrink-0 text-xs text-[#818CF8] hover:text-violet-300 border border-[#818CF8]/30 rounded-lg px-3 py-1.5 hover:bg-[#818CF8]/10 transition-colors"
+          >
+            J&apos;ai terminé l&apos;exposé
+          </button>
+        )}
+
         <button
           onClick={() => setShowQuitConfirm(true)}
           className="shrink-0 flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-400 transition-colors border border-white/10 rounded-lg px-3 py-1.5 hover:border-red-500/30"
@@ -675,7 +812,7 @@ export default function SimulationSessionPage() {
         </button>
       </header>
 
-      {/* ══ Zone centrale ══ */}
+      {/* ══ Central area ══ */}
       <main className="flex-1 overflow-hidden flex flex-col px-4 py-4 gap-4">
 
         {/* Jury tiles grid */}
@@ -696,131 +833,83 @@ export default function SimulationSessionPage() {
           ))}
         </div>
 
-        {/* Jury message + candidate tile row */}
-        <div className="flex-1 max-w-3xl mx-auto w-full flex gap-3 items-start">
-          {/* Jury speech area */}
-          <div className="flex-1">
-            {isAiThinking ? (
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Loader2 className="w-4 h-4 animate-spin text-violet-400" />
-                Le jury réfléchit…
-              </div>
-            ) : juryMessage ? (
-              <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3">
-                <p className="text-xs text-[#818CF8] font-medium mb-1">
-                  {getJuryMember(currentSpeakerId, juryConfig).name} · {getJuryMember(currentSpeakerId, juryConfig).roleLabel}
-                </p>
-                <p className="text-sm text-gray-200 leading-relaxed">{juryMessage}</p>
-              </div>
-            ) : null}
-
-            {/* Live transcript */}
-            {(speech.transcript || speech.interimTranscript) && (
-              <div className="mt-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-4 py-3">
-                <p className="text-xs text-indigo-400 font-medium mb-1">Vous parlez…</p>
-                <p className="text-sm text-gray-300 leading-relaxed">
-                  {speech.transcript}
-                  <span className="text-gray-500 italic">{speech.interimTranscript}</span>
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Candidate tile — fixed small tile */}
-          <div className="shrink-0">
-            <CandidateTile
-              isListening={speech.isListening}
-              audioLevel={audioLevel}
-              candidateName={candidateName}
-              avatarUrl={profile?.avatar_url}
-            />
-            <div className="mt-1 text-center">
-              <span className="text-xs text-gray-600">
-                {speech.isListening ? '🔴 Écoute' : juryVoice.isSpeaking ? '🟣 Jury' : '⬜ Attente'}
-              </span>
+        {/* Jury speech bubble + live transcript */}
+        <div className="flex-1 max-w-3xl mx-auto w-full flex flex-col gap-3">
+          {isAiThinking ? (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Loader2 className="w-4 h-4 animate-spin text-violet-400" />
+              Le jury réfléchit…
             </div>
-          </div>
-        </div>
-      </main>
+          ) : juryMessage ? (
+            <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+              <p className="text-xs text-[#818CF8] font-medium mb-1">
+                {getJuryMember(currentSpeakerId, juryConfig).name} · {getJuryMember(currentSpeakerId, juryConfig).roleLabel}
+              </p>
+              <p className="text-sm text-gray-200 leading-relaxed">{juryMessage}</p>
+            </div>
+          ) : null}
 
-      {/* ══ Zone basse ══ */}
-      <footer className="shrink-0 border-t border-white/10 bg-[#0d1526]/80 backdrop-blur-sm px-4 py-3">
-        <div className="max-w-3xl mx-auto space-y-2">
-
-          {/* Exposé control */}
-          {phase === 'exposé_libre' && (
-            <div className="text-center">
-              <button
-                onClick={finishExposé}
-                disabled={isAiThinking || juryVoice.isSpeaking}
-                className="text-sm text-[#818CF8] hover:text-violet-300 underline underline-offset-4 transition-colors disabled:opacity-40"
-              >
-                Terminer l'exposé → passer aux questions du jury
-              </button>
+          {/* Live transcript */}
+          {(speech.transcript || speech.interimTranscript) && (
+            <div className="bg-indigo-500/8 border border-indigo-500/15 rounded-xl px-4 py-2.5">
+              <p className="text-xs text-indigo-400 font-medium mb-1">Vous parlez…</p>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {speech.transcript}
+                <span className="text-gray-600 italic">{speech.interimTranscript}</span>
+              </p>
             </div>
           )}
 
-          {/* Mic status indicator */}
-          <div className="flex items-center justify-center gap-2 text-xs min-h-[18px]">
-            {juryVoice.isSpeaking ? (
-              <span className="flex items-center gap-1.5 text-violet-400">
-                <span className="flex gap-0.5 items-end h-4">
-                  {[0, 1, 2].map(i => (
-                    <span key={i} className="w-1 bg-violet-400 rounded-full animate-bounce"
-                      style={{ height: `${8 + i * 4}px`, animationDelay: `${i * 100}ms` }} />
-                  ))}
-                </span>
-                Le jury parle…
-              </span>
-            ) : speech.isListening ? (
-              <span className="flex items-center gap-1.5 text-indigo-400">
-                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
-                Le jury vous écoute
-              </span>
-            ) : isAiThinking ? (
-              <span className="text-gray-600">Le jury réfléchit…</span>
-            ) : (
-              <span className="text-gray-600">À vous de parler</span>
-            )}
-          </div>
+          {speech.error && <p className="text-xs text-red-400">{speech.error}</p>}
+        </div>
+      </main>
 
-          {/* Input + submit */}
-          <div className="flex items-center gap-2">
-            <textarea
-              value={textInput}
-              onChange={e => setTextInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey && hasInput) {
-                  e.preventDefault()
-                  const text = speech.transcript.trim() || textInput.trim()
-                  if (phase === 'exposé_libre') finishExposé()
-                  else submitAnswer(text)
-                }
-              }}
-              placeholder={speech.isListening ? 'Micro actif — parlez librement…' : 'Rédigez ou parlez…'}
-              rows={1}
-              disabled={isAiThinking || juryVoice.isSpeaking || ending}
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-40 placeholder-gray-600"
-            />
-
-            <button
-              onClick={() => {
-                const text = speech.transcript.trim() || textInput.trim()
-                if (!text) return
-                if (phase === 'exposé_libre') finishExposé()
-                else submitAnswer(text)
-              }}
-              disabled={isAiThinking || juryVoice.isSpeaking || !hasInput || ending}
-              className="shrink-0 px-4 py-2.5 rounded-xl bg-[#818CF8] text-white text-sm font-medium hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-            >
-              <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">Valider</span>
-            </button>
-          </div>
-
-          {speech.error && <p className="text-xs text-red-400 text-center">{speech.error}</p>}
+      {/* ══ Footer — central SpeakButton ══ */}
+      <footer className="shrink-0 border-t border-white/10 bg-[#0d1526]/80 backdrop-blur-sm px-4 py-5">
+        <div className="max-w-3xl mx-auto flex items-center justify-center">
+          <SpeakButton
+            juryIsSpeaking={juryVoice.isSpeaking}
+            isThinking={isAiThinking}
+            isListening={speech.isListening}
+            listenEnabled={listenEnabled}
+            ending={ending}
+            onManualSubmit={handleManualSubmit}
+          />
         </div>
       </footer>
+
+      {/* ══ Fixed bottom-right: candidate tile ══ */}
+      <div className="fixed bottom-4 right-4 z-40 flex flex-col items-center gap-1">
+        <CandidateTile
+          isListening={speech.isListening}
+          isSpeaking={!juryVoice.isSpeaking && !isAiThinking && listenEnabled}
+          audioLevel={audioLevel}
+          candidateName={candidateName}
+          avatarUrl={profile?.avatar_url}
+          videoRef={videoRef}
+          webcamActive={webcamActive}
+        />
+        <button
+          onClick={() => {
+            if (webcamActive) {
+              if (videoRef.current?.srcObject) {
+                (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop())
+                videoRef.current.srcObject = null
+              }
+              setWebcamActive(false)
+            } else {
+              navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then(s => { if (videoRef.current) videoRef.current.srcObject = s; setWebcamActive(true) })
+                .catch(() => {})
+            }
+          }}
+          className="flex items-center gap-1 text-gray-600 hover:text-gray-400 transition-colors text-xs"
+          title={webcamActive ? 'Désactiver la caméra' : 'Activer la caméra'}
+        >
+          {webcamActive ? <VideoOff className="w-3 h-3" /> : <Video className="w-3 h-3" />}
+          {webcamActive ? 'Désactiver cam' : 'Activer cam'}
+        </button>
+      </div>
     </div>
   )
 }

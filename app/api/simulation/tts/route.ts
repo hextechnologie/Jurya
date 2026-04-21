@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           text: clean,
-          model_id: 'eleven_flash_v2_5',
+          model_id: 'eleven_multilingual_v2',
           voice_settings: voiceSettings ?? {
             stability: 0.32,
             similarity_boost: 0.82,
