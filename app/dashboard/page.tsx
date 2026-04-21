@@ -95,24 +95,37 @@ function SectionTitle({ children, icon: Icon }: { children: React.ReactNode; ico
 }
 
 /* ── Common header (all states) ── */
-function DashboardHeader({ firstName, credits, used, limit }: { firstName: string; credits: number; used: number; limit: number }) {
+function DashboardHeader({ firstName, credits, showLaunch = true }: { firstName: string; credits: number; showLaunch?: boolean }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-4">
       <h1 className="text-2xl font-medium text-white">Bonjour {firstName}.</h1>
       <div className="flex items-center gap-3">
-        <Link href="/credits" className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
-          <Zap className="w-4 h-4 text-indigo-300" />
-          <span className={credits > 0 ? 'text-indigo-300' : 'text-slate-400'}>
-            {credits > 0 ? `${credits} crédits` : 'Obtenir des crédits'}
+        {/* Credits CTA — conditional on balance */}
+        {credits === 0 ? (
+          <Link href="/credits" className="flex items-center gap-1.5 text-sm bg-amber-500/10 border border-amber-500/30 text-amber-400 px-3 py-1.5 rounded-xl hover:bg-amber-500/20 transition-colors whitespace-nowrap">
+            <Zap className="w-4 h-4" />
+            Crédits épuisés — Recharger
+          </Link>
+        ) : credits <= 10 ? (
+          <Link href="/credits" className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-300 transition-colors whitespace-nowrap">
+            <Zap className="w-4 h-4" />
+            {credits} crédits restants
+          </Link>
+        ) : (
+          <span className="flex items-center gap-1.5 text-sm text-indigo-300 whitespace-nowrap">
+            <Zap className="w-4 h-4" />
+            {credits} crédits
           </span>
-        </Link>
-        <Link
-          href="/simulation/setup"
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl px-4 py-2 transition-colors"
-        >
-          <Mic className="w-4 h-4" />
-          Lancer une simulation
-        </Link>
+        )}
+        {showLaunch && (
+          <Link
+            href="/simulation/setup"
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl px-4 py-2 transition-colors"
+          >
+            <Mic className="w-4 h-4" />
+            Lancer une simulation
+          </Link>
+        )}
       </div>
     </div>
   )
@@ -370,63 +383,40 @@ function CoachWidget({ booking }: { booking: Booking | null }) {
 }
 
 /* ── State: NEW ── */
-function StateNew({ firstName, completedSteps }: { firstName: string; completedSteps: boolean[] }) {
-  const steps = [
-    { label: 'Choisir votre concours cible', href: '/profile', desc: 'Sélectionnez le concours que vous préparez' },
-    { label: "Indiquer votre date d'oral (recommandé)", href: '/profile', desc: 'Active le mode préparation intensive quand la date approche' },
-    { label: 'Lancer votre première simulation', href: '/simulation/setup', desc: 'Moins de 15 minutes pour un premier diagnostic' },
-  ]
-
+function StateNew({ firstName }: { firstName: string }) {
   return (
-    <div className="space-y-6">
-      {/* Onboarding */}
-      <DCard>
-        <h2 className="text-lg font-medium text-white mb-1">Commencez votre préparation</h2>
-        <p className="text-sm text-gray-400 mb-5">Votre première simulation prend moins de 15 minutes et vous donne un premier diagnostic complet.</p>
-        <div className="space-y-3">
-          {steps.map((s, i) => {
-            const done = completedSteps[i] ?? false
-            return (
-              <div key={i} className="flex items-start gap-3">
-                {done
-                  ? <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  : <span className="w-5 h-5 rounded-full border border-slate-500 text-slate-500 text-xs flex items-center justify-center shrink-0 mt-0.5 font-medium">{i + 1}</span>
-                }
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${done ? 'text-slate-400 line-through' : 'text-slate-100'}`}>{s.label}</p>
-                  {!done && <p className="text-xs text-slate-400 mt-0.5">{s.desc}</p>}
-                </div>
-                {done
-                  ? <span className="text-xs text-emerald-400 self-center shrink-0">Terminé</span>
-                  : i === 2
-                    ? <Link href={completedSteps[0] ? s.href : '#'}
-                        className={`text-sm px-4 py-1.5 rounded-xl font-medium transition-colors shrink-0 ${completedSteps[0] ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
-                        Commencer
-                      </Link>
-                    : <Link href={s.href} className="text-xs text-indigo-400 hover:underline self-center shrink-0">Configurer</Link>
-                }
-              </div>
-            )
-          })}
-        </div>
-      </DCard>
+    <div className="space-y-8">
+      {/* Welcome + CTA */}
+      <div className="flex flex-col items-center text-center space-y-5 py-8">
+        <h2 className="text-2xl font-medium text-white">Bienvenue sur Jurya.</h2>
+        <p className="text-gray-400 max-w-md leading-relaxed">
+          Pour démarrer, lancez votre première simulation.<br />
+          Elle prend 15 minutes et vous donne un premier diagnostic de votre niveau.
+        </p>
+        <Link
+          href="/simulation/setup"
+          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-4 rounded-2xl text-base transition-colors shadow-lg shadow-indigo-600/25"
+        >
+          <Mic className="w-5 h-5" />
+          Lancer ma première simulation
+          <ArrowRight className="w-5 h-5" />
+        </Link>
+        <p className="text-xs text-gray-600">Vous avez 30 crédits offerts pour découvrir Jurya.</p>
+      </div>
 
-      {/* Why simulate */}
-      <DCard className="bg-slate-900/30">
-        <h3 className="text-sm font-medium text-white mb-3">Pourquoi simuler votre oral ?</h3>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { title: 'Un jury IA réaliste', desc: 'Trois jurés distincts, questions adaptées à votre concours, conditions de pression réelles.' },
-            { title: 'Un rapport immédiat', desc: "Points forts, axes de travail, extraits de vos réponses, plan d'action personnalisé." },
-            { title: 'Une progression mesurable', desc: 'Chaque simulation nourrit votre radar de compétences. Voyez vos progrès, session après session.' },
-          ].map((item, i) => (
-            <div key={i} className="border-l-2 border-indigo-500/30 pl-3">
-              <p className="text-xs font-medium text-white mb-1">{item.title}</p>
-              <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </DCard>
+      {/* Why simulate — 3 micro-cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { title: 'Un jury IA réaliste', desc: 'Trois jurés distincts, questions adaptées à votre concours, conditions de pression réelles.' },
+          { title: 'Un rapport immédiat', desc: "Points forts, axes de travail, extraits de vos réponses, plan d'action personnalisé." },
+          { title: 'Une progression mesurable', desc: 'Chaque simulation nourrit votre radar de compétences. Voyez vos progrès, session après session.' },
+        ].map((item, i) => (
+          <DCard key={i} className="bg-slate-900/30">
+            <p className="text-sm font-medium text-white mb-1.5">{item.title}</p>
+            <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+          </DCard>
+        ))}
+      </div>
     </div>
   )
 }
@@ -673,7 +663,6 @@ export default function DashboardPage() {
   const [reportMap, setReportMap] = useState<Map<string, ReportData>>(new Map())
   const [goals, setGoals] = useState<Goal[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
-  const [onboardingSteps, setOnboardingSteps] = useState<boolean[]>([false, false, false])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -686,7 +675,7 @@ export default function DashboardPage() {
     setLoading(true)
     const uid = user.id
 
-    const [simRes, goalRes, bookRes, onboardingRes] = await Promise.all([
+    const [simRes, goalRes, bookRes] = await Promise.all([
       supabase
         .from('simulations')
         .select('id, created_at, completed_at, actual_duration_seconds, status, simulation_config')
@@ -704,19 +693,12 @@ export default function DashboardPage() {
         .in('status', ['confirmed', 'pending'])
         .order('scheduled_at', { ascending: true })
         .limit(3),
-      supabase
-        .from('user_onboarding_progress')
-        .select('step_key')
-        .eq('user_id', uid),
     ])
 
     const simsData = (simRes.data ?? []) as unknown as Simulation[]
     setSims(simsData)
     setGoals((goalRes.data ?? []) as unknown as Goal[])
     setBookings((bookRes.data ?? []) as unknown as Booking[])
-    const STEP_KEYS = ['choose_concours', 'set_exam_date', 'first_simulation']
-    const completedSet = new Set(((onboardingRes.data ?? []) as { step_key: string }[]).map(r => r.step_key))
-    setOnboardingSteps(STEP_KEYS.map(k => completedSet.has(k)))
 
     if (simsData.length > 0) {
       const { data: reps } = await supabase
@@ -764,8 +746,7 @@ export default function DashboardPage() {
         <DashboardHeader
           firstName={firstName}
           credits={available}
-          used={profile?.interviews_used_this_month ?? 0}
-          limit={profile?.interviews_limit ?? 30}
+          showLaunch={state !== 'new'}
         />
 
         {/* Exam date nudge for active users without a goal */}
@@ -777,7 +758,7 @@ export default function DashboardPage() {
         )}
 
         {/* State-specific content */}
-        {state === 'new' && <StateNew firstName={firstName} completedSteps={onboardingSteps} />}
+        {state === 'new' && <StateNew firstName={firstName} />}
         {state === 'active' && (
           <StateActive sims={sims} reports={reports} reportMap={reportMap} bookings={bookings} />
         )}

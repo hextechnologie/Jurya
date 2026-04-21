@@ -204,7 +204,7 @@ export default function SimulationSetupPage() {
       sessionStorage.setItem(`sim_config_${sessionId}`, JSON.stringify(config))
     }
 
-    router.push(`/simulation/${sessionId}`)
+    router.push(`/simulation/briefing?id=${sessionId}`)
   }
 
   const canStart = !!selectedConcoursId && duration > 0

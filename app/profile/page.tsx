@@ -1,82 +1,95 @@
-﻿'use client'
+'use client'
 
 import { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import CandidateNavbar from '@/components/CandidateNavbar'
-import { Button, Input, LoadingSpinner } from '@/components/ui'
-import { ArrowLeft, Save, CheckCircle, User, Bell, BookOpen, Trophy, GraduationCap, Mail, Lock, AlertCircle, Camera } from 'lucide-react'
+import { LoadingSpinner } from '@/components/ui'
+import {
+  ArrowLeft, Save, CheckCircle, User, Bell, BookOpen, Shield,
+  Camera, Mail, Lock, AlertCircle, GraduationCap, Trophy,
+} from 'lucide-react'
 import Link from 'next/link'
 
-/* ---------- types ---------- */
-type Concours = { id: string; intitulé: string }
+type Tab = 'identite' | 'preparation' | 'notifications' | 'confidentialite'
+type PrepLevel = 'debutant' | 'intermediaire' | 'avance'
 
-type PreviousAttempt = {
-  year: string
-  score: string
-  feedback: string
+const TABS: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: 'identite', label: 'Identité', icon: User },
+  { id: 'preparation', label: 'Ma préparation', icon: BookOpen },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'confidentialite', label: 'Confidentialité', icon: Shield },
+]
+
+function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div
+      onClick={() => onChange(!value)}
+      className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer shrink-0 ${value ? 'bg-indigo-600' : 'bg-white/10'}`}
+    >
+      <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${value ? 'translate-x-5' : 'translate-x-0.5'}`} />
+    </div>
+  )
 }
+
+function SaveButton({ onClick, saving }: { onClick: () => void; saving: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={saving}
+      className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+    >
+      {saving ? (
+        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Enregistrement&hellip;</>
+      ) : (
+        <><Save className="w-4 h-4" /> Enregistrer</>
+      )}
+    </button>
+  )
+}
+
+type Concours = { id: string; intitulé: string }
 
 export default function ProfilePage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth()
   const router = useRouter()
 
-  // identity
+  const [activeTab, setActiveTab] = useState<Tab>('identite')
+  const [loading, setLoading] = useState(true)
+
+  // — Identité —
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
-  // concours selection
+  // — Ma préparation —
   const [allConcours, setAllConcours] = useState<Concours[]>([])
   const [selectedConcours, setSelectedConcours] = useState<string[]>([])
   const [targetYear, setTargetYear] = useState('2026')
+  const [prepLevel, setPrepLevel] = useState<PrepLevel>('debutant')
 
-  // experience & motivation
-  const [parcoursPro, setParcoursPro] = useState('')
-  const [motivations, setMotivations] = useState('')
-
-  // previous attempts
-  const [hasPreviousAttempt, setHasPreviousAttempt] = useState(false)
-  const [previousAttempts, setPreviousAttempts] = useState<PreviousAttempt[]>([{ year: '', score: '', feedback: '' }])
-
-  // preparation level
-  const [prepLevel, setPrepLevel] = useState<'débutant' | 'intermédiaire' | 'avancé'>('débutant')
-
-  // notification prefs
+  // — Notifications —
   const [emailReminders, setEmailReminders] = useState(true)
   const [simulationReminders, setSimulationReminders] = useState(true)
   const [coachMessages, setCoachMessages] = useState(true)
 
-  // avatar upload
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-
-  const onAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setAvatarFile(file)
-    setAvatarPreview(URL.createObjectURL(file))
-  }
-
-  // ui
+  // — UI —
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [error, setError] = useState('')
+  const [saveError, setSaveError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login')
   }, [user, authLoading, router])
 
   useEffect(() => {
-    if (user && profile) {
-      loadProfile()
+    if (user) {
       loadConcours()
-    } else if (user && !profile && !authLoading) {
-      // User authenticated but no profile yet — still load concours and stop the spinner
-      loadConcours()
-      setLoading(false)
+      if (profile) loadProfile()
+      else setLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile, authLoading])
@@ -88,188 +101,141 @@ export default function ProfilePage() {
 
   async function loadProfile() {
     const uid = user!.id
+    setFirstName(profile!.first_name || profile!.full_name?.split(' ')[0] || '')
+    setLastName(profile!.last_name || profile!.full_name?.split(' ').slice(1).join(' ') || '')
 
-    // name from profile
-    setFirstName(profile!.first_name || (profile!.full_name?.split(' ')[0] ?? ''))
-    setLastName(profile!.last_name || (profile!.full_name?.split(' ').slice(1).join(' ') ?? ''))
-
-    // candidate_profiles
-    const { data: cp } = await supabase
-      .from('candidate_profiles')
-      .select('bio_fr, current_profession, previous_attempts, statement_of_purpose, learning_style, anxiety_level')
-      .eq('user_id', uid)
-      .single()
-
-    if (cp) {
-      setParcoursPro(cp.current_profession ?? '')
-      setMotivations(cp.statement_of_purpose ?? '')
-      if (Array.isArray(cp.previous_attempts) && cp.previous_attempts.length > 0) {
-        setHasPreviousAttempt(true)
-        setPreviousAttempts(cp.previous_attempts as PreviousAttempt[])
-      }
-    }
-
-    // user_concours_goals
     const { data: goals } = await supabase
       .from('user_concours_goals')
-      .select('concours_id, target_date, status')
+      .select('concours_id, target_date')
       .eq('user_id', uid)
-    if (goals && goals.length > 0) {
-      setSelectedConcours(goals.map(g => g.concours_id))
-      const firstTarget = goals[0].target_date
-      if (firstTarget) setTargetYear(new Date(firstTarget).getFullYear().toString())
+    if (goals?.length) {
+      setSelectedConcours(goals.map((g: { concours_id: string; target_date: string | null }) => g.concours_id))
+      const y = goals[0].target_date ? new Date(goals[0].target_date).getFullYear().toString() : '2026'
+      setTargetYear(y)
     }
 
-    // user_preferences
     const { data: prefs } = await supabase
       .from('user_preferences')
       .select('email_notifications, difficulty_preference')
       .eq('user_id', uid)
-      .single()
-    if (prefs?.email_notifications && typeof prefs.email_notifications === 'object') {
-      const notifs = prefs.email_notifications as Record<string, boolean>
-      setEmailReminders(notifs.concours_deadline ?? true)
-      setSimulationReminders(notifs.simulation_complete ?? true)
-      setCoachMessages(notifs.booking_reminder ?? true)
-    }
-    if (prefs?.difficulty_preference) {
-      const map: Record<string, 'débutant' | 'intermédiaire' | 'avancé'> = {
-        easy: 'débutant', adaptive: 'intermédiaire', medium: 'intermédiaire', hard: 'avancé',
+      .maybeSingle()
+    if (prefs) {
+      if (prefs.email_notifications && typeof prefs.email_notifications === 'object') {
+        const n = prefs.email_notifications as Record<string, boolean>
+        setEmailReminders(n.concours_deadline ?? true)
+        setSimulationReminders(n.simulation_complete ?? true)
+        setCoachMessages(n.booking_reminder ?? true)
       }
-      setPrepLevel(map[prefs.difficulty_preference] ?? 'débutant')
+      const diffMap: Record<string, PrepLevel> = {
+        easy: 'debutant', adaptive: 'intermediaire', medium: 'intermediaire', hard: 'avance',
+      }
+      if (prefs.difficulty_preference) setPrepLevel(diffMap[prefs.difficulty_preference] ?? 'debutant')
     }
-
     setLoading(false)
   }
 
-  async function handleSave() {
+  const onAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
+  }
+
+  const feedbackReset = () => { setSaved(false); setSaveError('') }
+
+  async function saveIdentite() {
     if (!user) return
-
-    // Validate required fields
     const errors: Record<string, string> = {}
-    if (!firstName.trim()) errors.firstName = 'Le prénom est requis'
-    if (!lastName.trim()) errors.lastName = 'Le nom est requis'
-    if (firstName.trim().length > 0 && firstName.trim().length < 2) errors.firstName = 'Le prénom doit contenir au moins 2 caractères'
-    if (lastName.trim().length > 0 && lastName.trim().length < 2) errors.lastName = 'Le nom doit contenir au moins 2 caractères'
-    if (selectedConcours.length === 0) errors.concours = 'Sélectionnez au moins un concours'
-
+    if (!firstName.trim() || firstName.trim().length < 2) errors.firstName = 'Prénom requis (min. 2 caractères)'
+    if (!lastName.trim() || lastName.trim().length < 2) errors.lastName = 'Nom requis (min. 2 caractères)'
     setFieldErrors(errors)
-    if (Object.keys(errors).length > 0) {
-      setError('Veuillez corriger les erreurs ci-dessous')
-      return
-    }
+    if (Object.keys(errors).length) return
 
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    const uid = user.id
-
+    setSaving(true); feedbackReset()
     try {
-      // Update profiles
-      const fullName = `${firstName} ${lastName}`.trim()
-
-      // Upload avatar if changed
       let avatarUrl: string | undefined
       if (avatarFile) {
         const ext = avatarFile.name.split('.').pop()
-        const { data: uploadData } = await supabase.storage
+        const { data: up } = await supabase.storage
           .from('avatars')
-          .upload(`${uid}.${ext}`, avatarFile, { upsert: true })
-        if (uploadData) {
-          const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(uploadData.path)
-          avatarUrl = urlData.publicUrl
-        }
+          .upload(`${user.id}.${ext}`, avatarFile, { upsert: true })
+        if (up) avatarUrl = supabase.storage.from('avatars').getPublicUrl(up.path).data.publicUrl
       }
-
       await supabase.from('profiles').update({
-        full_name: fullName,
+        full_name: `${firstName} ${lastName}`.trim(),
         first_name: firstName,
         last_name: lastName,
         ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
-      }).eq('id', uid)
+      }).eq('id', user.id)
+      await refreshProfile()
+      setSaved(true); setTimeout(() => setSaved(false), 3000)
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : 'Erreur lors de la sauvegarde')
+    } finally { setSaving(false) }
+  }
 
-      // upsert candidate_profiles
-      await supabase.from('candidate_profiles').upsert({
-        user_id: uid,
-        current_profession: parcoursPro,
-        statement_of_purpose: motivations,
-        previous_attempts: hasPreviousAttempt ? previousAttempts : [],
+  async function savePreparation() {
+    if (!user) return
+    setSaving(true); feedbackReset()
+    try {
+      await supabase.from('user_concours_goals').delete().eq('user_id', user.id)
+      if (selectedConcours.length > 0) {
+        await supabase.from('user_concours_goals').insert(
+          selectedConcours.map(cid => ({
+            user_id: user.id, concours_id: cid,
+            target_date: `${targetYear}-12-31`, status: 'preparing',
+          }))
+        )
+      }
+      const diffMap: Record<PrepLevel, string> = { debutant: 'easy', intermediaire: 'adaptive', avance: 'hard' }
+      await supabase.from('user_preferences').upsert({
+        user_id: user.id,
+        difficulty_preference: diffMap[prepLevel],
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
+      setSaved(true); setTimeout(() => setSaved(false), 3000)
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : 'Erreur lors de la sauvegarde')
+    } finally { setSaving(false) }
+  }
 
-      // sync user_concours_goals
-      await supabase.from('user_concours_goals').delete().eq('user_id', uid)
-      if (selectedConcours.length > 0) {
-        const goals = selectedConcours.map(cid => ({
-          user_id: uid,
-          concours_id: cid,
-          target_date: `${targetYear}-12-31`,
-          status: 'preparing' as const,
-        }))
-        await supabase.from('user_concours_goals').insert(goals)
-      }
-
-      // upsert user_preferences
-      const difficultyMap: Record<string, string> = {
-        'débutant': 'easy', 'intermédiaire': 'adaptive', 'avancé': 'hard',
-      }
+  async function saveNotifications() {
+    if (!user) return
+    setSaving(true); feedbackReset()
+    try {
       await supabase.from('user_preferences').upsert({
-        user_id: uid,
+        user_id: user.id,
         email_notifications: {
+          concours_deadline: emailReminders,
           simulation_complete: simulationReminders,
           booking_reminder: coachMessages,
-          concours_deadline: emailReminders,
           marketing: false,
         },
-        difficulty_preference: difficultyMap[prepLevel] ?? 'adaptive',
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
-
-      await refreshProfile()
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
-    } catch (e: any) {
-      setError(e.message ?? 'Erreur lors de la sauvegarde')
-    } finally {
-      setSaving(false)
-    }
+      setSaved(true); setTimeout(() => setSaved(false), 3000)
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : 'Erreur lors de la sauvegarde')
+    } finally { setSaving(false) }
   }
 
-  function toggleConcours(id: string) {
-    setSelectedConcours(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    )
-  }
-
-  function updateAttempt(index: number, field: keyof PreviousAttempt, value: string) {
-    setPreviousAttempts(prev => prev.map((a, i) => i === index ? { ...a, [field]: value } : a))
-  }
-
-  function addAttempt() {
-    setPreviousAttempts(prev => [...prev, { year: '', score: '', feedback: '' }])
-  }
-
-  function removeAttempt(index: number) {
-    setPreviousAttempts(prev => prev.filter((_, i) => i !== index))
-  }
-
-  // initials
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U'
   const currentAvatarUrl = avatarPreview || profile?.avatar_url
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0F1629' }}>
         <LoadingSpinner size="lg" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: '#0F1629' }}>
       <CandidateNavbar />
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
-        {/* header */}
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+
+        {/* Header */}
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="text-gray-400 hover:text-white transition">
             <ArrowLeft className="w-5 h-5" />
@@ -277,256 +243,225 @@ export default function ProfilePage() {
           <h1 className="text-2xl font-bold">Mon profil</h1>
         </div>
 
-        {/* ── 1. Avatar + Name ── */}
-        <section className="glass rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6">
-          <div className="relative shrink-0">
-            {currentAvatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={currentAvatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-primary/40" />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl font-bold">
-                {initials}
-              </div>
-            )}
-            <label
-              htmlFor="avatar-upload"
-              className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer hover:bg-primary/80 transition-colors border-2 border-background"
-              title="Changer la photo"
+        {/* Tab bar */}
+        <div className="flex gap-1 bg-white/5 rounded-xl p-1">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => { setActiveTab(tab.id); setFieldErrors({}); feedbackReset() }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-medium transition-all ${
+                activeTab === tab.id ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'
+              }`}
             >
-              <Camera className="w-4 h-4 text-white" />
-            </label>
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={onAvatarChange}
-            />
+              <tab.icon className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Feedback banners */}
+        {saved && (
+          <div className="bg-emerald-900/30 border border-emerald-500/30 rounded-xl p-3 text-emerald-400 text-sm flex items-center gap-2">
+            <CheckCircle className="w-4 h-4" /> Enregistré avec succès
           </div>
-          <div className="flex-1 space-y-4 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Input label="Prénom" value={firstName} onChange={setFirstName} placeholder="Votre prénom" />
-                {fieldErrors.firstName && (
-                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> {fieldErrors.firstName}
-                  </p>
+        )}
+        {saveError && (
+          <div className="bg-red-900/30 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm">{saveError}</div>
+        )}
+
+        {/* ── Tab: Identité ── */}
+        {activeTab === 'identite' && (
+          <div className="space-y-5">
+            <section className="bg-slate-900/50 border border-white/8 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6">
+              <div className="relative shrink-0">
+                {currentAvatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={currentAvatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-indigo-400/40" />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-3xl font-bold">
+                    {initials}
+                  </div>
                 )}
+                <label
+                  htmlFor="avatar-upload"
+                  className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center cursor-pointer hover:bg-indigo-500 transition-colors border-2 border-slate-900"
+                  title="Changer la photo"
+                >
+                  <Camera className="w-4 h-4 text-white" />
+                </label>
+                <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={onAvatarChange} />
               </div>
-              <div>
-                <Input label="Nom" value={lastName} onChange={setLastName} placeholder="Votre nom" />
-                {fieldErrors.lastName && (
-                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> {fieldErrors.lastName}
-                  </p>
-                )}
-              </div>
-            </div>
-            {/* Email (read-only) */}
-            <div className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3 border border-white/10">
-              <Mail className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-300">{user?.email}</span>
-              <span className="ml-auto text-xs text-gray-500">Non modifiable</span>
-            </div>
-            {/* Password change link */}
-            <Link
-              href="/reset-password"
-              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-            >
-              <Lock className="w-4 h-4" /> Modifier mon mot de passe
-            </Link>
-          </div>
-        </section>
-
-        {/* ── 2. Concours Selection ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-lg flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-primary" /> Concours préparés
-          </h2>
-          <p className="text-sm text-gray-400">Sélectionnez les concours que vous préparez :</p>
-          <div className="flex flex-wrap gap-2">
-            {allConcours.map(c => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => toggleConcours(c.id)}
-                className={`px-4 py-2 rounded-lg text-sm border transition ${
-                  selectedConcours.includes(c.id)
-                    ? 'bg-primary/20 border-primary text-primary-light'
-                    : 'border-white/10 text-gray-400 hover:border-white/30'
-                }`}
-              >
-                {c.intitulé}
-              </button>
-            ))}
-            {allConcours.length === 0 && (
-              <p className="text-gray-500 text-sm">Aucun concours disponible.</p>
-            )}
-          </div>
-          {fieldErrors.concours && (
-            <p className="text-red-400 text-xs flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" /> {fieldErrors.concours}
-            </p>
-          )}
-        </section>
-
-        {/* ── 3. Session préparée ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-lg flex items-center gap-2">
-            <GraduationCap className="w-5 h-5 text-primary" /> Session préparée
-          </h2>
-          <div className="flex gap-3">
-            {['2025', '2026', '2027'].map(y => (
-              <button
-                key={y}
-                type="button"
-                onClick={() => setTargetYear(y)}
-                className={`px-5 py-2 rounded-lg border text-sm transition ${
-                  targetYear === y
-                    ? 'bg-primary/20 border-primary text-primary-light'
-                    : 'border-white/10 text-gray-400 hover:border-white/30'
-                }`}
-              >
-                {y}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* ── 4. Expérience ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-lg flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" /> Parcours professionnel
-          </h2>
-          <textarea
-            value={parcoursPro}
-            onChange={e => setParcoursPro(e.target.value)}
-            placeholder="Décrivez votre parcours professionnel, vos fonctions actuelles ou passées…"
-            rows={4}
-            className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-          />
-        </section>
-
-        {/* ── 5. Motivations ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-lg flex items-center gap-2">
-            <User className="w-5 h-5 text-primary" /> Motivations
-          </h2>
-          <textarea
-            value={motivations}
-            onChange={e => setMotivations(e.target.value)}
-            placeholder="Pourquoi préparez-vous ce concours ? Quelles sont vos motivations profondes ?"
-            rows={4}
-            className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-          />
-        </section>
-
-        {/* ── 6. Previous Attempts ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-lg">Tentatives précédentes</h2>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <div
-              className={`w-12 h-6 rounded-full transition-colors relative ${hasPreviousAttempt ? 'bg-primary' : 'bg-white/10'}`}
-              onClick={() => setHasPreviousAttempt(!hasPreviousAttempt)}
-            >
-              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${hasPreviousAttempt ? 'translate-x-6' : 'translate-x-0.5'}`} />
-            </div>
-            <span className="text-sm text-gray-300">Avez-vous déjà passé ce concours ?</span>
-          </label>
-          {hasPreviousAttempt && (
-            <div className="space-y-4 mt-2">
-              {previousAttempts.map((attempt, i) => (
-                <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-300">Tentative {i + 1}</p>
-                    {previousAttempts.length > 1 && (
-                      <button type="button" onClick={() => removeAttempt(i)} className="text-red-400 text-xs hover:underline">
-                        Supprimer
-                      </button>
+              <div className="flex-1 space-y-4 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block uppercase tracking-wide">Prénom</label>
+                    <input
+                      value={firstName} onChange={e => setFirstName(e.target.value)}
+                      placeholder="Votre prénom"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                    />
+                    {fieldErrors.firstName && (
+                      <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.firstName}</p>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input label="Année" value={attempt.year} onChange={v => updateAttempt(i, 'year', v)} placeholder="2024" />
-                    <Input label="Score obtenu" value={attempt.score} onChange={v => updateAttempt(i, 'score', v)} placeholder="12/20" />
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block uppercase tracking-wide">Nom</label>
+                    <input
+                      value={lastName} onChange={e => setLastName(e.target.value)}
+                      placeholder="Votre nom"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                    />
+                    {fieldErrors.lastName && (
+                      <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.lastName}</p>
+                    )}
                   </div>
-                  <textarea
-                    value={attempt.feedback}
-                    onChange={e => updateAttempt(i, 'feedback', e.target.value)}
-                    placeholder="Retour / commentaires sur cette tentative…"
-                    rows={2}
-                    className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none text-sm"
-                  />
                 </div>
-              ))}
-              <button type="button" onClick={addAttempt} className="text-primary text-sm hover:underline">
-                + Ajouter une tentative
-              </button>
-            </div>
-          )}
-        </section>
-
-        {/* ── 7. Preparation Level ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-lg">Niveau de préparation</h2>
-          <div className="flex flex-col sm:flex-row gap-3">
-            {([
-              { value: 'débutant' as const, label: 'Débutant', desc: 'Je découvre le concours' },
-              { value: 'intermédiaire' as const, label: 'Intermédiaire', desc: "J'ai déjà travaillé quelques sujets" },
-              { value: 'avancé' as const, label: 'Avancé', desc: 'Je maîtrise le format et les attendus' },
-            ]).map(level => (
-              <button
-                key={level.value}
-                type="button"
-                onClick={() => setPrepLevel(level.value)}
-                className={`flex-1 p-4 rounded-xl border text-left transition ${
-                  prepLevel === level.value
-                    ? 'bg-primary/20 border-primary'
-                    : 'border-white/10 hover:border-white/30'
-                }`}
-              >
-                <p className="font-medium text-sm">{level.label}</p>
-                <p className="text-xs text-gray-400 mt-1">{level.desc}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* ── 8. Notification Preferences ── */}
-        <section className="glass rounded-2xl p-6 space-y-4">
-          <h2 className="font-semibold text-lg flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary" /> Notifications
-          </h2>
-          {[
-            { label: 'Rappels des échéances concours', state: emailReminders, set: setEmailReminders },
-            { label: 'Rappels de simulation', state: simulationReminders, set: setSimulationReminders },
-            { label: 'Messages des coachs', state: coachMessages, set: setCoachMessages },
-          ].map((pref, i) => (
-            <label key={i} className="flex items-center justify-between cursor-pointer py-2">
-              <span className="text-sm text-gray-300">{pref.label}</span>
-              <div
-                className={`w-12 h-6 rounded-full transition-colors relative ${pref.state ? 'bg-primary' : 'bg-white/10'}`}
-                onClick={() => pref.set(!pref.state)}
-              >
-                <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${pref.state ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                <div className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3 border border-white/10">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-300">{user?.email}</span>
+                  <span className="ml-auto text-xs text-gray-600">Non modifiable</span>
+                </div>
+                <Link href="/reset-password" className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+                  <Lock className="w-4 h-4" /> Modifier mon mot de passe
+                </Link>
               </div>
-            </label>
-          ))}
-        </section>
+            </section>
+            <SaveButton onClick={saveIdentite} saving={saving} />
+          </div>
+        )}
 
-        {/* ── 9. Save ── */}
-        {error && (
-          <div className="bg-red-900/30 border border-red-500/30 rounded-xl p-4 text-red-400 text-sm">
-            {error}
+        {/* ── Tab: Ma préparation ── */}
+        {activeTab === 'preparation' && (
+          <div className="space-y-5">
+            <section className="bg-slate-900/50 border border-white/8 rounded-2xl p-6 space-y-4">
+              <h2 className="font-semibold text-base flex items-center gap-2 text-white">
+                <Trophy className="w-4 h-4 text-indigo-400" /> Concours préparés
+              </h2>
+              <p className="text-sm text-gray-500">Sélectionnez les concours que vous préparez.</p>
+              <div className="flex flex-wrap gap-2">
+                {allConcours.map(c => (
+                  <button
+                    key={c.id} type="button"
+                    onClick={() => setSelectedConcours(prev =>
+                      prev.includes(c.id) ? prev.filter(x => x !== c.id) : [...prev, c.id]
+                    )}
+                    className={`px-4 py-2 rounded-lg text-sm border transition ${
+                      selectedConcours.includes(c.id)
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
+                        : 'border-white/10 text-gray-400 hover:border-white/30'
+                    }`}
+                  >
+                    {c.intitulé}
+                  </button>
+                ))}
+                {allConcours.length === 0 && <p className="text-gray-500 text-sm">Aucun concours disponible.</p>}
+              </div>
+            </section>
+
+            <section className="bg-slate-900/50 border border-white/8 rounded-2xl p-6 space-y-4">
+              <h2 className="font-semibold text-base flex items-center gap-2 text-white">
+                <GraduationCap className="w-4 h-4 text-indigo-400" /> Session visée
+              </h2>
+              <div className="flex gap-3">
+                {['2025', '2026', '2027'].map(y => (
+                  <button key={y} type="button" onClick={() => setTargetYear(y)}
+                    className={`px-5 py-2 rounded-lg border text-sm transition ${
+                      targetYear === y
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
+                        : 'border-white/10 text-gray-400 hover:border-white/30'
+                    }`}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-slate-900/50 border border-white/8 rounded-2xl p-6 space-y-4">
+              <h2 className="font-semibold text-base text-white">Niveau de préparation</h2>
+              <div className="flex flex-col sm:flex-row gap-3">
+                {([
+                  { value: 'debutant' as const, label: 'Débutant', desc: 'Je découvre le concours' },
+                  { value: 'intermediaire' as const, label: 'Intermédiaire', desc: "J'ai déjà travaillé quelques sujets" },
+                  { value: 'avance' as const, label: 'Avancé', desc: 'Je maîtrise le format et les attendus' },
+                ]).map(level => (
+                  <button key={level.value} type="button" onClick={() => setPrepLevel(level.value)}
+                    className={`flex-1 p-4 rounded-xl border text-left transition ${
+                      prepLevel === level.value ? 'bg-indigo-600/20 border-indigo-500' : 'border-white/10 hover:border-white/30'
+                    }`}
+                  >
+                    <p className="font-medium text-sm text-white">{level.label}</p>
+                    <p className="text-xs text-gray-400 mt-1">{level.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <SaveButton onClick={savePreparation} saving={saving} />
           </div>
         )}
-        {saved && (
-          <div className="bg-green-900/30 border border-green-500/30 rounded-xl p-4 text-green-400 text-sm flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" /> Profil sauvegardé avec succès !
+
+        {/* ── Tab: Notifications ── */}
+        {activeTab === 'notifications' && (
+          <div className="space-y-5">
+            <section className="bg-slate-900/50 border border-white/8 rounded-2xl p-6 space-y-1">
+              <h2 className="font-semibold text-base flex items-center gap-2 text-white mb-4">
+                <Bell className="w-4 h-4 text-indigo-400" /> Préférences de notifications
+              </h2>
+              {[
+                { label: 'Rappels des échéances concours', state: emailReminders, set: setEmailReminders },
+                { label: 'Rappels de simulation', state: simulationReminders, set: setSimulationReminders },
+                { label: 'Messages des coachs', state: coachMessages, set: setCoachMessages },
+              ].map((pref, i) => (
+                <label key={i} className="flex items-center justify-between cursor-pointer py-3 border-b border-white/5 last:border-0">
+                  <span className="text-sm text-gray-300">{pref.label}</span>
+                  <Toggle value={pref.state} onChange={pref.set} />
+                </label>
+              ))}
+            </section>
+            <SaveButton onClick={saveNotifications} saving={saving} />
           </div>
         )}
-        <Button onClick={handleSave} loading={saving} fullWidth className="!py-4 text-lg">
-          <Save className="w-5 h-5" /> Enregistrer le profil
-        </Button>
+
+        {/* ── Tab: Confidentialité & compte ── */}
+        {activeTab === 'confidentialite' && (
+          <div className="space-y-5">
+            <section className="bg-slate-900/50 border border-white/8 rounded-2xl p-6 space-y-5">
+              <h2 className="font-semibold text-base flex items-center gap-2 text-white">
+                <Shield className="w-4 h-4 text-indigo-400" /> Confidentialité &amp; compte
+              </h2>
+              <p className="text-sm text-gray-500">Gérez vos données personnelles et les paramètres de votre compte.</p>
+
+              <div className="border-t border-white/5 pt-5 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-white">Export de mes données</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Téléchargez une copie de toutes vos données Jurya au format JSON.</p>
+                </div>
+                <button
+                  onClick={() => alert('Export en cours de développement. Disponible prochainement.')}
+                  className="shrink-0 text-sm text-indigo-400 hover:text-indigo-300 border border-indigo-400/30 rounded-xl px-4 py-2 transition-colors"
+                >
+                  Exporter
+                </button>
+              </div>
+
+              <div className="border-t border-white/5 pt-5">
+                <button
+                  onClick={() => {
+                    if (window.confirm('Supprimer définitivement votre compte et toutes vos données ? Cette action est irréversible.')) {
+                      alert('Suppression en cours de développement. Contactez support@jurya.fr pour toute demande urgente.')
+                    }
+                  }}
+                  className="text-red-400 text-sm hover:text-red-300 transition-colors"
+                >
+                  Supprimer mon compte
+                </button>
+                <p className="text-xs text-gray-600 mt-1">Cette action est irréversible et supprime toutes vos données.</p>
+              </div>
+            </section>
+          </div>
+        )}
+
       </div>
     </div>
   )
