@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/components/AuthProvider'
 import { useSpeechRecognition, useJuryVoice, useSimulationTimer, useAudioLevel } from '@/lib/hooks/useVoice'
 import { SimulationPhase, SimulationTurn, getPhaseLabel, countFillerWords } from '@/lib/types/simulation'
 import { DEFAULT_JURY, getJuryMember, getRandomJury, type SpeakerId, type JuryMemberConfig } from '@/lib/juries/voices'
@@ -144,11 +145,17 @@ function JuryTile({
 }
 
 /* ─── Candidate Tile ─── */
-function CandidateTile({ isListening, audioLevel, candidateName }: {
+function CandidateTile({ isListening, audioLevel, candidateName, avatarUrl }: {
   isListening: boolean
   audioLevel: number
   candidateName: string
+  avatarUrl?: string | null
 }) {
+  const [imgError, setImgError] = React.useState(false)
+  const initials = candidateName
+    ? candidateName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+    : 'V'
+
   return (
     <div
       className="relative rounded-lg overflow-hidden transition-all duration-200"
@@ -159,24 +166,47 @@ function CandidateTile({ isListening, audioLevel, candidateName }: {
         boxShadow: isListening ? '0 0 18px rgba(99,102,241,0.4)' : 'none',
       }}
     >
-      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-        {/* Waveform */}
-        <div className="flex items-end gap-0.5 h-8 mb-1">
-          {[0, 1, 2, 3, 4].map(i => {
-            const h = isListening
-              ? Math.max(4, (audioLevel / 100) * 26 * (0.6 + 0.4 * Math.sin(i * 1.3 + Date.now() / 200)))
-              : 4
-            return (
-              <div
-                key={i}
-                className="w-1 bg-indigo-400 rounded-full transition-all duration-100"
-                style={{ height: `${h}px` }}
-              />
-            )
-          })}
+      {/* Background: real avatar or gradient */}
+      {avatarUrl && !imgError ? (
+        <img
+          src={avatarUrl}
+          alt={candidateName}
+          className="w-full h-full object-cover"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+          <div className="w-10 h-10 rounded-full bg-indigo-600/40 flex items-center justify-center mb-1">
+            <span className="text-white text-sm font-bold">{initials}</span>
+          </div>
         </div>
-        <Mic className={`w-3 h-3 mb-0.5 ${isListening ? 'text-indigo-400' : 'text-gray-600'}`} />
+      )}
+
+      {/* Listening waveform overlay */}
+      {isListening && (
+        <div className="absolute inset-0 flex items-end justify-center pb-5 bg-black/20">
+          <div className="flex items-end gap-0.5 h-8">
+            {[0, 1, 2, 3, 4].map(i => {
+              const h = Math.max(4, (audioLevel / 100) * 26 * (0.6 + 0.4 * Math.sin(i * 1.3 + Date.now() / 200)))
+              return (
+                <div
+                  key={i}
+                  className="w-1 bg-indigo-400 rounded-full transition-all duration-100"
+                  style={{ height: `${h}px` }}
+                />
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Mic indicator */}
+      <div className={`absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center ${
+        isListening ? 'bg-indigo-500/80' : 'bg-black/50'
+      }`}>
+        <Mic className={`w-2.5 h-2.5 ${isListening ? 'text-white' : 'text-gray-500'}`} />
       </div>
+
       <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1" style={{ background: 'rgba(0,0,0,0.62)' }}>
         <p className="text-white truncate" style={{ fontSize: '11px' }}>{candidateName || 'Vous'}</p>
       </div>
@@ -221,6 +251,7 @@ export default function SimulationSessionPage() {
   const router = useRouter()
   const simulationId = params.id as string
 
+  const { profile } = useAuth()
   const [config, setConfig] = useState<SimConfig | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -512,7 +543,7 @@ export default function SimulationSessionPage() {
       status: 'completed',
       completed_at: new Date().toISOString(),
       actual_duration_seconds: elapsedSec,
-    }).eq('id', simulationId).catch(() => {})
+    }).eq('id', simulationId).then(() => {}, () => {})
 
     router.push(`/simulation/rapport/${simulationId}`)
 
@@ -698,6 +729,7 @@ export default function SimulationSessionPage() {
               isListening={speech.isListening}
               audioLevel={audioLevel}
               candidateName={candidateName}
+              avatarUrl={profile?.avatar_url}
             />
             <div className="mt-1 text-center">
               <span className="text-xs text-gray-600">

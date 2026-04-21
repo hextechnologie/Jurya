@@ -56,7 +56,7 @@ export const DEFAULT_JURY: JuryMemberConfig[] = [
     breathingDelay: 0,
     fallbackPitch: 1.05,
     fallbackRate: 0.88,
-    voiceSettings: { stability: 0.38, similarity_boost: 0.78, style: 0.40, use_speaker_boost: true },
+    voiceSettings: { stability: 0.30, similarity_boost: 0.85, style: 0.45, use_speaker_boost: true },
   },
   {
     id: 'technique',
@@ -67,7 +67,7 @@ export const DEFAULT_JURY: JuryMemberConfig[] = [
     breathingDelay: 2.7,
     fallbackPitch: 0.80,
     fallbackRate: 0.92,
-    voiceSettings: { stability: 0.52, similarity_boost: 0.82, style: 0.18, use_speaker_boost: true },
+    voiceSettings: { stability: 0.45, similarity_boost: 0.85, style: 0.20, use_speaker_boost: true },
   },
   {
     id: 'rh',
@@ -78,7 +78,7 @@ export const DEFAULT_JURY: JuryMemberConfig[] = [
     breathingDelay: 5.1,
     fallbackPitch: 1.12,
     fallbackRate: 0.90,
-    voiceSettings: { stability: 0.35, similarity_boost: 0.75, style: 0.45, use_speaker_boost: true },
+    voiceSettings: { stability: 0.28, similarity_boost: 0.80, style: 0.50, use_speaker_boost: true },
   },
 ]
 

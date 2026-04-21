@@ -82,27 +82,26 @@ export default function ProfilePage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    if (!authLoading && !user) router.push('/login')
-  }, [user, authLoading, router])
-
-  useEffect(() => {
-    if (user) {
-      loadConcours()
-      if (profile) loadProfile()
-      else setLoading(false)
-    }
+    if (authLoading) return // Wait for auth to fully settle before reading data
+    if (!user) { router.push('/login'); return }
+    loadConcours()
+    if (profile) loadProfile()
+    else setLoading(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile, authLoading])
 
   async function loadConcours() {
-    const { data } = await supabase.from('concours').select('id, intitulé').order('intitulé')
+    const { data, error } = await supabase.from('concours').select('*').order('intitulé')
+    if (error) console.error('loadConcours:', error.message)
     setAllConcours((data ?? []) as unknown as Concours[])
   }
 
   async function loadProfile() {
     const uid = user!.id
-    setFirstName(profile!.first_name || profile!.full_name?.split(' ')[0] || '')
-    setLastName(profile!.last_name || profile!.full_name?.split(' ').slice(1).join(' ') || '')
+    // name: DB columns > full_name split > Auth user_metadata
+    const metaName: string = (user?.user_metadata?.full_name as string | undefined) ?? ''
+    setFirstName(profile!.first_name || profile!.full_name?.split(' ')[0] || metaName.split(' ')[0] || '')
+    setLastName(profile!.last_name || profile!.full_name?.split(' ').slice(1).join(' ') || metaName.split(' ').slice(1).join(' ') || '')
 
     const { data: goals } = await supabase
       .from('user_concours_goals')

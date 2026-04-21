@@ -48,11 +48,11 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           text: clean,
-          model_id: 'eleven_multilingual_v2',
+          model_id: 'eleven_flash_v2_5',
           voice_settings: voiceSettings ?? {
-            stability: 0.42,
-            similarity_boost: 0.78,
-            style: 0.38,
+            stability: 0.32,
+            similarity_boost: 0.82,
+            style: 0.42,
             use_speaker_boost: true,
           },
         }),
