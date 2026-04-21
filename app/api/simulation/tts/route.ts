@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.ELEVENLABS_API_KEY
     if (!apiKey) {
+      console.error('TTS: ELEVENLABS_API_KEY is not set in environment variables')
       // 503 signals client to use Web Speech API fallback
       return NextResponse.json({ error: 'ElevenLabs not configured' }, { status: 503 })
     }

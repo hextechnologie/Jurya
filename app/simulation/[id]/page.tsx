@@ -364,7 +364,7 @@ export default function SimulationSessionPage() {
       // Jury is talking → mic off
       if (speech.isListening) speech.stop()
       setListenEnabled(false)
-    } else if (config && !ending) {
+    } else if (config && !ending && !endingRef.current) {
       // Jury finished → mic auto-on after short delay
       setListenEnabled(true)
       const t = setTimeout(() => {
@@ -446,9 +446,12 @@ export default function SimulationSessionPage() {
       })
       if (!res.ok) throw new Error('API error')
       const data = await res.json()
-      // Rude detection: jury stops the session — wait for speech to finish, then end
+      // Rude detection: jury stops the session — lock ending BEFORE speech so mic doesn't re-enable when speech ends
       if (data.end_session) {
         const speakerId: SpeakerId = 'president'
+        endingRef.current = true   // prevent mic auto-start while speech plays
+        setEnding(true)
+        setIsAiThinking(false)
         await speakAsJury(data.question, speakerId)
         handleEnd()
         return
