@@ -564,7 +564,7 @@ export default function SimulationSessionPage() {
           filler_words_count: t.fillerWordsCount ?? null,
           speaking_pace_wpm: t.speakingPaceWpm ?? null,
         }))
-      ).catch(() => {})
+      ).then(() => {}, () => {})
     }
 
     fetch('/api/simulation/report', {
