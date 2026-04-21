@@ -46,14 +46,15 @@ export function useSpeechRecognition() {
     }
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      if (event.error === 'no-speech') return // Normal, don't error
+      if (event.error === 'no-speech') return // Normal, keep listening
       setError(`Erreur micro : ${event.error}`)
+      recognitionRef.current = null // Prevent auto-restart on real errors
       setIsListening(false)
     }
 
     recognition.onend = () => {
-      // Auto-restart if still supposed to be listening
-      if (recognitionRef.current && isListening) {
+      // Auto-restart if this is still the active recognition instance (not stopped manually)
+      if (recognitionRef.current === recognition) {
         try { recognition.start() } catch { /* already started */ }
       }
     }
@@ -62,7 +63,7 @@ export function useSpeechRecognition() {
     recognition.start()
     setIsListening(true)
     setError(null)
-  }, [isListening])
+  }, [])
 
   const stop = useCallback(() => {
     if (recognitionRef.current) {

@@ -89,7 +89,7 @@ function computeMetrics(turns: Array<{ role: string; contentText: string; phase:
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { simulationId, turns, concoursIntitulé, rubriqueJury, difficulty, sessionStartedAt, durationMinutes } = body
+    const { simulationId, turns, concoursIntitulé, rubriqueJury, difficulty, sessionStartedAt, durationMinutes, earlyExit } = body
 
     if (!simulationId || !concoursIntitulé) {
       return NextResponse.json({ error: 'Paramètres manquants.' }, { status: 400 })
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
 
     const userPrompt = `Concours : ${concoursIntitulé}
 Difficulté : ${difficulty ?? 'standard'}
-Rubrique : ${rubriqueText}
+${earlyExit ? 'Note importante : le candidat a quitté la simulation avant la fin du temps imparti. Mentionnez cela explicitement dans impressionGlobale.\n' : ''}Rubrique : ${rubriqueText}
 Métriques calculées : ${metrics.totalWords} mots candidat, ${metrics.wpm} mots/min, ${metrics.hesitations} hésitations
 
 Transcription (${safeTurns.length} tours) :
@@ -138,6 +138,7 @@ Produisez le rapport JSON.`
         concoursIntitulé,
         difficulty: difficulty ?? 'standard',
         turnCount: safeTurns.length,
+        earlyExit: earlyExit ?? false,
       },
     }
 

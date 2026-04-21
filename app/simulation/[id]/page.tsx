@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useSpeechRecognition, useJuryVoice, useSimulationTimer, useAudioLevel } from '@/lib/hooks/useVoice'
 import { SimulationPhase, SimulationTurn, getPhaseLabel, countFillerWords } from '@/lib/types/simulation'
 import { DEFAULT_JURY, getJuryMember, getRandomJury, type SpeakerId, type JuryMemberConfig } from '@/lib/juries/voices'
-import { LogOut, Clock, Loader2, CheckCircle2, Send, Mic, MicOff, PenLine } from 'lucide-react'
+import { LogOut, Clock, Loader2, CheckCircle2, Send, Mic, PenLine } from 'lucide-react'
 
 /* ─── Types ─── */
 interface SimConfig {
@@ -233,6 +233,7 @@ export default function SimulationSessionPage() {
   const [isAiThinking, setIsAiThinking] = useState(false)
   const [textInput, setTextInput] = useState('')
   const [ending, setEnding] = useState(false)
+  const endingRef = useRef(false)
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const sessionStartRef = useRef<string>(new Date().toISOString())
 
@@ -292,22 +293,30 @@ export default function SimulationSessionPage() {
     timer.start()
     startAudioLevel()
 
+    const jury = config.juryMembers ?? DEFAULT_JURY
+    const presidentName = jury.find(m => m.id === 'president')?.name ?? 'Mme Laurent'
     const epreuveType = config.epreuveType ?? 'exposé_questions'
+    const totalMin = config.durationMinutes ?? 30
     if (epreuveType === 'exposé_questions') {
-      const presidentName = (config.juryMembers ?? DEFAULT_JURY).find(m => m.id === 'president')?.name ?? 'Mme Laurent'
+      const exposéMin = Math.round(totalMin * 0.35)
+      const questionsMin = totalMin - exposéMin
       speakAsJury(
-        `Bienvenue. Je suis ${presidentName}, présidente de ce jury. Vous présentez votre candidature pour le concours "${config.concoursIntitulé}". Vous avez quelques minutes pour votre exposé libre. Je vous en prie.`,
+        `Bonjour. Je suis ${presidentName}, présidente de ce jury. Nous sommes réunis pour votre oral de ${config.concoursIntitulé}. Cette séance dure ${totalMin} minutes au total : environ ${exposéMin} minutes d'exposé libre, puis ${questionsMin} minutes de questions. Vous pouvez commencer.`,
         'president'
       )
     } else {
-      fetchJuryQuestion('questions_jury')
+      const candidateFirstName = config.candidateName?.split(' ')[0] ?? ''
+      speakAsJury(
+        `Bonjour${candidateFirstName ? ` ${candidateFirstName}` : ''}. Je suis ${presidentName}, présidente de ce jury. Nous allons procéder à votre oral de ${config.concoursIntitulé}, d'une durée de ${totalMin} minutes. Nous allons directement passer aux questions. Êtes-vous prêt ?`,
+        'president'
+      ).then(() => fetchJuryQuestion('questions_jury'))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, loading])
 
   /* ── Timer expiry ── */
   useEffect(() => {
-    if (timer.isExpired && config && !ending) handleEnd()
+    if (timer.isExpired && config && !ending) handleEnd({ timerExpired: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer.isExpired])
 
@@ -477,24 +486,41 @@ export default function SimulationSessionPage() {
     setTimeout(() => fetchJuryQuestion('questions_jury'), 2700)
   }, [speech, textInput, fetchJuryQuestion])
 
-  const handleEnd = useCallback(async () => {
-    if (ending) return
+  const handleEnd = useCallback(async (opts?: { timerExpired?: boolean; earlyExit?: boolean }) => {
+    if (endingRef.current) return
+    endingRef.current = true
     setEnding(true)
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
     speech.stop()
+
+    // Jury president announces end of session before navigating
+    if (opts?.timerExpired) {
+      const firstName = configRef.current?.candidateName?.split(' ')[0] ?? ''
+      await speakAsJury(
+        `Le temps imparti est écoulé${firstName ? `, ${firstName}` : ''}. Merci pour votre prestation. Nous allons maintenant délibérer. Vous pouvez vous retirer.`,
+        'president'
+      )
+    }
+
     timer.pause()
     juryVoice.stop()
     stopAudioLevel()
 
-    // Navigate immediately — don't make user wait
+    // Mark simulation as completed immediately — do not rely solely on the report API
+    const elapsedSec = Math.floor((Date.now() - new Date(sessionStartRef.current).getTime()) / 1000)
+    supabase.from('simulations').update({
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+      actual_duration_seconds: elapsedSec,
+    }).eq('id', simulationId).catch(() => {})
+
     router.push(`/simulation/rapport/${simulationId}`)
 
-    // Do async work after navigation (fire and forget)
     const snapshot = turnsRef.current
     const cfg = configRef.current
 
     if (snapshot.length > 0) {
-      Promise.resolve(supabase.from('simulation_turns').insert(
+      supabase.from('simulation_turns').insert(
         snapshot.map(t => ({
           simulation_id: simulationId,
           turn_index: t.turnIndex,
@@ -507,7 +533,7 @@ export default function SimulationSessionPage() {
           filler_words_count: t.fillerWordsCount ?? null,
           speaking_pace_wpm: t.speakingPaceWpm ?? null,
         }))
-      )).then(() => {}).catch(() => {})
+      ).catch(() => {})
     }
 
     fetch('/api/simulation/report', {
@@ -521,6 +547,7 @@ export default function SimulationSessionPage() {
         difficulty: cfg?.difficulty ?? 'standard',
         sessionStartedAt: sessionStartRef.current,
         durationMinutes: cfg?.durationMinutes ?? 30,
+        earlyExit: opts?.earlyExit ?? false,
       }),
     })
       .then(r => r.json())
@@ -530,7 +557,7 @@ export default function SimulationSessionPage() {
         }
       })
       .catch(() => {})
-  }, [ending, speech, timer, juryVoice, stopAudioLevel, router, simulationId])
+  }, [speech, speakAsJury, timer, juryVoice, stopAudioLevel, router, simulationId])
 
   /* ── Loading / error ── */
   if (loading) {
@@ -588,7 +615,7 @@ export default function SimulationSessionPage() {
                 Continuer
               </button>
               <button
-                onClick={() => { setShowQuitConfirm(false); handleEnd() }}
+                onClick={() => { setShowQuitConfirm(false); handleEnd({ earlyExit: true }) }}
                 className="flex-1 py-2 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 text-sm hover:bg-red-500/30 transition-colors"
               >
                 Quitter
@@ -740,30 +767,6 @@ export default function SimulationSessionPage() {
               disabled={isAiThinking || juryVoice.isSpeaking || ending}
               className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#818CF8] disabled:opacity-40 placeholder-gray-600"
             />
-
-            {/* Manual mic toggle */}
-            {speech.isSupported && (
-              <button
-                onClick={() => {
-                  if (speech.isListening) speech.stop()
-                  else { speech.reset(); speech.start() }
-                }}
-                disabled={isAiThinking || juryVoice.isSpeaking || ending}
-                className={`relative w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all disabled:opacity-40 ${
-                  speech.isListening
-                    ? 'bg-red-500 shadow-lg shadow-red-500/40'
-                    : 'bg-white/10 border border-white/15 text-gray-400 hover:border-[#818CF8] hover:text-[#818CF8]'
-                }`}
-              >
-                {speech.isListening && (
-                  <span className="absolute inset-0 rounded-full border-2 border-red-400 animate-ping opacity-30" />
-                )}
-                {speech.isListening
-                  ? <MicOff className="w-4 h-4 text-white relative z-10" />
-                  : <Mic className="w-4 h-4 relative z-10" />
-                }
-              </button>
-            )}
 
             <button
               onClick={() => {
