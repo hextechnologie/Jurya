@@ -12,7 +12,7 @@ import { LogOut, Clock, Loader2, CheckCircle2, Mic, MicOff, PenLine, PhoneOff, V
 /* ─── Types ─── */
 type ReactionKind = 'nod' | 'note' | 'lookaway' | null
 
-/* ─── Helpers ─── */
+interface SimConfig {
   concoursId: string
   concoursIntitulé: string
   rubriqueJury: Record<string, unknown>
