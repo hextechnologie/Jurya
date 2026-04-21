@@ -11,7 +11,12 @@ export interface VoiceSettings {
 
 export interface JuryMemberConfig {
   id: SpeakerId
+  /** Full name used for TTS introduction: "M. François Bernard" or "Mme Catherine Laurent" */
   name: string
+  /** Display name for the tile (civility + last name only): "M. Bernard" or "Mme Laurent" */
+  displayName: string
+  /** 2-letter initials (first letter of first name + first letter of last name): "FB" or "CL" */
+  initials: string
   roleLabel: string
   gender: 'female' | 'male'
   elevenlabsVoiceId: string
@@ -47,14 +52,29 @@ const MALE_FIRST_NAMES = [
   'Alain', 'Pierre', 'Jean-Paul', 'Denis', 'Gilles',
 ]
 
+const FEMALE_FIRST_NAMES = [
+  'Catherine', 'Isabelle', 'Anne', 'Sophie', 'Claire',
+  'Sylvie', 'Nathalie', 'Brigitte', 'Monique', 'Françoise',
+]
+
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
 function shuffled<T>(arr: T[]): T[] { return [...arr].sort(() => Math.random() - 0.5) }
+
+type NameResult = { name: string; displayName: string; initials: string }
+function mName(first: string, last: string): NameResult {
+  return { name: `M. ${first} ${last}`, displayName: `M. ${last}`, initials: first[0] + last[0] }
+}
+function fName(first: string, last: string): NameResult {
+  return { name: `Mme ${first} ${last}`, displayName: `Mme ${last}`, initials: first[0] + last[0] }
+}
 
 // ── Default jury (stable fallback used server-side or when config missing) ─
 export const DEFAULT_JURY: JuryMemberConfig[] = [
   {
     id: 'president',
-    name: 'Mme Laurent',
+    name: 'Mme Catherine Laurent',
+    displayName: 'Mme Laurent',
+    initials: 'CL',
     roleLabel: 'Présidente',
     gender: 'female',
     elevenlabsVoiceId: V.FEMALE_1,
@@ -65,8 +85,10 @@ export const DEFAULT_JURY: JuryMemberConfig[] = [
   },
   {
     id: 'technique',
-    name: 'M. Bernard',
-    roleLabel: 'Technique',
+    name: 'M. Marc Bernard',
+    displayName: 'M. Bernard',
+    initials: 'MB',
+    roleLabel: 'Expert technique',
     gender: 'male',
     elevenlabsVoiceId: V.MALE_1,
     breathingDelay: 2.7,
@@ -76,8 +98,10 @@ export const DEFAULT_JURY: JuryMemberConfig[] = [
   },
   {
     id: 'rh',
-    name: 'Mme Moreau',
-    roleLabel: 'RH',
+    name: 'Mme Sophie Moreau',
+    displayName: 'Mme Moreau',
+    initials: 'SM',
+    roleLabel: 'Ressources humaines',
     gender: 'female',
     elevenlabsVoiceId: V.FEMALE_2,
     breathingDelay: 5.1,
@@ -96,13 +120,14 @@ export const DEFAULT_JURY: JuryMemberConfig[] = [
  * - Web Speech fallback pitches are more distinct between genders
  */
 export function getRandomJury(): JuryMemberConfig[] {
-  const femaleSurnames = shuffled(FEMALE_SURNAMES)
-  const maleSurnames   = shuffled(MALE_SURNAMES)
-  const maleFirstNames = shuffled(MALE_FIRST_NAMES)
+  const femaleSurnames  = shuffled(FEMALE_SURNAMES)
+  const femaleFirstNames = shuffled(FEMALE_FIRST_NAMES)
+  const maleSurnames    = shuffled(MALE_SURNAMES)
+  const maleFirstNames  = shuffled(MALE_FIRST_NAMES)
   let fi = 0, mi = 0
 
-  const nextFemale = () => `Mme ${femaleSurnames[fi++]}`
-  const nextMale   = () => `M. ${maleFirstNames[mi]} ${maleSurnames[mi++]}`
+  const nextFemale = (): NameResult => fName(femaleFirstNames[fi % femaleFirstNames.length], femaleSurnames[fi++ % femaleSurnames.length])
+  const nextMale   = (): NameResult => mName(maleFirstNames[mi % maleFirstNames.length], maleSurnames[mi++ % maleSurnames.length])
 
   // Rotate female voices between roles
   const femaleVoices = Math.random() < 0.5
@@ -117,10 +142,11 @@ export function getRandomJury(): JuryMemberConfig[] {
   const presidentIsMale = Math.random() < 0.5
   const techniqueIsFemale = Math.random() < 0.35
 
+  const pn = presidentIsMale ? nextMale() : nextFemale()
   const president: JuryMemberConfig = presidentIsMale
     ? {
         id: 'president',
-        name: nextMale(),
+        name: pn.name, displayName: pn.displayName, initials: pn.initials,
         roleLabel: 'Président',
         gender: 'male',
         elevenlabsVoiceId: maleVoices[0],
@@ -131,7 +157,7 @@ export function getRandomJury(): JuryMemberConfig[] {
       }
     : {
         id: 'president',
-        name: nextFemale(),
+        name: pn.name, displayName: pn.displayName, initials: pn.initials,
         roleLabel: 'Présidente',
         gender: 'female',
         elevenlabsVoiceId: femaleVoices[0],
@@ -141,11 +167,12 @@ export function getRandomJury(): JuryMemberConfig[] {
         voiceSettings: { stability: 0.38, similarity_boost: 0.78, style: 0.40, use_speaker_boost: true },
       }
 
+  const tn = techniqueIsFemale ? nextFemale() : nextMale()
   const technique: JuryMemberConfig = techniqueIsFemale
     ? {
         id: 'technique',
-        name: nextFemale(),
-        roleLabel: 'Technique',
+        name: tn.name, displayName: tn.displayName, initials: tn.initials,
+        roleLabel: 'Expert technique',
         gender: 'female',
         elevenlabsVoiceId: femaleVoices[1],
         breathingDelay: 2.7,
@@ -155,8 +182,8 @@ export function getRandomJury(): JuryMemberConfig[] {
       }
     : {
         id: 'technique',
-        name: nextMale(),
-        roleLabel: 'Technique',
+        name: tn.name, displayName: tn.displayName, initials: tn.initials,
+        roleLabel: 'Expert technique',
         gender: 'male',
         elevenlabsVoiceId: presidentIsMale ? maleVoices[1] : maleVoices[0],
         breathingDelay: 2.7,
@@ -165,12 +192,13 @@ export function getRandomJury(): JuryMemberConfig[] {
         voiceSettings: { stability: 0.52, similarity_boost: 0.82, style: 0.18, use_speaker_boost: true },
       }
 
+  const rn = nextFemale()
   const rh: JuryMemberConfig = {
     id: 'rh',
-    name: nextFemale(),
-    roleLabel: 'RH',
+    name: rn.name, displayName: rn.displayName, initials: rn.initials,
+    roleLabel: 'Ressources humaines',
     gender: 'female',
-    elevenlabsVoiceId: techniqueIsFemale ? V.FEMALE_1 : femaleVoices[techniqueIsFemale ? 1 : 0],
+    elevenlabsVoiceId: techniqueIsFemale ? V.FEMALE_1 : femaleVoices[0],
     breathingDelay: 5.1,
     fallbackPitch: 1.10 + Math.random() * 0.10,
     fallbackRate: 0.88 + Math.random() * 0.06,

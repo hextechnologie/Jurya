@@ -7,10 +7,12 @@ import { useAuth } from '@/components/AuthProvider'
 import { useSpeechRecognition, useJuryVoice, useSimulationTimer, useAudioLevel } from '@/lib/hooks/useVoice'
 import { SimulationPhase, SimulationTurn, getPhaseLabel, countFillerWords } from '@/lib/types/simulation'
 import { DEFAULT_JURY, getJuryMember, getRandomJury, type SpeakerId, type JuryMemberConfig } from '@/lib/juries/voices'
-import { LogOut, Clock, Loader2, CheckCircle2, Mic, PenLine, Square, Video, VideoOff } from 'lucide-react'
+import { LogOut, Clock, Loader2, CheckCircle2, Mic, MicOff, PenLine, PhoneOff, Video, VideoOff } from 'lucide-react'
 
 /* ─── Types ─── */
-interface SimConfig {
+type ReactionKind = 'nod' | 'note' | 'lookaway' | null
+
+/* ─── Helpers ─── */
   concoursId: string
   concoursIntitulé: string
   rubriqueJury: Record<string, unknown>
@@ -35,28 +37,40 @@ function JuryTile({
   member,
   isActiveSpeaker,
   isThinking,
-  hasMicReaction,
+  reaction,
   concoursSlug,
   dimmed,
 }: {
   member: JuryMemberConfig
   isActiveSpeaker: boolean
   isThinking: boolean
-  hasMicReaction: boolean
+  reaction: ReactionKind
   concoursSlug: string
   dimmed: boolean
 }) {
   const [imgError, setImgError] = useState(false)
   const photoSrc = `/juries/${concoursSlug}/${member.id}.jpg`
 
+  const opacity = reaction === 'lookaway'
+    ? (dimmed ? 0.55 : 0.82)
+    : (dimmed ? 0.68 : 1)
+
+  const transform = reaction === 'nod' ? 'translateY(-3px) scale(1)' : undefined
+  const transitionStyle = reaction === 'nod'
+    ? 'transform 0.25s ease-out, opacity 0.3s, box-shadow 0.3s'
+    : 'all 0.3s'
+
   return (
     <div
-      className="relative rounded-xl overflow-hidden transition-all duration-300 select-none"
+      className="relative rounded-xl overflow-hidden select-none jury-card"
       style={{
         aspectRatio: '4/3',
         border: isActiveSpeaker ? '2px solid #818CF8' : '2px solid transparent',
         boxShadow: isActiveSpeaker ? '0 0 24px rgba(129,140,248,0.35)' : 'none',
-        opacity: dimmed ? 0.68 : 1,
+        opacity,
+        transform,
+        transition: transitionStyle,
+        animationDelay: `${member.breathingDelay}s`,
       }}
     >
       {/* Photo or gradient placeholder */}
@@ -65,31 +79,24 @@ function JuryTile({
           src={photoSrc}
           alt={member.name}
           className="w-full h-full object-cover"
-          style={{
-            animation: `breathe 8s ease-in-out infinite ${member.breathingDelay}s`,
-            transformOrigin: 'center',
-          }}
           onError={() => setImgError(true)}
         />
       ) : (
-        <div
-          className="w-full h-full flex items-center justify-center"
+          <div className="w-full h-full flex items-center justify-center"
           style={{
             background: member.gender === 'female'
               ? 'linear-gradient(135deg,#4c1d95 0%,#312e81 50%,#1e1b4b 100%)'
               : 'linear-gradient(135deg,#1e3a5f 0%,#1e293b 50%,#0f172a 100%)',
-            animation: `breathe 8s ease-in-out infinite ${member.breathingDelay}s`,
-            transformOrigin: 'center',
           }}
-        >
-          <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-1">
-              <span className="text-white/80 text-xl font-bold select-none">
-                {member.name.split(' ').map((w: string) => w[0]).join('')}
-              </span>
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-1">
+                <span className="text-white/80 text-xl font-bold select-none">
+                  {member.initials}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
       )}
 
       {/* Waveform bars when speaking */}
@@ -122,24 +129,30 @@ function JuryTile({
         </div>
       )}
 
-      {/* Mic icon top-right */}
+      {/* Mic icon top-right: active (emerald) when speaking, muted (slate) otherwise */}
       <div className="absolute top-2 right-2">
         <div className="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
-          <Mic className="w-3 h-3 text-white" />
+          {isActiveSpeaker
+            ? <Mic className="w-3 h-3 text-emerald-400" />
+            : <MicOff className="w-3 h-3 text-slate-500" />
+          }
         </div>
       </div>
 
       {/* Micro-reaction: note-taking icon */}
-      {hasMicReaction && (
-        <div className="absolute top-2 left-2 animate-bounce">
-          <PenLine className="w-4 h-4 text-white/80 drop-shadow" />
+      {reaction === 'note' && (
+        <div className="absolute top-2 left-2" style={{ animation: 'fadeInOut 1.5s ease-in-out forwards' }}>
+          <PenLine className="w-4 h-4 text-white/70 drop-shadow" />
         </div>
       )}
 
-      {/* Name bar */}
-      <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5" style={{ background: 'rgba(0,0,0,0.62)' }}>
-        <p className="text-white font-medium" style={{ fontSize: '13px' }}>
-          {member.name} · {member.roleLabel}
+      {/* Name bar — displayName (14px/500) + roleLabel (12px/400) on separate lines */}
+      <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5" style={{ background: 'rgba(0,0,0,0.68)' }}>
+        <p className="text-slate-100" style={{ fontSize: '14px', fontWeight: 500, lineHeight: 1.2 }}>
+          {member.displayName}
+        </p>
+        <p className="text-slate-400" style={{ fontSize: '12px', fontWeight: 400, lineHeight: 1.2 }}>
+          {member.roleLabel}
         </p>
       </div>
     </div>
@@ -174,16 +187,15 @@ function CandidateTile({ isListening, isSpeaking, audioLevel, candidateName, ava
         boxShadow: glowColor !== 'none' ? `0 0 20px ${glowColor}` : 'none',
       }}
     >
-      {/* Webcam feed */}
-      {webcamActive && (
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
+      {/* Webcam feed — always in DOM so videoRef is always valid; hidden when inactive */}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ display: webcamActive ? 'block' : 'none' }}
+      />
 
       {/* Avatar / gradient when webcam off */}
       {!webcamActive && (
@@ -231,89 +243,6 @@ function CandidateTile({ isListening, isSpeaking, audioLevel, candidateName, ava
   )
 }
 
-/* ─── Central Speak Button ─── */
-function SpeakButton({
-  juryIsSpeaking,
-  isThinking,
-  isListening,
-  listenEnabled,
-  ending,
-  onManualSubmit,
-}: {
-  juryIsSpeaking: boolean
-  isThinking: boolean
-  isListening: boolean
-  listenEnabled: boolean
-  ending: boolean
-  onManualSubmit: () => void
-}) {
-  // State 1: jury speaks / thinking → disabled
-  if (juryIsSpeaking || isThinking || ending) {
-    return (
-      <div className="flex flex-col items-center gap-2">
-        <p className="text-xs text-gray-500">
-          {juryIsSpeaking ? 'Écoutez attentivement' : isThinking ? 'Le jury réfléchit…' : ''}
-        </p>
-        <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-white/10 flex items-center justify-center opacity-40 cursor-not-allowed">
-          <Mic className="w-8 h-8 text-gray-500" />
-        </div>
-      </div>
-    )
-  }
-
-  // State 2: candidate speaking → red pulsing
-  if (isListening) {
-    return (
-      <div className="flex flex-col items-center gap-3">
-        <p className="text-xs text-red-300 font-medium tracking-wide">Le jury vous écoute</p>
-        <button
-          onClick={onManualSubmit}
-          className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
-          style={{
-            background: 'rgba(239,68,68,0.15)',
-            border: '2px solid rgba(239,68,68,0.6)',
-            boxShadow: '0 0 28px rgba(239,68,68,0.3)',
-          }}
-        >
-          <span
-            className="absolute inset-0 rounded-full animate-ping"
-            style={{ background: 'rgba(239,68,68,0.2)', animationDuration: '1.4s' }}
-          />
-          <Square className="w-7 h-7 text-red-400 relative z-10" fill="currentColor" />
-        </button>
-        <button
-          onClick={onManualSubmit}
-          className="text-xs text-gray-400 hover:text-gray-200 transition-colors underline underline-offset-4"
-        >
-          J&apos;ai terminé ma réponse
-        </button>
-      </div>
-    )
-  }
-
-  // State 3: candidate's turn → indigo pulsing
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <p className="text-xs text-indigo-300 font-medium tracking-wide">À vous de parler</p>
-      <button
-        className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative cursor-default"
-        style={{
-          background: 'rgba(99,102,241,0.15)',
-          border: '2px solid rgba(99,102,241,0.55)',
-          boxShadow: '0 0 28px rgba(99,102,241,0.25)',
-        }}
-      >
-        <span
-          className="absolute inset-0 rounded-full animate-ping"
-          style={{ background: 'rgba(99,102,241,0.15)', animationDuration: '2s' }}
-        />
-        <Mic className="w-8 h-8 text-indigo-400 relative z-10" />
-      </button>
-      <p className="text-xs text-gray-600">Le micro capte votre voix automatiquement</p>
-    </div>
-  )
-}
-
 /* ─── Timer ─── */
 function TimerBadge({ remaining, total }: { remaining: number; total: number }) {
   const pct = total > 0 ? remaining / total : 1
@@ -330,16 +259,18 @@ function TimerBadge({ remaining, total }: { remaining: number; total: number }) 
 
 /* ─── Micro-reactions hook ─── */
 function useMicroReactions(currentSpeakerId: SpeakerId) {
-  const [reactions, setReactions] = useState<Partial<Record<SpeakerId, boolean>>>({})
+  const [reactions, setReactions] = useState<Partial<Record<SpeakerId, ReactionKind>>>({})
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Math.random() < 0.28) {
+      if (Math.random() < 0.40) {
         const inactive = (['president', 'technique', 'rh'] as SpeakerId[]).filter(id => id !== currentSpeakerId)
         const target = inactive[Math.floor(Math.random() * inactive.length)]
-        setReactions(prev => ({ ...prev, [target]: true }))
-        setTimeout(() => setReactions(prev => ({ ...prev, [target]: false })), 500)
+        const kind = (['nod', 'note', 'lookaway'] as const)[Math.floor(Math.random() * 3)]
+        setReactions(prev => ({ ...prev, [target]: kind }))
+        const dur = kind === 'note' ? 1500 : kind === 'nod' ? 450 : 800
+        setTimeout(() => setReactions(prev => ({ ...prev, [target]: null })), dur)
       }
-    }, 5000)
+    }, 12000)
     return () => clearInterval(interval)
   }, [currentSpeakerId])
   return reactions
@@ -660,13 +591,16 @@ export default function SimulationSessionPage() {
     juryVoice.stop()
     stopAudioLevel()
 
-    // Mark simulation as completed immediately — do not rely solely on the report API
+    // Mark simulation as completed — await to ensure DB is updated BEFORE navigating
+    // (fixes dashboard still showing 'new' after completing a simulation)
     const elapsedSec = Math.floor((Date.now() - new Date(sessionStartRef.current).getTime()) / 1000)
-    supabase.from('simulations').update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      actual_duration_seconds: elapsedSec,
-    }).eq('id', simulationId).then(() => {}, () => {})
+    try {
+      await supabase.from('simulations').update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        actual_duration_seconds: elapsedSec,
+      }).eq('id', simulationId)
+    } catch { /* best-effort — report API will also update via admin */ }
 
     router.push(`/simulation/rapport/${simulationId}`)
 
@@ -693,6 +627,7 @@ export default function SimulationSessionPage() {
     fetch('/api/simulation/report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      keepalive: true, // keep request alive after page navigation
       body: JSON.stringify({
         simulationId,
         turns: snapshot.map(t => ({ turnIndex: t.turnIndex, role: t.role, contentText: t.contentText, phase: t.phase })),
@@ -748,6 +683,25 @@ export default function SimulationSessionPage() {
 
   return (
     <div className="h-screen bg-[#0F1629] flex flex-col overflow-hidden select-none text-white">
+      {/* CSS keyframes for jury animations */}
+      <style>{`
+        @keyframes jury-breathing {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.015); }
+        }
+        @keyframes fadeInOut {
+          0% { opacity: 0; } 20% { opacity: 0.7; } 80% { opacity: 0.7; } 100% { opacity: 0; }
+        }
+        @keyframes micPulseIndigo {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+          50% { box-shadow: 0 0 0 10px rgba(99,102,241,0.15); }
+        }
+        @keyframes micPulseEmerald {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+          50% { box-shadow: 0 0 0 8px rgba(52,211,153,0.12); }
+        }
+        .jury-card { animation: jury-breathing 10s ease-in-out infinite; }
+      `}</style>
 
       {/* ══ Phase overlay ══ */}
       {phaseOverlay && (
@@ -823,7 +777,7 @@ export default function SimulationSessionPage() {
               member={member}
               isActiveSpeaker={currentSpeakerId === member.id && (juryVoice.isSpeaking || isAiThinking)}
               isThinking={isAiThinking && currentSpeakerId === member.id}
-              hasMicReaction={!!reactions[member.id]}
+              reaction={(reactions[member.id] ?? null) as ReactionKind}
               concoursSlug={concoursSlug}
               dimmed={
                 (juryVoice.isSpeaking || isAiThinking) &&
@@ -843,19 +797,18 @@ export default function SimulationSessionPage() {
           ) : juryMessage ? (
             <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3">
               <p className="text-xs text-[#818CF8] font-medium mb-1">
-                {getJuryMember(currentSpeakerId, juryConfig).name} · {getJuryMember(currentSpeakerId, juryConfig).roleLabel}
+                {getJuryMember(currentSpeakerId, juryConfig).displayName} · {getJuryMember(currentSpeakerId, juryConfig).roleLabel}
               </p>
               <p className="text-sm text-gray-200 leading-relaxed">{juryMessage}</p>
             </div>
           ) : null}
 
-          {/* Live transcript */}
-          {(speech.transcript || speech.interimTranscript) && (
-            <div className="bg-indigo-500/8 border border-indigo-500/15 rounded-xl px-4 py-2.5">
-              <p className="text-xs text-indigo-400 font-medium mb-1">Vous parlez…</p>
-              <p className="text-sm text-slate-400 leading-relaxed">
+          {/* Live transcript — shown only when candidate is speaking (jury silent) */}
+          {!juryVoice.isSpeaking && !isAiThinking && (speech.transcript || speech.interimTranscript) && (
+            <div className="flex-1 flex items-center justify-center px-8">
+              <p className="text-lg text-slate-500 italic leading-relaxed text-center max-w-[720px]">
                 {speech.transcript}
-                <span className="text-gray-600 italic">{speech.interimTranscript}</span>
+                <span className="text-slate-600">{speech.interimTranscript}</span>
               </p>
             </div>
           )}
@@ -864,22 +817,118 @@ export default function SimulationSessionPage() {
         </div>
       </main>
 
-      {/* ══ Footer — central SpeakButton ══ */}
-      <footer className="shrink-0 border-t border-white/10 bg-[#0d1526]/80 backdrop-blur-sm px-4 py-5">
-        <div className="max-w-3xl mx-auto flex items-center justify-center">
-          <SpeakButton
-            juryIsSpeaking={juryVoice.isSpeaking}
-            isThinking={isAiThinking}
-            isListening={speech.isListening}
-            listenEnabled={listenEnabled}
-            ending={ending}
-            onManualSubmit={handleManualSubmit}
-          />
+      {/* ══ Footer — Zoom-style audio toolbar ══ */}
+      <footer className="shrink-0 bg-[#0d1526]/80 backdrop-blur-sm px-4 pb-6 pt-2">
+        {/* State label */}
+        <p className="text-center text-xs font-medium text-slate-400 mb-2">
+          {(juryVoice.isSpeaking || isAiThinking || ending)
+            ? 'Le jury s’exprime'
+            : (speech.transcript || speech.interimTranscript)
+              ? 'Micro ouvert'
+              : 'C’est à vous'
+          }
+        </p>
+        {/* Toolbar pill */}
+        <div
+          className="flex items-center gap-3 mx-auto"
+          style={{
+            background: 'rgba(15,23,42,0.85)',
+            backdropFilter: 'blur(12px)',
+            border: '0.5px solid rgba(255,255,255,0.08)',
+            borderRadius: '100px',
+            padding: '8px 16px',
+            width: 'fit-content',
+          }}
+        >
+          {/* Mic button — 3 states */}
+          {(() => {
+            const juryActive = juryVoice.isSpeaking || isAiThinking || ending
+            const isTalking = !juryActive && !!(speech.transcript || speech.interimTranscript)
+            if (juryActive) {
+              return (
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{ background: '#1e293b', opacity: 0.5, cursor: 'not-allowed' }}
+                >
+                  <MicOff className="w-5 h-5 text-slate-500" />
+                </div>
+              )
+            }
+            if (isTalking) {
+              return (
+                <button
+                  onClick={handleManualSubmit}
+                  className="w-12 h-12 rounded-full flex items-center justify-center transition-all"
+                  style={{
+                    background: '#334155',
+                    border: '2px solid #34d399',
+                    animation: 'micPulseEmerald 2s ease-in-out infinite',
+                  }}
+                  title="Cliquez pour terminer votre réponse"
+                >
+                  <Mic className="w-5 h-5 text-white" />
+                </button>
+              )
+            }
+            return (
+              <button
+                onClick={handleManualSubmit}
+                className="w-12 h-12 rounded-full flex items-center justify-center transition-all"
+                style={{
+                  background: '#6366f1',
+                  animation: 'micPulseIndigo 2.5s ease-in-out infinite',
+                }}
+                title="Le micro capte votre voix automatiquement"
+              >
+                <Mic className="w-5 h-5 text-white" />
+              </button>
+            )
+          })()}
+
+          {/* Camera toggle */}
+          <button
+            onClick={() => {
+              if (webcamActive) {
+                if (videoRef.current?.srcObject) {
+                  (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop())
+                  videoRef.current.srcObject = null
+                }
+                setWebcamActive(false)
+              } else {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                  .then(s => { if (videoRef.current) { videoRef.current.srcObject = s } setWebcamActive(true) })
+                  .catch(() => {})
+              }
+            }}
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-all"
+            style={{ background: webcamActive ? '#334155' : '#1e293b' }}
+            title={webcamActive ? 'Désactiver la caméra' : 'Activer la caméra'}
+          >
+            {webcamActive
+              ? <Video className="w-5 h-5 text-white" />
+              : <VideoOff className="w-5 h-5 text-slate-400" />
+            }
+          </button>
+
+          {/* Separator */}
+          <div className="w-px h-6 bg-slate-700" />
+
+          {/* Quit button */}
+          <button
+            onClick={() => setShowQuitConfirm(true)}
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-all"
+            style={{ background: 'rgba(239,68,68,0.10)' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.20)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.10)')}
+            title="Quitter la simulation"
+          >
+            <PhoneOff className="w-5 h-5 text-red-400" />
+          </button>
         </div>
       </footer>
 
       {/* ══ Fixed bottom-right: candidate tile ══ */}
-      <div className="fixed bottom-4 right-4 z-40 flex flex-col items-center gap-1">
+      <div className="fixed bottom-4 right-4 z-40">
         <CandidateTile
           isListening={speech.isListening}
           isSpeaking={!juryVoice.isSpeaking && !isAiThinking && listenEnabled}
@@ -889,26 +938,6 @@ export default function SimulationSessionPage() {
           videoRef={videoRef}
           webcamActive={webcamActive}
         />
-        <button
-          onClick={() => {
-            if (webcamActive) {
-              if (videoRef.current?.srcObject) {
-                (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop())
-                videoRef.current.srcObject = null
-              }
-              setWebcamActive(false)
-            } else {
-              navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-                .then(s => { if (videoRef.current) videoRef.current.srcObject = s; setWebcamActive(true) })
-                .catch(() => {})
-            }
-          }}
-          className="flex items-center gap-1 text-gray-600 hover:text-gray-400 transition-colors text-xs"
-          title={webcamActive ? 'Désactiver la caméra' : 'Activer la caméra'}
-        >
-          {webcamActive ? <VideoOff className="w-3 h-3" /> : <Video className="w-3 h-3" />}
-          {webcamActive ? 'Désactiver cam' : 'Activer cam'}
-        </button>
       </div>
     </div>
   )

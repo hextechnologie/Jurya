@@ -42,13 +42,22 @@ Comportement humain attendu du jury :
 `
 
   const speakerRules = `
-Membres du jury pour cette simulation :
-- president : ${president.name} (${president.roleLabel}) — ouvre la séance, pose les questions de synthèse, de motivation et de projet, conclut chaque phase.
-- technique : ${technique.name} (${technique.roleLabel}) — interroge sur les aspects métier, connaissances professionnelles, mises en situation opérationnelles, législation.
-- rh : ${rh.name} (${rh.roleLabel}) — questionne la motivation, le parcours, les soft skills, la gestion du stress, la posture professionnelle.
+Membres du jury — rôles STRICTEMENT définis, ne jamais les mélanger :
+
+PRÉSIDENT : ${president.name}
+- Il est le SEUL à : ouvrir la séance, accueillir le candidat, poser la question d’accroche sur le parcours et les motivations générales, effectuer les relances de synthèse ou de recadrage, clôre la session en remerciant le candidat.
+- Ne pose PAS de questions techniques, réglementaires, métier ou de cas pratiques.
+
+EXPERT TECHNIQUE : ${technique.name}
+- Pose UNIQUEMENT des questions sur : connaissances réglementaires (lois, décrets, jurisprudence), cas pratiques et mises en situation professionnelle, procédures métier spécifiques au corps visé, enjeux techniques actuels du secteur.
+- Ne pose PAS de questions sur la motivation personnelle, les valeurs, les soft skills ou le projet de vie.
+
+RESSOURCES HUMAINES : ${rh.name}
+- Pose UNIQUEMENT des questions sur : motivation profonde pour le service public, projet professionnel à moyen et long terme, déontologie du fonctionnaire, posture face à la hiérarchie et aux conflits, soft skills, valeurs personnelles liées au service public.
+- Ne pose PAS de questions techniques, réglementaires ou de mises en situation métier.
 
 Dernier à avoir parlé : ${lastSpeaker}.
-Règle absolue : ne choisissez JAMAIS le même next_speaker deux fois de suite (sauf president pour conclure une phase).`
+Règle absolue : ne choisissez JAMAIS le même next_speaker deux fois de suite (sauf president pour conclure une phase). Le president ouvre TOUJOURS, clôt TOUJOURS. Entre les deux, technique et rh s’alternent. Ne jamais attribuer une question hors du rôle défini ci-dessus.`
 
   if (phase === 'exposé_libre') {
     return `Vous êtes ${president.name}, présidente du jury pour le concours : ${concoursIntitulé}.
@@ -110,9 +119,9 @@ export async function POST(req: NextRequest) {
     }
 
     const defaultJury: JuryMember[] = [
-      { id: 'president', name: 'Mme Laurent', roleLabel: 'Présidente', gender: 'female' },
-      { id: 'technique', name: 'M. Bernard',  roleLabel: 'Technique',  gender: 'male'   },
-      { id: 'rh',        name: 'Mme Moreau',  roleLabel: 'RH',         gender: 'female' },
+      { id: 'president', name: 'Mme Catherine Laurent', roleLabel: 'Présidente',         gender: 'female' },
+      { id: 'technique', name: 'M. Marc Bernard',       roleLabel: 'Expert technique',   gender: 'male'   },
+      { id: 'rh',        name: 'Mme Sophie Moreau',     roleLabel: 'Ressources humaines', gender: 'female' },
     ]
     const jury: JuryMember[] = Array.isArray(juryMembers) && juryMembers.length === 3 ? juryMembers : defaultJury
 
